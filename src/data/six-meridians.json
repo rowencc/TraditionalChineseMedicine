@@ -1,0 +1,8 @@
+[
+  {"name": "太阳", "description": "表证", "symptoms": ["发热", "恶寒", "头痛", "项强", "脉浮"], "formula": "桂枝汤、麻黄汤"},
+  {"name": "阳明", "description": "里热证", "symptoms": ["壮热", "大汗", "大渴", "脉洪大", "便秘"], "formula": "白虎汤、承气汤"},
+  {"name": "少阳", "description": "半表半里证", "symptoms": ["往来寒热", "胸胁苦满", "口苦", "咽干", "目眩"], "formula": "小柴胡汤"},
+  {"name": "太阴", "description": "脾虚寒湿证", "symptoms": ["腹痛", "呕吐", "下利", "不渴", "脉缓弱"], "formula": "理中汤"},
+  {"name": "少阴", "description": "心肾阳虚证", "symptoms": ["畏寒", "蜷卧", "四肢厥逆", "脉微细", "但欲寐"], "formula": "四逆汤、真武汤"},
+  {"name": "厥阴", "description": "寒热错杂证", "symptoms": ["消渴", "气上撞心", "心中疼热", "饥不欲食", "下利"], "formula": "乌梅丸"}
+]

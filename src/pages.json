@@ -1,0 +1,117 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "倪海厦中医",
+        "navigationBarBackgroundColor": "#8B0000",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/formulas/index",
+      "style": {
+        "navigationBarTitleText": "方剂速查"
+      }
+    },
+    {
+      "path": "pages/formulas/detail",
+      "style": {
+        "navigationBarTitleText": "方剂详情"
+      }
+    },
+    {
+      "path": "pages/herbs/index",
+      "style": {
+        "navigationBarTitleText": "药物查询"
+      }
+    },
+    {
+      "path": "pages/herbs/detail",
+      "style": {
+        "navigationBarTitleText": "药物详情"
+      }
+    },
+    {
+      "path": "pages/cases/index",
+      "style": {
+        "navigationBarTitleText": "医案浏览"
+      }
+    },
+    {
+      "path": "pages/cases/detail",
+      "style": {
+        "navigationBarTitleText": "医案详情"
+      }
+    },
+    {
+      "path": "pages/diagnosis/index",
+      "style": {
+        "navigationBarTitleText": "六经辨证"
+      }
+    },
+    {
+      "path": "pages/acupuncture/index",
+      "style": {
+        "navigationBarTitleText": "针灸穴位"
+      }
+    },
+    {
+      "path": "pages/acupuncture/detail",
+      "style": {
+        "navigationBarTitleText": "穴位详情"
+      }
+    },
+    {
+      "path": "pages/about/index",
+      "style": {
+        "navigationBarTitleText": "关于"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "倪海厦中医",
+    "navigationBarBackgroundColor": "#8B0000",
+    "backgroundColor": "#f8f8f8",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#8B0000",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tab-home.png",
+        "selectedIconPath": "static/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/acupuncture/index",
+        "text": "穴位",
+        "iconPath": "static/tab-acupuncture.png",
+        "selectedIconPath": "static/tab-acupuncture-active.png"
+      },
+      {
+        "pagePath": "pages/formulas/index",
+        "text": "方剂",
+        "iconPath": "static/tab-formula.png",
+        "selectedIconPath": "static/tab-formula-active.png"
+      },
+      {
+        "pagePath": "pages/herbs/index",
+        "text": "药物",
+        "iconPath": "static/tab-herb.png",
+        "selectedIconPath": "static/tab-herb-active.png"
+      },
+      {
+        "pagePath": "pages/cases/index",
+        "text": "医案",
+        "iconPath": "static/tab-case.png",
+        "selectedIconPath": "static/tab-case-active.png"
+      }
+    ]
+  }
+}
