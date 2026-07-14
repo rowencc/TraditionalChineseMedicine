@@ -1,21 +1,41 @@
-/* 主题色 */
-$primary-color: #8B0000;
-$primary-light: #A52A2A;
-$primary-dark: #5C0000;
+/* 岐黄小识 设计系统 */
 
-/* 文字颜色 */
-$text-color: #333333;
+/* 主色 - 朱砂红 */
+$primary: #8B2500;
+$primary-light: #A63A1E;
+$primary-dark: #6B1D00;
+$primary-bg: rgba(139, 37, 0, 0.06);
+
+/* 辅色 - 青玉绿 */
+$secondary: #2D5F4A;
+$secondary-light: #3D7A62;
+$secondary-bg: rgba(45, 95, 74, 0.06);
+
+/* 点缀 - 金箔色 */
+$accent: #B8860B;
+$accent-light: #D4A017;
+
+/* 背景 - 宣纸色 */
+$bg-base: #F5F0E8;
+$bg-card: #FFFFFF;
+$bg-elevated: #FAFAF7;
+
+/* 文字 - 墨色 */
+$text-primary: #2C2C2C;
 $text-secondary: #666666;
 $text-muted: #999999;
 
-/* 背景色 */
-$bg-color: #f8f8f8;
-$bg-white: #ffffff;
-$bg-card: #fafafa;
-
 /* 边框 */
-$border-color: #eee;
-$border-radius: 12rpx;
+$border: #E8E0D4;
+$border-light: #F0EBE3;
+
+/* 六经色彩 */
+$sun-red: #C0392B;
+$yangming-orange: #E67E22;
+$shaoyang-yellow: #F39C12;
+$taiyin-brown: #8B4513;
+$shaoyin-blue: #2980B9;
+$jueyin-purple: #8E44AD;
 
 /* 间距 */
 $spacing-xs: 8rpx;
@@ -23,3 +43,13 @@ $spacing-sm: 16rpx;
 $spacing-md: 24rpx;
 $spacing-lg: 32rpx;
 $spacing-xl: 48rpx;
+
+/* 圆角 */
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 16rpx;
+
+/* 阴影 */
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);

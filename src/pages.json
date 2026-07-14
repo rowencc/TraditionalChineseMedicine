@@ -3,8 +3,8 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "倪海厦中医",
-        "navigationBarBackgroundColor": "#8B0000",
+        "navigationBarTitleText": "岐黄小识",
+        "navigationBarBackgroundColor": "#8B2500",
         "navigationBarTextStyle": "white"
       }
     },
@@ -71,14 +71,14 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "倪海厦中医",
-    "navigationBarBackgroundColor": "#8B0000",
-    "backgroundColor": "#f8f8f8",
+    "navigationBarTitleText": "岐黄小识",
+    "navigationBarBackgroundColor": "#8B2500",
+    "backgroundColor": "#F5F0E8",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
     "color": "#999",
-    "selectedColor": "#8B0000",
+    "selectedColor": "#8B2500",
     "borderStyle": "black",
     "backgroundColor": "#ffffff",
     "list": [

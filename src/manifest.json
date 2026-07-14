@@ -1,7 +1,7 @@
 {
-  "name": "倪海厦中医",
+  "name": "岐黄小识",
   "appid": "",
-  "description": "倪海厦中医知识查询小程序",
+  "description": "经方中医学习工具 - 基于倪海厦中医知识体系",
   "versionName": "1.0.0",
   "versionCode": "100",
   "transformPx": false,
@@ -19,7 +19,7 @@
     }
   },
   "h5": {
-    "title": "倪海厦中医",
+    "title": "岐黄小识 - 经方中医学习工具",
     "router": {
       "mode": "hash"
     }
