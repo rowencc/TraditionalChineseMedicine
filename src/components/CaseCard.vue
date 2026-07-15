@@ -11,7 +11,7 @@
     <view class="card-tags">
       <text v-if="caseItem.meridian" class="tag meridian">六经：{{ caseItem.meridian }}</text>
       <text v-if="caseItem.treatment" class="tag treatment">方剂：{{ caseItem.treatment }}</text>
-      <text v-if="caseItem.outcome" class="tag outcome" :class="caseItem.outcome">{{ caseItem.outcome }}</text>
+      <text v-if="caseItem.outcome" class="tag" :class="outcomeClass">{{ caseItem.outcome }}</text>
     </view>
   </view>
 </template>
@@ -50,6 +50,12 @@ const categoryMap: Record<string, string> = {
 }
 
 const categoryLabel = computed(() => categoryMap[props.caseItem.category] || props.caseItem.category)
+
+const outcomeClass = computed(() => {
+  if (props.caseItem.outcome === '好转') return 'outcome-improved'
+  if (props.caseItem.outcome === '痊愈') return 'outcome-cured'
+  return 'outcome-default'
+})
 
 function onTap() {
   emit('tap')
@@ -131,16 +137,16 @@ function onTap() {
   background: rgba(46, 139, 87, 0.1);
 }
 
-.tag.outcome {
+.tag.outcome-default {
   font-weight: 500;
 }
 
-.tag.outcome.好转 {
+.tag.outcome-improved {
   color: #2E8B57;
   background: rgba(46, 139, 87, 0.1);
 }
 
-.tag.outcome.痊愈 {
+.tag.outcome-cured {
   color: #fff;
   background: #2E8B57;
 }
