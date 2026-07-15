@@ -7,7 +7,6 @@
         <view class="tags">
           <text class="tag nature">{{ herb.nature }}</text>
           <text class="tag taste">{{ herb.taste }}</text>
-          <text class="tag category">{{ herb.category }}</text>
         </view>
       </view>
     </view>
@@ -16,7 +15,7 @@
     <view class="section">
       <text class="section-title">归经</text>
       <view class="tag-list">
-        <text v-for="item in herb.meridian" :key="item" class="tag meridian">{{ item }}</text>
+        <text v-for="item in meridianList" :key="item" class="tag meridian">{{ item }}</text>
       </view>
     </view>
 
@@ -32,24 +31,30 @@
       <text class="content">{{ herb.usage }}</text>
     </view>
 
+    <!-- 用量 -->
+    <view class="section" v-if="herb.dosage">
+      <text class="section-title">用量</text>
+      <text class="content">{{ herb.dosage }}</text>
+    </view>
+
     <!-- 禁忌 -->
-    <view v-if="herb.caution" class="section caution">
+    <view class="section caution" v-if="herb.caution">
       <text class="section-title">禁忌</text>
       <text class="content">{{ herb.caution }}</text>
     </view>
 
     <!-- 相关药物 -->
-    <view class="section">
+    <view class="section" v-if="relatedHerbs.length > 0">
       <text class="section-title">同归经药物</text>
       <view class="related-list">
         <view
           v-for="item in relatedHerbs"
-          :key="item.name"
+          :key="item.id || item.name"
           class="related-item"
           @tap="goToDetail(item.name)"
         >
           <text class="related-name">{{ item.name }}</text>
-          <text class="related-effect">{{ item.effect }}</text>
+          <text class="related-effect">{{ item.effect?.substring(0, 15) }}...</text>
         </view>
       </view>
     </view>
@@ -59,27 +64,51 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import herbsData from '@/data/herbs.json'
+import api from '@/utils/api'
 
+const herb = ref<any>(null)
 const herbName = ref('')
-const herb = computed(() => {
-  return herbsData.find(h => h.name === herbName.value)
-})
 
-const relatedHerbs = computed(() => {
+// 解析JSON数组
+function parseJsonArray(val: any): string[] {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') {
+    try {
+      const arr = JSON.parse(val)
+      return Array.isArray(arr) ? arr : [val]
+    } catch {
+      return val ? [val] : []
+    }
+  }
+  return []
+}
+
+const meridianList = computed(() => {
   if (!herb.value) return []
-  return herbsData
-    .filter(h => {
-      const hasCommonMeridian = h.meridian.some(m => herb.value?.meridian.includes(m))
-      return hasCommonMeridian && h.name !== herb.value?.name
-    })
-    .slice(0, 6)
+  return parseJsonArray(herb.value.meridian)
 })
 
-onLoad((options) => {
+const relatedHerbs = ref<any[]>([])
+
+onLoad(async (options) => {
   if (options?.name) {
     herbName.value = decodeURIComponent(options.name)
     uni.setNavigationBarTitle({ title: herbName.value })
+    
+    // 从服务器获取药物详情
+    try {
+      const res = await api.getHerbDetail(undefined, herbName.value)
+      if (res.code === 1 && res.data) {
+        herb.value = res.data
+        
+        // 记录学习
+        if (api.isLoggedIn()) {
+          api.recordLearning('herb', res.data.id, res.data.name)
+        }
+      }
+    } catch (e) {
+      console.error('获取药物详情失败', e)
+    }
   }
 })
 
@@ -93,12 +122,12 @@ function goToDetail(name: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F5F0E8;
   padding: 24rpx;
 }
 
 .header {
-  background: linear-gradient(135deg, #2E8B57, #3CB371);
+  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
   border-radius: 16rpx;
   padding: 40rpx;
   margin-bottom: 24rpx;
@@ -137,14 +166,9 @@ function goToDetail(name: string) {
   color: #fff;
 }
 
-.tag.category {
-  background: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
-}
-
 .tag.meridian {
-  background: rgba(46, 139, 87, 0.08);
-  color: #2E8B57;
+  background: rgba(45, 95, 74, 0.1);
+  color: #2D5F4A;
 }
 
 .section {
@@ -155,7 +179,7 @@ function goToDetail(name: string) {
 }
 
 .section.caution {
-  border-left: 4rpx solid #FF6B6B;
+  border-left: 4rpx solid #DC3545;
 }
 
 .section-title {
@@ -163,11 +187,11 @@ function goToDetail(name: string) {
   font-size: 28rpx;
   font-weight: 600;
   color: #333;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .content {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #666;
   line-height: 1.8;
 }
@@ -178,32 +202,40 @@ function goToDetail(name: string) {
   gap: 12rpx;
 }
 
+.tag {
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+}
+
+.tag.meridian {
+  background: rgba(45, 95, 74, 0.08);
+  color: #2D5F4A;
+}
+
 .related-list {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12rpx;
 }
 
 .related-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: 16rpx;
-  background: #f8f8f8;
+  background: #FAFAF7;
   border-radius: 8rpx;
 }
 
 .related-name {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 500;
   color: #333;
+  margin-bottom: 4rpx;
 }
 
 .related-effect {
   font-size: 22rpx;
   color: #999;
-  max-width: 400rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>

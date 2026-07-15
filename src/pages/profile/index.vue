@@ -1,18 +1,23 @@
 <template>
   <view class="container">
     <!-- 用户信息卡片 -->
-    <view class="user-card">
-      <view class="avatar" @tap="isLoggedIn ? null : goToLogin()">
-        <text class="avatar-text" v-if="isLoggedIn">{{ user?.username?.charAt(0).toUpperCase() }}</text>
-        <text class="avatar-text" v-else>?</text>
+    <view class="user-card" @tap="isLoggedIn ? showEditModal = true : goToLogin()">
+      <view class="avatar-wrap">
+        <image v-if="user?.avatarUrl" class="avatar-img" :src="user.avatarUrl" mode="aspectFill" />
+        <view v-else class="avatar">
+          <text class="avatar-text">{{ user?.nickname?.charAt(0) || user?.username?.charAt(0) || '?' }}</text>
+        </view>
+        <view class="edit-icon">
+          <text>✎</text>
+        </view>
       </view>
       <view class="user-info" v-if="isLoggedIn">
-        <text class="username">{{ user?.username }}</text>
-        <text class="user-role">{{ user?.role === 'admin' ? '管理员' : '学习者' }}</text>
+        <text class="nickname">{{ user?.nickname || user?.username }}</text>
+        <text class="user-id">ID: {{ user?.id }}</text>
       </view>
       <view class="user-info" v-else @tap="goToLogin">
-        <text class="username">点击登录</text>
-        <text class="user-role">登录后同步学习数据</text>
+        <text class="nickname">点击登录</text>
+        <text class="user-id">登录后同步学习数据</text>
       </view>
     </view>
 
@@ -96,17 +101,54 @@
     <view class="version-info">
       <text>岐黄小识 v1.0.0</text>
     </view>
+
+    <!-- 编辑信息弹窗 -->
+    <view class="modal-overlay" v-if="showEditModal" @tap="showEditModal = false">
+      <view class="modal" @tap.stop>
+        <text class="modal-title">编辑个人信息</text>
+        
+        <!-- 获取微信头像 -->
+        <view class="avatar-section">
+          <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+            <image v-if="editForm.avatarUrl" class="edit-avatar" :src="editForm.avatarUrl" mode="aspectFill" />
+            <view v-else class="edit-avatar-placeholder">
+              <text>点击选择头像</text>
+            </view>
+          </button>
+        </view>
+
+        <!-- 获取微信昵称 -->
+        <view class="form-group">
+          <text class="form-label">昵称</text>
+          <input class="form-input" v-model="editForm.nickname" type="nickname" placeholder="请输入昵称" />
+        </view>
+
+        <view v-if="editError" class="error-msg">{{ editError }}</view>
+        
+        <view class="modal-btns">
+          <button class="btn-cancel" @tap="showEditModal = false">取消</button>
+          <button class="btn-confirm" @tap="saveProfile">保存</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 
 const isLoggedIn = ref(false)
 const user = ref<any>(null)
 const isDarkMode = ref(false)
+const showEditModal = ref(false)
+const editError = ref('')
+
+const editForm = ref({
+  avatarUrl: '',
+  nickname: ''
+})
 
 const learningStats = ref({
   formula: 0,
@@ -116,16 +158,16 @@ const learningStats = ref({
   total: 0
 })
 
-// 使用 onShow 检查登录状态，每次页面显示时都会执行
 onShow(() => {
   isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
+  
+  // 初始化编辑表单
+  if (user.value) {
+    editForm.value.avatarUrl = user.value.avatarUrl || ''
+    editForm.value.nickname = user.value.nickname || user.value.username || ''
+  }
 
-  // 加载主题设置
-  const theme = uni.getStorageSync('theme')
-  isDarkMode.value = theme === 'dark'
-
-  // 获取学习进度
   if (isLoggedIn.value) {
     loadLearningStats()
   }
@@ -139,6 +181,36 @@ async function loadLearningStats() {
     }
   } catch (e) {
     console.error('获取学习进度失败', e)
+  }
+}
+
+// 选择微信头像
+function onChooseAvatar(e: any) {
+  const { avatarUrl } = e.detail
+  editForm.value.avatarUrl = avatarUrl
+}
+
+// 保存个人信息
+async function saveProfile() {
+  if (!editForm.value.nickname) {
+    editError.value = '请输入昵称'
+    return
+  }
+
+  try {
+    // 更新本地用户信息
+    const updatedUser = {
+      ...user.value,
+      nickname: editForm.value.nickname,
+      avatarUrl: editForm.value.avatarUrl
+    }
+    api.saveAuth(uni.getStorageSync('token'), updatedUser)
+    user.value = updatedUser
+    
+    uni.showToast({ title: '保存成功', icon: 'success' })
+    showEditModal.value = false
+  } catch (e) {
+    editError.value = '保存失败'
   }
 }
 
@@ -183,6 +255,17 @@ function handleLogout() {
   gap: 24rpx;
 }
 
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
 .avatar {
   width: 120rpx;
   height: 120rpx;
@@ -199,11 +282,26 @@ function handleLogout() {
   font-weight: 700;
 }
 
+.edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 36rpx;
+  height: 36rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  color: #fff;
+}
+
 .user-info {
   flex: 1;
 }
 
-.username {
+.nickname {
   display: block;
   font-size: 36rpx;
   font-weight: 600;
@@ -211,9 +309,9 @@ function handleLogout() {
   margin-bottom: 4rpx;
 }
 
-.user-role {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
+.user-id {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .section {
@@ -332,5 +430,126 @@ function handleLogout() {
   padding: 40rpx;
   font-size: 24rpx;
   color: #999;
+}
+
+/* 编辑弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  width: 600rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+.modal-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+
+.avatar-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24rpx;
+}
+
+.avatar-btn {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f5f5f5;
+  border: none;
+  padding: 0;
+  line-height: normal;
+}
+
+.avatar-btn::after {
+  border: none;
+}
+
+.edit-avatar {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+}
+
+.edit-avatar-placeholder {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.form-group {
+  margin-bottom: 20rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid #E8E0D4;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.error-msg {
+  color: #DC3545;
+  font-size: 24rpx;
+  margin-bottom: 16rpx;
+  text-align: center;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.btn-cancel {
+  flex: 1;
+  height: 72rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.btn-confirm {
+  flex: 1;
+  height: 72rpx;
+  background: #8B2500;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 28rpx;
 }
 </style>

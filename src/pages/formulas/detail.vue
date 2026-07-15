@@ -10,7 +10,7 @@
     <view class="section">
       <text class="section-title">组成</text>
       <view class="tag-list">
-        <text v-for="item in formula.composition" :key="item" class="tag">{{ item }}</text>
+        <text v-for="item in compositionList" :key="item" class="tag">{{ item }}</text>
       </view>
     </view>
 
@@ -24,14 +24,14 @@
     <view class="section">
       <text class="section-title">主治症状</text>
       <view class="tag-list">
-        <text v-for="item in formula.symptoms" :key="item" class="tag symptom">{{ item }}</text>
+        <text v-for="item in symptomsList" :key="item" class="tag symptom">{{ item }}</text>
       </view>
     </view>
 
     <!-- 功效 -->
     <view class="section">
       <text class="section-title">功效</text>
-      <text class="content">{{ formula.usage }}</text>
+      <text class="content">{{ formula.formula_usage || formula.usage }}</text>
     </view>
 
     <!-- 来源 -->
@@ -41,12 +41,12 @@
     </view>
 
     <!-- 相关方剂 -->
-    <view class="section">
+    <view class="section" v-if="relatedFormulas.length > 0">
       <text class="section-title">相关方剂</text>
       <view class="related-list">
         <view
           v-for="item in relatedFormulas"
-          :key="item.name"
+          :key="item.id || item.name"
           class="related-item"
           @tap="goToDetail(item.name)"
         >
@@ -61,24 +61,66 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import formulasData from '@/data/formulas.json'
+import api from '@/utils/api'
 
+const formula = ref<any>(null)
 const formulaName = ref('')
-const formula = computed(() => {
-  return formulasData.find(f => f.name === formulaName.value)
-})
 
-const relatedFormulas = computed(() => {
+// 解析JSON数组
+function parseJsonArray(val: any): string[] {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') {
+    try {
+      const arr = JSON.parse(val)
+      return Array.isArray(arr) ? arr : [val]
+    } catch {
+      return val ? [val] : []
+    }
+  }
+  return []
+}
+
+const compositionList = computed(() => {
   if (!formula.value) return []
-  return formulasData
-    .filter(f => f.meridian === formula.value?.meridian && f.name !== formula.value?.name)
-    .slice(0, 4)
+  return parseJsonArray(formula.value.composition)
 })
 
-onLoad((options) => {
+const symptomsList = computed(() => {
+  if (!formula.value) return []
+  return parseJsonArray(formula.value.symptoms)
+})
+
+const relatedFormulas = ref<any[]>([])
+
+onLoad(async (options) => {
   if (options?.name) {
     formulaName.value = decodeURIComponent(options.name)
     uni.setNavigationBarTitle({ title: formulaName.value })
+    
+    // 从服务器获取方剂详情
+    try {
+      const res = await api.getFormulaDetail(undefined, formulaName.value)
+      if (res.code === 1 && res.data) {
+        formula.value = res.data
+        
+        // 记录学习
+        if (api.isLoggedIn()) {
+          api.recordLearning('formula', res.data.id, res.data.name)
+        }
+      }
+    } catch (e) {
+      console.error('获取方剂详情失败', e)
+    }
+    
+    // 获取相关方剂
+    try {
+      const res = await api.getFormulaList(1, 4, formula.value?.meridian || '')
+      if (res.code === 1 && res.data?.list) {
+        relatedFormulas.value = res.data.list.filter((f: any) => f.name !== formulaName.value)
+      }
+    } catch (e) {
+      console.error('获取相关方剂失败', e)
+    }
   }
 })
 
@@ -92,15 +134,16 @@ function goToDetail(name: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F5F0E8;
   padding: 24rpx;
 }
 
 .header {
-  background: linear-gradient(135deg, #8B0000, #A52A2A);
+  background: linear-gradient(135deg, #8B2500, #A63A1E);
   border-radius: 16rpx;
   padding: 40rpx;
   margin-bottom: 24rpx;
+  text-align: center;
 }
 
 .name {
@@ -114,6 +157,10 @@ function goToDetail(name: string) {
 .meridian {
   font-size: 28rpx;
   color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  display: inline-block;
 }
 
 .section {
@@ -128,17 +175,18 @@ function goToDetail(name: string) {
   font-size: 28rpx;
   font-weight: 600;
   color: #333;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .content {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #666;
   line-height: 1.8;
 }
 
 .source {
-  color: #8B0000;
+  color: #8B2500;
+  font-style: italic;
 }
 
 .tag-list {
@@ -148,16 +196,16 @@ function goToDetail(name: string) {
 }
 
 .tag {
-  padding: 8rpx 20rpx;
-  background: rgba(139, 0, 0, 0.08);
-  color: #8B0000;
-  border-radius: 20rpx;
-  font-size: 26rpx;
+  padding: 8rpx 16rpx;
+  background: rgba(139, 37, 0, 0.08);
+  color: #8B2500;
+  border-radius: 16rpx;
+  font-size: 24rpx;
 }
 
 .tag.symptom {
-  background: rgba(46, 139, 87, 0.08);
-  color: #2E8B57;
+  background: rgba(46, 139, 74, 0.08);
+  color: #2D5F4A;
 }
 
 .related-list {
@@ -171,17 +219,18 @@ function goToDetail(name: string) {
   justify-content: space-between;
   align-items: center;
   padding: 16rpx;
-  background: #f8f8f8;
+  background: #FAFAF7;
   border-radius: 8rpx;
 }
 
 .related-name {
   font-size: 26rpx;
+  font-weight: 500;
   color: #333;
 }
 
 .related-meridian {
   font-size: 22rpx;
-  color: #8B0000;
+  color: #8B2500;
 }
 </style>

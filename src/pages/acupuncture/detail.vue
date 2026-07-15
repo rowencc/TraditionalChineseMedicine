@@ -51,6 +51,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import meridiansData from '@/data/acupoints.json'
 import PointLocator from '@/components/PointLocator.vue'
+import api from '@/utils/api'
 
 const meridianName = ref('')
 const pointName = ref('')
@@ -62,6 +63,19 @@ const pointInfo = computed(() => {
     }
   }
   return null
+})
+
+// 记录穴位学习
+onLoad((options) => {
+  if (options?.point) {
+    pointName.value = decodeURIComponent(options.point)
+    uni.setNavigationBarTitle({ title: pointName.value })
+    
+    // 记录学习
+    if (api.isLoggedIn()) {
+      api.recordLearning('acupoint', 0, pointName.value)
+    }
+  }
 })
 
 // 解析JSON数组

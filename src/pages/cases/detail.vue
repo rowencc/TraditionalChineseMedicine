@@ -71,6 +71,11 @@ onLoad(async (options) => {
       const res = await api.getCaseDetail(Number(options.id))
       if (res.code === 1) {
         caseItem.value = res.data
+        
+        // 记录学习
+        if (api.isLoggedIn()) {
+          api.recordLearning('case', res.data.id, res.data.disease)
+        }
       } else {
         uni.showToast({ title: '加载失败', icon: 'none' })
       }
