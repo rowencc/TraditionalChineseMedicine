@@ -179,7 +179,7 @@ export default {
   logout,
   isLoggedIn,
   getUser,
-  setUser,
+  saveAuth,
   
   // TCM 数据
   getStats,
