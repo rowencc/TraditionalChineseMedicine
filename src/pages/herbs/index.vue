@@ -45,7 +45,7 @@
 import { ref, onMounted } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import HerbCard from '@/components/HerbCard.vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const keyword = ref('')
 const selectedNature = ref('')
@@ -77,7 +77,7 @@ async function loadHerbs(reset = false) {
   loading.value = true
   
   try {
-    const res = await tcmApi.getHerbList(page.value, 20, '', selectedNature.value, keyword.value)
+    const res = await api.getHerbList(page.value, 20, '', selectedNature.value, keyword.value)
     
     if (res.code === 1) {
       const newList = res.data.list || []

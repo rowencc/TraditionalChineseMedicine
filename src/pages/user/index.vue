@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const user = ref<any>(null)
 const showPasswordModal = ref(false)
@@ -79,7 +79,7 @@ const passwordForm = ref({
 })
 
 onMounted(() => {
-  user.value = tcmApi.getUser()
+  user.value = api.getUser()
 })
 
 async function handleChangePassword() {
@@ -94,7 +94,7 @@ async function handleChangePassword() {
   }
   
   try {
-    const res = await tcmApi.auth.changePassword(
+    const res = await api.changePassword(
       passwordForm.value.oldPassword,
       passwordForm.value.newPassword
     )
@@ -116,7 +116,7 @@ function handleLogout() {
     content: '确定要退出登录吗？',
     success: (res) => {
       if (res.confirm) {
-        tcmApi.auth.logout()
+        api.logout()
       }
     }
   })

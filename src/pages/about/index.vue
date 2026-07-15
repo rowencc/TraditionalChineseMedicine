@@ -140,7 +140,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const isLoggedIn = ref(false)
 const user = ref<any>(null)
@@ -154,12 +154,12 @@ const stats = ref({
 
 onMounted(async () => {
   // 检查登录状态
-  isLoggedIn.value = tcmApi.isLoggedIn()
-  user.value = tcmApi.getUser()
+  isLoggedIn.value = api.isLoggedIn()
+  user.value = api.getUser()
 
   // 检查服务器连接并获取统计数据
   try {
-    const res = await tcmApi.tcm.getStats()
+    const res = await api.getStats()
     if (res.code === 1) {
       serverConnected.value = true
       stats.value = res.data

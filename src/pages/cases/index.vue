@@ -35,7 +35,7 @@ import { ref, onMounted } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import TagFilter from '@/components/TagFilter.vue'
 import CaseCard from '@/components/CaseCard.vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const keyword = ref('')
 const selectedCategories = ref<string[]>([])
@@ -69,7 +69,7 @@ async function loadCases(reset = false) {
   
   try {
     const category = selectedCategories.value[0] || ''
-    const res = await tcmApi.getCaseList(page.value, 20, category, keyword.value)
+    const res = await api.getCaseList(page.value, 20, category, keyword.value)
     
     if (res.code === 1) {
       const newList = res.data.list || []

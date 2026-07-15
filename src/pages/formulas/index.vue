@@ -36,7 +36,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import SearchBar from '@/components/SearchBar.vue'
 import TagFilter from '@/components/TagFilter.vue'
 import FormulaCard from '@/components/FormulaCard.vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const keyword = ref('')
 const selectedMeridians = ref<string[]>([])
@@ -71,7 +71,7 @@ async function loadFormulas(reset = false) {
   
   try {
     const meridian = selectedMeridians.value[0] || ''
-    const res = await tcmApi.getFormulaList(page.value, 20, meridian, keyword.value)
+    const res = await api.getFormulaList(page.value, 20, meridian, keyword.value)
     
     if (res.code === 1) {
       const newList = res.data.list || []

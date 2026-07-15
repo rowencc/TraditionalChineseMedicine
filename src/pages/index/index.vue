@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const searchQuery = ref('')
 const stats = ref([
@@ -116,7 +116,7 @@ const hotFormulas = ref<any[]>([])
 // 加载统计数据
 onMounted(async () => {
   try {
-    const res = await tcmApi.getStats()
+    const res = await api.getStats()
     if (res.code === 1) {
       stats.value = [
         { value: res.data.formula_count || 0, label: '经方' },
@@ -131,7 +131,7 @@ onMounted(async () => {
 
   // 加载常用经方
   try {
-    const res = await tcmApi.getFormulaList(1, 9)
+    const res = await api.getFormulaList(1, 9)
     if (res.code === 1) {
       hotFormulas.value = res.data.list || []
     }

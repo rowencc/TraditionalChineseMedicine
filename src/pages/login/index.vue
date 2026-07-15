@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const showRegister = ref(false)
 const loading = ref(false)
@@ -107,7 +107,7 @@ async function handleLogin() {
   errorMsg.value = ''
   
   try {
-    const res = await tcmApi.auth.login(loginForm.value.username, loginForm.value.password)
+    const res = await api.login(loginForm.value.username, loginForm.value.password)
     if (res.code === 1) {
       uni.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
@@ -138,7 +138,7 @@ async function handleRegister() {
   errorMsg.value = ''
   
   try {
-    const res = await tcmApi.auth.register(
+    const res = await api.register(
       registerForm.value.username,
       registerForm.value.password,
       registerForm.value.email

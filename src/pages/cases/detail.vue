@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import tcmApi from '@/utils/api'
+import api from '@/utils/api'
 
 const caseItem = ref<any>(null)
 const caseId = ref('')
@@ -68,7 +68,7 @@ onLoad(async (options) => {
     uni.setNavigationBarTitle({ title: '医案详情' })
     
     try {
-      const res = await tcmApi.getCaseDetail(Number(options.id))
+      const res = await api.getCaseDetail(Number(options.id))
       if (res.code === 1) {
         caseItem.value = res.data
       } else {
