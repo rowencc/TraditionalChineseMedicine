@@ -42,6 +42,32 @@
       </view>
     </view>
 
+    <!-- 学习进度 -->
+    <view class="section" v-if="isLoggedIn">
+      <text class="section-title">学习进度</text>
+      <view class="learning-grid">
+        <view class="learning-item">
+          <text class="learning-num">{{ learningStats.formula }}</text>
+          <text class="learning-label">已学方剂</text>
+        </view>
+        <view class="learning-item">
+          <text class="learning-num">{{ learningStats.herb }}</text>
+          <text class="learning-label">已学药物</text>
+        </view>
+        <view class="learning-item">
+          <text class="learning-num">{{ learningStats.acupoint }}</text>
+          <text class="learning-label">已学穴位</text>
+        </view>
+        <view class="learning-item">
+          <text class="learning-num">{{ learningStats.case }}</text>
+          <text class="learning-label">已阅医案</text>
+        </view>
+      </view>
+      <view class="learning-total">
+        <text>共学习 {{ learningStats.total }} 项内容</text>
+      </view>
+    </view>
+
     <!-- 简介 -->
     <view class="section">
       <text class="section-title">关于</text>
@@ -152,6 +178,14 @@ const stats = ref({
   case_count: 0
 })
 
+const learningStats = ref({
+  formula: 0,
+  herb: 0,
+  acupoint: 0,
+  case: 0,
+  total: 0
+})
+
 onMounted(async () => {
   // 检查登录状态
   isLoggedIn.value = api.isLoggedIn()
@@ -166,6 +200,18 @@ onMounted(async () => {
     }
   } catch (e) {
     serverConnected.value = false
+  }
+
+  // 获取学习进度
+  if (isLoggedIn.value) {
+    try {
+      const res = await api.getLearningStats()
+      if (res.code === 1) {
+        learningStats.value = res.data
+      }
+    } catch (e) {
+      console.error('获取学习进度失败', e)
+    }
   }
 })
 
@@ -346,6 +392,42 @@ function goToUser() {
 .source-pages {
   font-size: 24rpx;
   color: #999;
+}
+
+/* 学习进度 */
+.learning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.learning-item {
+  text-align: center;
+  padding: 20rpx;
+  background: #FAFAF7;
+  border-radius: 8rpx;
+}
+
+.learning-num {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #8B2500;
+  margin-bottom: 4rpx;
+}
+
+.learning-label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.learning-total {
+  text-align: center;
+  font-size: 24rpx;
+  color: #666;
+  padding-top: 8rpx;
+  border-top: 1rpx solid #f0f0f0;
 }
 
 /* 功能模块 */

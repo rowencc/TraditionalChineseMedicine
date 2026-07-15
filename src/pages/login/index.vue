@@ -9,11 +9,24 @@
       <text class="app-desc">经方中医学习工具</text>
     </view>
 
-    <!-- 登录表单 -->
+    <!-- 微信一键登录 -->
+    <view class="wx-login-section">
+      <button class="btn-wx" @tap="handleWxLogin" :disabled="loading">
+        <text class="wx-icon">微</text>
+        <text>{{ loading ? '登录中...' : '微信一键登录' }}</text>
+      </button>
+    </view>
+
+    <!-- 分割线 -->
+    <view class="divider">
+      <view class="divider-line"></view>
+      <text class="divider-text">或</text>
+      <view class="divider-line"></view>
+    </view>
+
+    <!-- 密码登录表单 -->
     <view class="form-section" v-if="!showRegister">
       <view class="form-card">
-        <text class="form-title">登录</text>
-        
         <view class="form-group">
           <text class="form-label">用户名</text>
           <input class="form-input" v-model="loginForm.username" placeholder="请输入用户名" />
@@ -40,8 +53,6 @@
     <!-- 注册表单 -->
     <view class="form-section" v-else>
       <view class="form-card">
-        <text class="form-title">注册</text>
-        
         <view class="form-group">
           <text class="form-label">用户名</text>
           <input class="form-input" v-model="registerForm.username" placeholder="3-20个字符" />
@@ -97,6 +108,42 @@ const registerForm = ref({
   password2: ''
 })
 
+// 微信一键登录
+async function handleWxLogin() {
+  loading.value = true
+  errorMsg.value = ''
+  
+  try {
+    // 调用微信登录
+    const loginRes = await new Promise<UniApp.LoginRes>((resolve, reject) => {
+      uni.login({
+        provider: 'weixin',
+        success: resolve,
+        fail: reject
+      })
+    })
+    
+    if (loginRes.code) {
+      // 发送code到服务器
+      const res = await api.wxLogin(loginRes.code)
+      if (res.code === 1) {
+        uni.showToast({ title: '登录成功', icon: 'success' })
+        setTimeout(() => {
+          uni.switchTab({ url: '/pages/index/index' })
+        }, 1500)
+      } else {
+        errorMsg.value = res.msg || '登录失败'
+      }
+    }
+  } catch (e) {
+    console.error('微信登录失败', e)
+    errorMsg.value = '微信登录失败，请重试'
+  } finally {
+    loading.value = false
+  }
+}
+
+// 密码登录
 async function handleLogin() {
   if (!loginForm.value.username || !loginForm.value.password) {
     errorMsg.value = '请输入用户名和密码'
@@ -123,6 +170,7 @@ async function handleLogin() {
   }
 }
 
+// 注册
 async function handleRegister() {
   if (!registerForm.value.username || !registerForm.value.password) {
     errorMsg.value = '请填写完整信息'
@@ -201,8 +249,62 @@ async function handleRegister() {
   color: #999;
 }
 
+.wx-login-section {
+  margin: 40rpx 0;
+}
+
+.btn-wx {
+  width: 100%;
+  height: 88rpx;
+  background: #07C160;
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.btn-wx:disabled {
+  opacity: 0.6;
+}
+
+.wx-icon {
+  width: 40rpx;
+  height: 40rpx;
+  background: #fff;
+  color: #07C160;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 32rpx 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1rpx;
+  background: #E8E0D4;
+}
+
+.divider-text {
+  padding: 0 24rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
 .form-section {
-  margin-top: 40rpx;
+  margin-top: 20rpx;
 }
 
 .form-card {
@@ -210,15 +312,6 @@ async function handleRegister() {
   border-radius: 20rpx;
   padding: 40rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
-}
-
-.form-title {
-  display: block;
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #2C2C2C;
-  margin-bottom: 32rpx;
-  text-align: center;
 }
 
 .form-group {
@@ -241,10 +334,6 @@ async function handleRegister() {
   font-size: 28rpx;
   color: #333;
   background: #FAFAF7;
-}
-
-.form-input:focus {
-  border-color: #8B2500;
 }
 
 .error-msg {

@@ -1,5 +1,6 @@
 /**
  * 岐黄小识 - API 服务层
+ * 支持微信登录和学习记录
  */
 
 const API_BASE = 'https://tcm.rowen.cc/index.php'
@@ -59,23 +60,32 @@ function request(module: string, action: string, params: Record<string, any> = {
   })
 }
 
-// 认证 API
+// 微信登录
+export function wxLogin(code: string) {
+  return request('auth', 'wx_login', { code }, 'POST')
+}
+
+// 密码登录
 export function login(username: string, password: string) {
   return request('auth', 'login', { username, password }, 'POST')
 }
 
+// 注册
 export function register(username: string, password: string, email: string) {
   return request('auth', 'register', { username, password, email }, 'POST')
 }
 
+// 获取用户信息
 export function getProfile() {
   return request('auth', 'profile')
 }
 
+// 修改密码
 export function changePassword(oldPassword: string, newPassword: string) {
   return request('auth', 'change_password', { old_password: oldPassword, new_password: newPassword }, 'POST')
 }
 
+// 退出登录
 export function logout() {
   clearToken()
   uni.reLaunch({ url: '/pages/index/index' })
@@ -118,8 +128,27 @@ export function getCaseDetail(id: number) {
   return request('tcm', 'case_detail', { id })
 }
 
+// 学习记录 API
+export function recordLearning(contentType: string, contentId: number, contentName: string) {
+  return request('learning', 'record', { content_type: contentType, content_id: contentId, content_name: contentName }, 'POST')
+}
+
+export function getLearningStats() {
+  return request('learning', 'stats')
+}
+
+export function getLearningList(contentType = '', page = 1, limit = 20) {
+  return request('learning', 'list', { content_type: contentType, page, limit })
+}
+
+export function checkLearned(contentType: string, contentId: number) {
+  return request('learning', 'check', { content_type: contentType, content_id: contentId })
+}
+
 // 导出
 export default {
+  // 认证
+  wxLogin,
   login,
   register,
   getProfile,
@@ -128,6 +157,8 @@ export default {
   isLoggedIn,
   getUser,
   setUser,
+  
+  // TCM 数据
   getStats,
   getFormulaList,
   getFormulaDetail,
@@ -136,5 +167,11 @@ export default {
   getAcupointList,
   getAcupointDetail,
   getCaseList,
-  getCaseDetail
+  getCaseDetail,
+  
+  // 学习记录
+  recordLearning,
+  getLearningStats,
+  getLearningList,
+  checkLearned
 }
