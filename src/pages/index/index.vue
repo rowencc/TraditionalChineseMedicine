@@ -19,9 +19,9 @@
     <!-- 用户状态 -->
     <view class="user-bar" v-if="isLoggedIn">
       <view class="user-avatar">
-        <text>{{ user?.username?.charAt(0).toUpperCase() }}</text>
+        <text>{{ displayName?.charAt(0).toUpperCase() }}</text>
       </view>
-      <text class="user-greeting">欢迎回来，{{ user?.username }}</text>
+      <text class="user-greeting">欢迎回来，{{ displayName }}</text>
       <text class="user-learning">已学习 {{ learningTotal }} 项</text>
     </view>
 
@@ -99,6 +99,13 @@ const isLoggedIn = ref(false)
 const user = ref<any>(null)
 const learningTotal = ref(0)
 const searchQuery = ref('')
+
+// 计算显示名称：优先使用nickname，其次username
+const displayName = computed(() => {
+  if (user.value?.nickname) return user.value.nickname
+  if (user.value?.username) return user.value.username
+  return ''
+})
 const stats = ref([
   { value: 0, label: '经方' },
   { value: 0, label: '药物' },
