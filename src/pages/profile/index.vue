@@ -100,7 +100,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 
 const isLoggedIn = ref(false)
@@ -115,8 +116,8 @@ const learningStats = ref({
   total: 0
 })
 
-onMounted(() => {
-  // 检查登录状态
+// 使用 onShow 检查登录状态，每次页面显示时都会执行
+onShow(() => {
   isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
 

@@ -127,9 +127,11 @@ async function handleWxLogin() {
       // 发送code到服务器
       const res = await api.wxLogin(loginRes.code)
       if (res.code === 1) {
+        // 保存用户信息
+        api.setUser(res.data.user)
         uni.showToast({ title: '登录成功', icon: 'success' })
         setTimeout(() => {
-          uni.switchTab({ url: '/pages/index/index' })
+          uni.switchTab({ url: '/pages/profile/index' })
         }, 1500)
       } else {
         errorMsg.value = res.msg || '登录失败'
@@ -156,9 +158,11 @@ async function handleLogin() {
   try {
     const res = await api.login(loginForm.value.username, loginForm.value.password)
     if (res.code === 1) {
+      // 保存用户信息
+      api.setUser(res.data.user)
       uni.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
-        uni.switchTab({ url: '/pages/index/index' })
+        uni.switchTab({ url: '/pages/profile/index' })
       }, 1500)
     } else {
       errorMsg.value = res.msg || '登录失败'
