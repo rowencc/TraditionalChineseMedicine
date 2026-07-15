@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <!-- 搜索栏 -->
-    <SearchBar v-model="keyword" @search="onSearch" />
+    <SearchBar v-model="keyword" @search="onSearch" placeholder="搜索药物名称..." />
 
     <!-- 筛选标签 -->
     <view class="filter-section">
@@ -22,15 +22,19 @@
     </view>
 
     <!-- 药物列表 -->
-    <scroll-view scroll-y class="herb-list">
+    <scroll-view scroll-y class="herb-list" @scrolltolower="loadMore">
       <HerbCard
-        v-for="item in filteredHerbs"
-        :key="item.name"
+        v-for="item in herbs"
+        :key="item.id || item.name"
         :herb="item"
         @tap="goToDetail(item.name)"
       />
 
-      <view v-if="filteredHerbs.length === 0" class="empty">
+      <view v-if="loading" class="loading">
+        <text>加载中...</text>
+      </view>
+
+      <view v-if="!loading && herbs.length === 0" class="empty">
         <text>未找到相关药物</text>
       </view>
     </scroll-view>
@@ -38,13 +42,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import HerbCard from '@/components/HerbCard.vue'
-import herbsData from '@/data/herbs.json'
+import tcmApi from '@/utils/api'
 
 const keyword = ref('')
 const selectedNature = ref('')
+const herbs = ref<any[]>([])
+const loading = ref(false)
+const page = ref(1)
+const hasMore = ref(true)
 
 const natureTags = [
   { label: '全部', value: '' },
@@ -55,34 +63,51 @@ const natureTags = [
   { label: '平', value: '平' }
 ]
 
-const filteredHerbs = computed(() => {
-  let result = herbsData
-
-  // 性味筛选
-  if (selectedNature.value) {
-    result = result.filter(h => h.nature.includes(selectedNature.value))
+async function loadHerbs(reset = false) {
+  if (loading.value) return
+  
+  if (reset) {
+    page.value = 1
+    herbs.value = []
+    hasMore.value = true
   }
-
-  // 关键词搜索
-  if (keyword.value.trim()) {
-    const query = keyword.value.toLowerCase()
-    result = result.filter(h => {
-      return h.name.toLowerCase().includes(query) ||
-        h.meridian.some(m => m.includes(query)) ||
-        h.effect.includes(query) ||
-        h.taste.includes(query)
-    })
+  
+  if (!hasMore.value) return
+  
+  loading.value = true
+  
+  try {
+    const res = await tcmApi.getHerbList(page.value, 20, '', selectedNature.value, keyword.value)
+    
+    if (res.code === 1) {
+      const newList = res.data.list || []
+      if (reset) {
+        herbs.value = newList
+      } else {
+        herbs.value = [...herbs.value, ...newList]
+      }
+      hasMore.value = newList.length >= 20
+      page.value++
+    }
+  } catch (e) {
+    console.error('加载药物失败', e)
+    uni.showToast({ title: '加载失败', icon: 'none' })
+  } finally {
+    loading.value = false
   }
+}
 
-  return result
-})
+function loadMore() {
+  loadHerbs(false)
+}
 
 function onSearch() {
-  // 搜索已在 computed 中处理
+  loadHerbs(true)
 }
 
 function toggleNature(value: string) {
   selectedNature.value = selectedNature.value === value ? '' : value
+  loadHerbs(true)
 }
 
 function goToDetail(name: string) {
@@ -90,12 +115,16 @@ function goToDetail(name: string) {
     url: `/pages/herbs/detail?name=${encodeURIComponent(name)}`
   })
 }
+
+onMounted(() => {
+  loadHerbs(true)
+})
 </script>
 
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F5F0E8;
 }
 
 .filter-section {
@@ -129,14 +158,23 @@ function goToDetail(name: string) {
 }
 
 .tag.active {
-  background: #8B0000;
+  background: #8B2500;
   color: #fff;
-  border-color: #8B0000;
+  border-color: #8B2500;
 }
 
 .herb-list {
   height: calc(100vh - 280rpx);
   padding: 0 24rpx;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100rpx;
+  color: #999;
+  font-size: 26rpx;
 }
 
 .empty {

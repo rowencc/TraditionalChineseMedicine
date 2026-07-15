@@ -3,7 +3,7 @@
     <!-- 搜索栏 -->
     <view class="search-section">
       <view class="search-wrap">
-        <icon type="search" size="16" color="#999" />
+        <text class="search-icon">🔍</text>
         <input
           class="search-input"
           type="text"
@@ -16,7 +16,7 @@
       </view>
     </view>
 
-    <!-- Hero区域 - 云纹装饰 -->
+    <!-- Hero区域 -->
     <view class="hero-section">
       <view class="cloud-pattern"></view>
       <view class="hero-content">
@@ -28,21 +28,9 @@
 
     <!-- 统计卡片 -->
     <view class="stats-section">
-      <view class="stat-card">
-        <text class="stat-num">92</text>
-        <text class="stat-label">经方</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-num">349</text>
-        <text class="stat-label">药物</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-num">309</text>
-        <text class="stat-label">穴位</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-num">188</text>
-        <text class="stat-label">医案</text>
+      <view class="stat-card" v-for="(item, index) in stats" :key="index">
+        <text class="stat-num">{{ item.value }}</text>
+        <text class="stat-label">{{ item.label }}</text>
       </view>
     </view>
 
@@ -50,29 +38,9 @@
     <view class="section">
       <text class="section-title">功能导航</text>
       <view class="nav-grid">
-        <view class="nav-item" @tap="goTo('/pages/formulas/index')">
-          <view class="nav-icon formula">方</view>
-          <text class="nav-text">方剂速查</text>
-        </view>
-        <view class="nav-item" @tap="goTo('/pages/herbs/index')">
-          <view class="nav-icon herb">药</view>
-          <text class="nav-text">药物查询</text>
-        </view>
-        <view class="nav-item" @tap="goTo('/pages/cases/index')">
-          <view class="nav-icon case">案</view>
-          <text class="nav-text">医案浏览</text>
-        </view>
-        <view class="nav-item" @tap="goTo('/pages/diagnosis/index')">
-          <view class="nav-icon diagnosis">经</view>
-          <text class="nav-text">六经辨证</text>
-        </view>
-        <view class="nav-item" @tap="goTo('/pages/acupuncture/index')">
-          <view class="nav-icon acupuncture">穴</view>
-          <text class="nav-text">针灸穴位</text>
-        </view>
-        <view class="nav-item" @tap="goTo('/pages/about/index')">
-          <view class="nav-icon about">识</view>
-          <text class="nav-text">关于</text>
+        <view class="nav-item" v-for="(item, index) in navItems" :key="index" @tap="goTo(item.url)">
+          <view class="nav-icon" :class="item.color">{{ item.icon }}</view>
+          <text class="nav-text">{{ item.name }}</text>
         </view>
       </view>
     </view>
@@ -114,21 +82,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import SearchBar from '@/components/SearchBar.vue'
-import formulasData from '@/data/formulas.json'
-import herbsData from '@/data/herbs.json'
-import casesData from '@/data/cases.json'
-import sixMeridiansData from '@/data/six-meridians.json'
+import { ref, computed, onMounted } from 'vue'
+import tcmApi from '@/utils/api'
 
 const searchQuery = ref('')
-const formulas = ref(formulasData)
-const herbs = ref(herbsData)
-const cases = ref(casesData)
-const sixMeridians = ref(sixMeridiansData)
+const stats = ref([
+  { value: 0, label: '经方' },
+  { value: 0, label: '药物' },
+  { value: 0, label: '穴位' },
+  { value: 0, label: '医案' }
+])
 
-const hotFormulas = computed(() => {
-  return formulas.value.slice(0, 9)
+const navItems = [
+  { name: '方剂速查', url: '/pages/formulas/index', icon: '方', color: 'formula' },
+  { name: '药物查询', url: '/pages/herbs/index', icon: '药', color: 'herb' },
+  { name: '医案浏览', url: '/pages/cases/index', icon: '案', color: 'case' },
+  { name: '六经辨证', url: '/pages/diagnosis/index', icon: '经', color: 'diagnosis' },
+  { name: '针灸穴位', url: '/pages/acupuncture/index', icon: '穴', color: 'acupuncture' },
+  { name: '关于', url: '/pages/about/index', icon: '识', color: 'about' }
+]
+
+const sixMeridians = ref([
+  { name: '太阳', description: '表证', formula: '桂枝汤、麻黄汤' },
+  { name: '阳明', description: '里热证', formula: '白虎汤、承气汤' },
+  { name: '少阳', description: '半表半里证', formula: '小柴胡汤' },
+  { name: '太阴', description: '脾虚寒湿证', formula: '理中汤' },
+  { name: '少阴', description: '心肾阳虚证', formula: '四逆汤、真武汤' },
+  { name: '厥阴', description: '寒热错杂证', formula: '乌梅丸' }
+])
+
+const hotFormulas = ref<any[]>([])
+
+// 加载统计数据
+onMounted(async () => {
+  try {
+    const res = await tcmApi.getStats()
+    if (res.code === 1) {
+      stats.value = [
+        { value: res.data.formula_count || 0, label: '经方' },
+        { value: res.data.herb_count || 0, label: '药物' },
+        { value: res.data.acupoint_count || 0, label: '穴位' },
+        { value: res.data.case_count || 0, label: '医案' }
+      ]
+    }
+  } catch (e) {
+    console.error('加载统计数据失败', e)
+  }
+
+  // 加载常用经方
+  try {
+    const res = await tcmApi.getFormulaList(1, 9)
+    if (res.code === 1) {
+      hotFormulas.value = res.data.list || []
+    }
+  } catch (e) {
+    console.error('加载方剂数据失败', e)
+  }
 })
 
 function onSearch() {
@@ -140,12 +149,7 @@ function onSearch() {
 }
 
 function goTo(url: string) {
-  const tabBarPages = ['/pages/index/index', '/pages/formulas/index', '/pages/herbs/index', '/pages/cases/index', '/pages/acupuncture/index']
-  if (tabBarPages.some(p => url.startsWith(p))) {
-    uni.switchTab({ url })
-  } else {
-    uni.navigateTo({ url })
-  }
+  uni.navigateTo({ url })
 }
 
 function goToDiagnosis(name: string) {
@@ -167,7 +171,6 @@ function goToFormula(name: string) {
   background: #F5F0E8;
 }
 
-/* 搜索栏 */
 .search-section {
   padding: 24rpx;
   background: linear-gradient(180deg, #8B2500, #A63A1E);
@@ -182,6 +185,10 @@ function goToFormula(name: string) {
   border-radius: 40rpx;
 }
 
+.search-icon {
+  font-size: 28rpx;
+}
+
 .search-input {
   flex: 1;
   font-size: 28rpx;
@@ -192,7 +199,6 @@ function goToFormula(name: string) {
   color: #999;
 }
 
-/* Hero区域 */
 .hero-section {
   position: relative;
   padding: 60rpx 24rpx 40rpx;
@@ -208,8 +214,7 @@ function goToFormula(name: string) {
   bottom: 0;
   background-image: 
     radial-gradient(ellipse 60px 40px at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 80px 50px at 70% 20%, rgba(255,255,255,0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 50px 30px at 50% 70%, rgba(255,255,255,0.05) 0%, transparent 70%);
+    radial-gradient(ellipse 80px 50px at 70% 20%, rgba(255,255,255,0.06) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -241,7 +246,6 @@ function goToFormula(name: string) {
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* 统计卡片 */
 .stats-section {
   display: flex;
   justify-content: space-around;
@@ -263,7 +267,6 @@ function goToFormula(name: string) {
   font-size: 44rpx;
   font-weight: 700;
   color: #8B2500;
-  font-family: 'Georgia', serif;
 }
 
 .stat-label {
@@ -272,7 +275,6 @@ function goToFormula(name: string) {
   margin-top: 4rpx;
 }
 
-/* 区块 */
 .section {
   padding: 0 24rpx 32rpx;
 }
@@ -299,7 +301,6 @@ function goToFormula(name: string) {
   border-radius: 3rpx;
 }
 
-/* 功能导航 */
 .nav-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -342,7 +343,6 @@ function goToFormula(name: string) {
   color: #333;
 }
 
-/* 六经速查 */
 .meridian-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -395,7 +395,6 @@ function goToFormula(name: string) {
   color: #999;
 }
 
-/* 常用经方 */
 .formula-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

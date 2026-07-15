@@ -3,10 +3,43 @@
     <!-- 头部 -->
     <view class="header">
       <view class="logo-icon">
-        <text class="logo-text">倪</text>
+        <text class="logo-text">岐</text>
       </view>
-      <text class="app-name">倪海厦中医</text>
+      <text class="app-name">岐黄小识</text>
       <text class="version">v1.0.0</text>
+    </view>
+
+    <!-- 用户信息 -->
+    <view class="section user-section" v-if="isLoggedIn">
+      <view class="user-info">
+        <text class="user-name">{{ user?.username }}</text>
+        <text class="user-role">{{ user?.role === 'admin' ? '管理员' : '用户' }}</text>
+      </view>
+      <button class="btn-small" @tap="goToUser">个人中心</button>
+    </view>
+    <view class="section user-section" v-else>
+      <view class="user-info">
+        <text class="user-name">未登录</text>
+        <text class="user-desc">登录后可同步数据</text>
+      </view>
+      <button class="btn-small btn-primary" @tap="goToLogin">登录</button>
+    </view>
+
+    <!-- 服务状态 -->
+    <view class="section">
+      <text class="section-title">服务状态</text>
+      <view class="status-list">
+        <view class="status-item">
+          <view class="status-dot" :class="serverConnected ? 'online' : 'offline'"></view>
+          <text class="status-text">服务器连接</text>
+          <text class="status-value">{{ serverConnected ? '正常' : '离线' }}</text>
+        </view>
+        <view class="status-item">
+          <view class="status-dot online"></view>
+          <text class="status-text">数据状态</text>
+          <text class="status-value">{{ stats.formula_count }} 经方 / {{ stats.herb_count }} 药物</text>
+        </view>
+      </view>
     </view>
 
     <!-- 简介 -->
@@ -49,41 +82,41 @@
 
     <!-- 功能说明 -->
     <view class="section">
-      <text class="section-title">功能说明</text>
+      <text class="section-title">功能模块</text>
       <view class="feature-list">
         <view class="feature-item">
-          <text class="feature-icon">方</text>
+          <text class="feature-icon">经</text>
           <view class="feature-info">
             <text class="feature-name">方剂速查</text>
-            <text class="feature-desc">收录常用经方，按六经分类，支持搜索</text>
+            <text class="feature-desc">92首经方，按六经分类</text>
           </view>
         </view>
         <view class="feature-item">
           <text class="feature-icon herb">药</text>
           <view class="feature-info">
             <text class="feature-name">药物查询</text>
-            <text class="feature-desc">收录常用中药，按性味归经分类</text>
+            <text class="feature-desc">349味药物，性味归经</text>
           </view>
         </view>
         <view class="feature-item">
           <text class="feature-icon case">案</text>
           <view class="feature-info">
             <text class="feature-name">医案浏览</text>
-            <text class="feature-desc">收录倪海厦临床医案，按疾病分类</text>
+            <text class="feature-desc">188例倪海厦临床医案</text>
           </view>
         </view>
         <view class="feature-item">
-          <text class="feature-icon diagnosis">经</text>
+          <text class="feature-icon diagnosis">辨</text>
           <view class="feature-info">
             <text class="feature-name">六经辨证</text>
-            <text class="feature-desc">六经辨证辅助诊断，症状自测</text>
+            <text class="feature-desc">交互式辨证辅助</text>
           </view>
         </view>
         <view class="feature-item">
           <text class="feature-icon acupuncture">穴</text>
           <view class="feature-info">
             <text class="feature-name">针灸穴位</text>
-            <text class="feature-desc">十二经络穴位查询，常用配穴</text>
+            <text class="feature-desc">309个穴位，12条经络</text>
           </view>
         </view>
       </view>
@@ -92,9 +125,7 @@
     <!-- 免责声明 -->
     <view class="disclaimer">
       <text class="disclaimer-title">免责声明</text>
-      <text class="disclaimer-text">
-        本小程序内容仅供中医学习与研究，不替代专业医疗诊断。所有诊疗请务必咨询执业医师。
-      </text>
+      <text class="disclaimer-text">本小程序内容仅供中医学习与研究，不替代专业医疗诊断。所有诊疗请务必咨询执业医师。</text>
     </view>
 
     <!-- 致谢 -->
@@ -107,36 +138,74 @@
   </view>
 </template>
 
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import tcmApi from '@/utils/api'
+
+const isLoggedIn = ref(false)
+const user = ref<any>(null)
+const serverConnected = ref(false)
+const stats = ref({
+  formula_count: 0,
+  herb_count: 0,
+  acupoint_count: 0,
+  case_count: 0
+})
+
+onMounted(async () => {
+  // 检查登录状态
+  isLoggedIn.value = tcmApi.isLoggedIn()
+  user.value = tcmApi.getUser()
+
+  // 检查服务器连接并获取统计数据
+  try {
+    const res = await tcmApi.tcm.getStats()
+    if (res.code === 1) {
+      serverConnected.value = true
+      stats.value = res.data
+    }
+  } catch (e) {
+    serverConnected.value = false
+  }
+})
+
+function goToLogin() {
+  uni.navigateTo({ url: '/pages/login/index' })
+}
+
+function goToUser() {
+  uni.navigateTo({ url: '/pages/user/index' })
+}
+</script>
+
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
-  padding: 24rpx;
+  background: #F5F0E8;
+  padding-bottom: 40rpx;
 }
 
 .header {
-  background: linear-gradient(135deg, #8B0000, #A52A2A);
-  border-radius: 16rpx;
+  background: linear-gradient(135deg, #8B2500, #A63A1E);
   padding: 60rpx 40rpx;
-  margin-bottom: 24rpx;
   text-align: center;
 }
 
 .logo-icon {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20rpx;
+  margin: 0 auto 16rpx;
 }
 
 .logo-text {
   font-size: 56rpx;
-  font-weight: 700;
   color: #fff;
+  font-weight: 700;
 }
 
 .app-name {
@@ -148,20 +217,20 @@
 }
 
 .version {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .section {
+  margin: 24rpx;
   background: #fff;
   border-radius: 12rpx;
   padding: 24rpx;
-  margin-bottom: 16rpx;
 }
 
 .section-title {
   display: block;
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: #333;
   margin-bottom: 16rpx;
@@ -169,12 +238,89 @@
 
 .content {
   display: block;
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #666;
   line-height: 1.8;
   margin-bottom: 12rpx;
 }
 
+/* 用户信息 */
+.user-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.user-role, .user-desc {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.btn-small {
+  padding: 12rpx 24rpx;
+  font-size: 26rpx;
+  border-radius: 8rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+}
+
+.btn-primary {
+  background: #8B2500;
+  color: #fff;
+}
+
+/* 服务状态 */
+.status-list {
+  display: grid;
+  gap: 16rpx;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.status-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+}
+
+.status-dot.online {
+  background: #28a745;
+}
+
+.status-dot.offline {
+  background: #dc3545;
+}
+
+.status-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+}
+
+.status-value {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 数据来源 */
 .source-list {
   display: grid;
   gap: 12rpx;
@@ -184,13 +330,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16rpx;
-  background: #f8f8f8;
-  border-radius: 8rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.source-item:last-child {
+  border-bottom: none;
 }
 
 .source-name {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #333;
 }
 
@@ -199,6 +348,7 @@
   color: #999;
 }
 
+/* 功能模块 */
 .feature-list {
   display: grid;
   gap: 16rpx;
@@ -207,27 +357,40 @@
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  padding: 16rpx;
+  background: #FAFAF7;
+  border-radius: 8rpx;
 }
 
 .feature-icon {
-  width: 72rpx;
-  height: 72rpx;
+  width: 64rpx;
+  height: 64rpx;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #8B0000, #A52A2A);
-  flex-shrink: 0;
+  margin-right: 16rpx;
+  background: linear-gradient(135deg, #8B2500, #A63A1E);
 }
 
-.feature-icon.herb { background: linear-gradient(135deg, #2E8B57, #3CB371); }
-.feature-icon.case { background: linear-gradient(135deg, #4682B4, #5F9EA0); }
-.feature-icon.diagnosis { background: linear-gradient(135deg, #DAA520, #FFD700); }
-.feature-icon.acupuncture { background: linear-gradient(135deg, #9370DB, #BA55D3); }
+.feature-icon.herb {
+  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+}
+
+.feature-icon.case {
+  background: linear-gradient(135deg, #2980B9, #3498DB);
+}
+
+.feature-icon.diagnosis {
+  background: linear-gradient(135deg, #B8860B, #D4A017);
+}
+
+.feature-icon.acupuncture {
+  background: linear-gradient(135deg, #8E44AD, #9B59B6);
+}
 
 .feature-info {
   flex: 1;
@@ -246,11 +409,12 @@
   color: #999;
 }
 
+/* 免责声明 */
 .disclaimer {
+  margin: 24rpx;
   background: #FFF8DC;
   border-radius: 12rpx;
   padding: 24rpx;
-  margin-bottom: 16rpx;
   border-left: 4rpx solid #DAA520;
 }
 

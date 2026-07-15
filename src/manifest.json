@@ -16,12 +16,31 @@
     "usingComponents": true,
     "optimization": {
       "subPackages": true
+    },
+    "requiredPrivateInfos": [],
+    "permission": {
+      "scope.userLocation": {
+        "desc": "获取位置信息用于定位"
+      }
     }
   },
   "h5": {
     "title": "岐黄小识 - 经方中医学习工具",
     "router": {
       "mode": "hash"
+    },
+    "devServer": {
+      "port": 5173,
+      "disableHostCheck": true,
+      "proxy": {
+        "/api": {
+          "target": "https://tcm.rowen.cc",
+          "changeOrigin": true,
+          "pathRewrite": {
+            "^/api": ""
+          }
+        }
+      }
     }
   }
 }
