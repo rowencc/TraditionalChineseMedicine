@@ -81,6 +81,18 @@
       }
     },
     {
+      "path": "pages/diagnosis-history/index",
+      "style": {
+        "navigationBarTitleText": "问诊记录"
+      }
+    },
+    {
+      "path": "pages/learning/index",
+      "style": {
+        "navigationBarTitleText": "学习记录"
+      }
+    },
+    {
       "path": "pages/about/index",
       "style": {
         "navigationBarTitleText": "关于"

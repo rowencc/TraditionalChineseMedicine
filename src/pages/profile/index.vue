@@ -41,14 +41,14 @@
 
     <!-- 功能菜单 -->
     <view class="menu-section">
-      <view class="menu-item" @tap="goTo('/pages/cases/index')">
+      <view class="menu-item" @tap="goTo('/pages/diagnosis-history/index')">
         <view class="menu-icon diagnosis-icon">
           <text class="icon-text">诊</text>
         </view>
         <text class="menu-text">问诊记录</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" @tap="goTo('/pages/cases/index?type=learning')">
+      <view class="menu-item" @tap="goTo('/pages/learning/index')">
         <view class="menu-icon learning-icon">
           <text class="icon-text">学</text>
         </view>

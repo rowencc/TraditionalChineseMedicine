@@ -127,8 +127,7 @@ async function handleWxLogin() {
       // 发送code到服务器
       const res = await api.wxLogin(loginRes.code)
       if (res.code === 1) {
-        // 保存用户信息
-        api.setUser(res.data.user)
+        // token和user信息已由api.wxLogin自动保存
         uni.showToast({ title: '登录成功', icon: 'success' })
         setTimeout(() => {
           uni.switchTab({ url: '/pages/profile/index' })
@@ -158,8 +157,7 @@ async function handleLogin() {
   try {
     const res = await api.login(loginForm.value.username, loginForm.value.password)
     if (res.code === 1) {
-      // 保存用户信息
-      api.setUser(res.data.user)
+      // token和user信息已由api.login自动保存
       uni.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
         uni.switchTab({ url: '/pages/profile/index' })

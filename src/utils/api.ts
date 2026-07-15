@@ -5,18 +5,9 @@
 
 const API_BASE = 'https://tcm.rowen.cc/index.php'
 
-// Token 管理
+// Token 和用户管理
 function getToken(): string | null {
   return uni.getStorageSync('token') || null
-}
-
-function setToken(token: string) {
-  uni.setStorageSync('token', token)
-}
-
-function clearToken() {
-  uni.removeStorageSync('token')
-  uni.removeStorageSync('user')
 }
 
 function isLoggedIn(): boolean {
@@ -24,12 +15,24 @@ function isLoggedIn(): boolean {
 }
 
 function getUser() {
-  const user = uni.getStorageSync('user')
-  return user ? JSON.parse(user) : null
+  try {
+    const user = uni.getStorageSync('user')
+    return user ? JSON.parse(user) : null
+  } catch {
+    return null
+  }
 }
 
-function setUser(user: any) {
+// 保存登录信息（token + user）
+function saveAuth(token: string, user: any) {
+  uni.setStorageSync('token', token)
   uni.setStorageSync('user', JSON.stringify(user))
+}
+
+// 清除登录信息
+function clearAuth() {
+  uni.removeStorageSync('token')
+  uni.removeStorageSync('user')
 }
 
 // 通用请求
@@ -60,14 +63,34 @@ function request(module: string, action: string, params: Record<string, any> = {
   })
 }
 
-// 微信登录
-export function wxLogin(code: string) {
-  return request('auth', 'wx_login', { code }, 'POST')
+// 微信登录（自动保存token和用户信息）
+export function wxLogin(code: string): Promise<any> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request('auth', 'wx_login', { code }, 'POST')
+      if (res.code === 1 && res.data) {
+        saveAuth(res.data.token, res.data.user)
+      }
+      resolve(res)
+    } catch (e) {
+      reject(e)
+    }
+  })
 }
 
-// 密码登录
-export function login(username: string, password: string) {
-  return request('auth', 'login', { username, password }, 'POST')
+// 密码登录（自动保存token和用户信息）
+export function login(username: string, password: string): Promise<any> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request('auth', 'login', { username, password }, 'POST')
+      if (res.code === 1 && res.data) {
+        saveAuth(res.data.token, res.data.user)
+      }
+      resolve(res)
+    } catch (e) {
+      reject(e)
+    }
+  })
 }
 
 // 注册
@@ -87,7 +110,7 @@ export function changePassword(oldPassword: string, newPassword: string) {
 
 // 退出登录
 export function logout() {
-  clearToken()
+  clearAuth()
   uni.reLaunch({ url: '/pages/index/index' })
 }
 
