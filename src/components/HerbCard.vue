@@ -11,28 +11,34 @@
       <text class="effect">{{ herb.effect }}</text>
     </view>
     <view class="card-footer">
-      <text class="meridian">归经：{{ herb.meridian.join('、') }}</text>
+      <text class="meridian">归经：{{ meridianText }}</text>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-export interface Herb {
-  name: string
-  category: string
-  nature: string
-  taste: string
-  meridian: string[]
-  effect: string
-  usage: string
-  caution?: string
-}
+import { computed } from 'vue'
 
-defineProps<{
-  herb: Herb
+const props = defineProps<{
+  herb: any
 }>()
 
 const emit = defineEmits(['tap'])
+
+// 处理归经数据 - 可能是JSON字符串或数组
+const meridianText = computed(() => {
+  const m = props.herb.meridian
+  if (Array.isArray(m)) return m.join('、')
+  if (typeof m === 'string') {
+    try {
+      const arr = JSON.parse(m)
+      return Array.isArray(arr) ? arr.join('、') : m
+    } catch {
+      return m
+    }
+  }
+  return ''
+})
 
 function onTap() {
   emit('tap')

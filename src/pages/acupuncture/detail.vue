@@ -19,7 +19,7 @@
     </view>
 
     <!-- 常用配穴 -->
-    <view class="section">
+    <view class="section" v-if="combos.length > 0">
       <text class="section-title">常用配穴</text>
       <view class="combo-list">
         <view
@@ -28,9 +28,9 @@
           class="combo-item"
         >
           <view class="combo-header">
-            <text class="combo-points">{{ pointInfo.combination[index] }}</text>
+            <text class="combo-points">{{ combo.points }}</text>
           </view>
-          <text class="combo-effect">{{ pointInfo.combinationEffect[index] }}</text>
+          <text class="combo-effect">{{ combo.effect }}</text>
         </view>
       </view>
     </view>
@@ -64,11 +64,27 @@ const pointInfo = computed(() => {
   return null
 })
 
+// 解析JSON数组
+function parseJsonArray(val: any): any[] {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') {
+    try {
+      const arr = JSON.parse(val)
+      return Array.isArray(arr) ? arr : []
+    } catch {
+      return val ? [val] : []
+    }
+  }
+  return []
+}
+
 const combos = computed(() => {
-  if (!pointInfo.value) return []
-  return pointInfo.value.combination.map((c: string, i: number) => ({
+  if (!pointInfo.value || !pointInfo.value.combination) return []
+  const comb = parseJsonArray(pointInfo.value.combination)
+  const effects = parseJsonArray(pointInfo.value.combinationEffect || [])
+  return comb.map((c: string, i: number) => ({
     points: c,
-    effect: pointInfo.value!.combinationEffect[i]
+    effect: effects[i] || ''
   }))
 })
 

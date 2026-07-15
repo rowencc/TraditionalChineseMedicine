@@ -7,11 +7,11 @@
     <view class="card-body">
       <view class="info-row">
         <text class="label">组成：</text>
-        <text class="value">{{ formula.composition.join('、') }}</text>
+        <text class="value">{{ compositionText }}</text>
       </view>
       <view class="info-row">
         <text class="label">主治：</text>
-        <text class="value">{{ formula.symptoms.join('、') }}</text>
+        <text class="value">{{ symptomsText }}</text>
       </view>
     </view>
     <view class="card-footer">
@@ -21,21 +21,30 @@
 </template>
 
 <script setup lang="ts">
-export interface Formula {
-  name: string
-  meridian: string
-  composition: string[]
-  dosage: string
-  symptoms: string[]
-  usage: string
-  source: string
-}
+import { computed } from 'vue'
 
-defineProps<{
-  formula: Formula
+const props = defineProps<{
+  formula: any
 }>()
 
 const emit = defineEmits(['tap'])
+
+// 处理JSON字符串为数组
+function parseJsonArray(val: any): string[] {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') {
+    try {
+      const arr = JSON.parse(val)
+      return Array.isArray(arr) ? arr : [val]
+    } catch {
+      return [val]
+    }
+  }
+  return []
+}
+
+const compositionText = computed(() => parseJsonArray(props.formula.composition).join('、'))
+const symptomsText = computed(() => parseJsonArray(props.formula.symptoms).join('、'))
 
 function onTap() {
   emit('tap')
