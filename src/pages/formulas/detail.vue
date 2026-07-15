@@ -1,5 +1,5 @@
 <template>
-  <view class="container" v-if="formula">
+  <view class="container" :class="themeClass" v-if="formula">
     <!-- 头部 -->
     <view class="header">
       <text class="name">{{ formula.name }}</text>
@@ -62,7 +62,9 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const formula = ref<any>(null)
 const formulaName = ref('')
 

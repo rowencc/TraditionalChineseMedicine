@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 用户信息卡片 -->
     <view class="user-card" @tap="isLoggedIn ? showEditModal = true : goToLogin()">
       <view class="avatar-wrap">
@@ -50,7 +50,7 @@
         <view class="menu-icon diagnosis-icon">
           <text class="icon-text">诊</text>
         </view>
-        <text class="menu-text">问诊记录</text>
+        <text class="menu-text">问一问记录</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" @tap="goTo('/pages/learning/index')">
@@ -60,13 +60,13 @@
         <text class="menu-text">学习记录</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" @tap="toggleTheme">
+      <view class="menu-item" @tap="handleToggleTheme">
         <view class="menu-icon theme-icon">
-          <text class="icon-text">{{ isDarkMode ? '亮' : '暗' }}</text>
+          <text class="icon-text">{{ isDark ? '亮' : '暗' }}</text>
         </view>
         <text class="menu-text">主题模式</text>
         <text class="menu-switch">
-          <switch :checked="isDarkMode" @change="toggleTheme" color="#8B2500" />
+          <switch :checked="isDark" @change="handleToggleTheme" color="#8B2500" />
         </text>
       </view>
       <view class="menu-item" @tap="goTo('/pages/agreement/index')">
@@ -138,10 +138,11 @@
 import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass, isDark, toggleTheme: doToggleTheme } = useTheme()
 const isLoggedIn = ref(false)
 const user = ref<any>(null)
-const isDarkMode = ref(false)
 const showEditModal = ref(false)
 const editError = ref('')
 
@@ -214,10 +215,9 @@ async function saveProfile() {
   }
 }
 
-function toggleTheme() {
-  isDarkMode.value = !isDarkMode.value
-  uni.setStorageSync('theme', isDarkMode.value ? 'dark' : 'light')
-  uni.showToast({ title: isDarkMode.value ? '已切换到暗色模式' : '已切换到亮色模式', icon: 'none' })
+function handleToggleTheme() {
+  doToggleTheme()
+  uni.showToast({ title: isDark.value ? '已切换到暗色模式' : '已切换到亮色模式', icon: 'none' })
 }
 
 function goTo(url: string) {

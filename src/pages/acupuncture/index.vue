@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 搜索栏 -->
     <SearchBar v-model="keyword" @search="onSearch" placeholder="搜索穴位名称..." />
 
@@ -44,7 +44,9 @@
 import { ref } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import meridiansData from '@/data/acupoints.json'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const keyword = ref('')
 const expandedMeridians = ref<string[]>(['手太阴肺经'])
 

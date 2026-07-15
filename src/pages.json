@@ -11,7 +11,7 @@
     {
       "path": "pages/diagnosis/index",
       "style": {
-        "navigationBarTitleText": "AI问诊",
+        "navigationBarTitleText": "问一问",
         "navigationBarBackgroundColor": "#8B2500",
         "navigationBarTextStyle": "white"
       }
@@ -83,7 +83,13 @@
     {
       "path": "pages/diagnosis-history/index",
       "style": {
-        "navigationBarTitleText": "问诊记录"
+        "navigationBarTitleText": "问一问记录"
+      }
+    },
+    {
+      "path": "pages/diagnosis-history/detail",
+      "style": {
+        "navigationBarTitleText": "问一问详情"
       }
     },
     {
@@ -118,6 +124,7 @@
     "backgroundColor": "#F5F0E8",
     "backgroundTextStyle": "dark"
   },
+  "subPackages": [],
   "tabBar": {
     "color": "#999",
     "selectedColor": "#8B2500",
@@ -132,7 +139,7 @@
       },
       {
         "pagePath": "pages/diagnosis/index",
-        "text": "问诊",
+        "text": "问一问",
         "iconPath": "static/tab-diagnosis.png",
         "selectedIconPath": "static/tab-diagnosis-active.png"
       },

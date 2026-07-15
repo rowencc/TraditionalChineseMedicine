@@ -1,5 +1,5 @@
 <template>
-  <view class="container" v-if="pointInfo">
+  <view class="container" :class="themeClass" v-if="pointInfo">
     <!-- 头部 -->
     <view class="header">
       <text class="point-name">{{ pointName }}</text>
@@ -35,8 +35,14 @@
       </view>
     </view>
 
-    <!-- 穴位定位 -->
-    <PointLocator :point-name="pointName" :meridian-name="meridianName" :position="pointInfo.position" />
+    <!-- 穴位定位图（后台可配置） -->
+    <view class="section" v-if="pointImage">
+      <text class="section-title">穴位定位图</text>
+      <image :src="pointImage" mode="aspectFit" class="point-image" @tap="previewImage(pointImage)" />
+    </view>
+
+    <!-- 穴位定位（默认组件） -->
+    <PointLocator v-else :point-name="pointName" :meridian-name="meridianName" :position="pointInfo.position" />
 
     <!-- 临床应用 -->
     <view class="section">
@@ -52,9 +58,12 @@ import { onLoad } from '@dcloudio/uni-app'
 import meridiansData from '@/data/acupoints.json'
 import PointLocator from '@/components/PointLocator.vue'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const meridianName = ref('')
 const pointName = ref('')
+const pointImage = ref('')
 
 const pointInfo = computed(() => {
   for (const meridian of meridiansData.meridians) {
@@ -63,19 +72,6 @@ const pointInfo = computed(() => {
     }
   }
   return null
-})
-
-// 记录穴位学习
-onLoad((options) => {
-  if (options?.point) {
-    pointName.value = decodeURIComponent(options.point)
-    uni.setNavigationBarTitle({ title: pointName.value })
-    
-    // 记录学习
-    if (api.isLoggedIn()) {
-      api.recordLearning('acupoint', 0, pointName.value)
-    }
-  }
 })
 
 // 解析JSON数组
@@ -93,12 +89,15 @@ function parseJsonArray(val: any): any[] {
 }
 
 const combos = computed(() => {
-  if (!pointInfo.value || !pointInfo.value.combination) return []
-  const comb = parseJsonArray(pointInfo.value.combination)
-  const effects = parseJsonArray(pointInfo.value.combinationEffect || [])
+  if (!pointInfo.value) return []
+  const combination = pointInfo.value.combination
+  if (!combination) return []
+  const comb = parseJsonArray(combination)
+  const effects = parseJsonArray(pointInfo.value.combinationEffect || '[]')
+  if (!comb || !Array.isArray(comb)) return []
   return comb.map((c: string, i: number) => ({
     points: c,
-    effect: effects[i] || ''
+    effect: (Array.isArray(effects) ? effects[i] : '') || ''
   }))
 })
 
@@ -138,8 +137,31 @@ onLoad((options) => {
   if (options?.point) {
     pointName.value = decodeURIComponent(options.point)
     uni.setNavigationBarTitle({ title: pointName.value })
+    // 加载穴位图片配置
+    loadPointImage(options.point)
+  }
+  if (options?.point && api.isLoggedIn()) {
+    api.recordLearning('acupoint', 0, decodeURIComponent(options.point))
   }
 })
+
+async function loadPointImage(point: string) {
+  try {
+    const res = await api.getSiteConfig()
+    if (res.code === 1 && res.data) {
+      const key = 'acupoint_img_' + decodeURIComponent(point)
+      if (res.data[key]) {
+        pointImage.value = res.data[key]
+      }
+    }
+  } catch (e) {
+    // 忽略
+  }
+}
+
+function previewImage(url: string) {
+  uni.previewImage({ urls: [url], current: url })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -249,5 +271,12 @@ onLoad((options) => {
 .diagram-hint {
   font-size: 22rpx;
   color: #999;
+}
+
+.point-image {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
 }
 </style>

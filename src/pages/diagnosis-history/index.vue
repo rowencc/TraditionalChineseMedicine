@@ -1,27 +1,30 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <view v-if="!isLoggedIn" class="empty-state">
-      <text class="empty-icon">📋</text>
-      <text class="empty-text">请先登录查看问诊记录</text>
+      <text class="empty-text">请先登录查看问一问记录</text>
       <button class="btn-login" @tap="goToLogin">去登录</button>
     </view>
 
     <view v-else-if="records.length === 0 && !loading" class="empty-state">
-      <text class="empty-icon">📝</text>
-      <text class="empty-text">暂无问诊记录</text>
-      <text class="empty-desc">使用AI问诊功能后，记录将显示在这里</text>
+      <text class="empty-text">暂无问一问记录</text>
+      <text class="empty-desc">使用问一问功能后，记录将显示在这里</text>
     </view>
 
     <view v-else>
       <scroll-view scroll-y class="record-list" @scrolltolower="loadMore">
-        <view v-for="item in records" :key="item.id" class="record-card">
+        <view v-for="item in records" :key="item.id" class="record-card" @tap="goToDetail(item.id)">
           <view class="record-header">
+            <view class="meridian-badge" v-if="item.meridian">{{ item.meridian }}</view>
             <text class="record-date">{{ item.create_time }}</text>
-            <text class="record-tag">AI问诊</text>
           </view>
           <view class="record-body">
             <text class="record-question">{{ item.symptoms }}</text>
-            <text class="record-answer">{{ item.diagnosis }}</text>
+            <view class="record-formulas" v-if="getFormulas(item).length > 0">
+              <text v-for="f in getFormulas(item)" :key="f" class="formula-tag">{{ f }}</text>
+            </view>
+          </view>
+          <view class="record-footer">
+            <text class="record-source" v-if="item.source">AI: {{ item.source }}</text>
           </view>
         </view>
 
@@ -29,8 +32,8 @@
           <text>加载中...</text>
         </view>
 
-        <view v-if="!loading && records.length === 0" class="empty-hint">
-          <text>暂无记录</text>
+        <view v-if="!loading && records.length > 0 && !hasMore" class="no-more">
+          <text>没有更多了</text>
         </view>
       </scroll-view>
     </view>
@@ -38,10 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const isLoggedIn = ref(false)
 const records = ref<any[]>([])
 const loading = ref(false)
@@ -57,19 +62,19 @@ onShow(() => {
 
 async function loadRecords(reset = false) {
   if (loading.value) return
-  
+
   if (reset) {
     page.value = 1
     records.value = []
     hasMore.value = true
   }
-  
+
   if (!hasMore.value) return
-  
+
   loading.value = true
-  
+
   try {
-    const res = await api.getLearningList('diagnosis', page.value, 20)
+    const res = await api.getDiagnosisHistory(page.value, 20)
     if (res.code === 1) {
       const newList = res.data.list || []
       if (reset) {
@@ -91,8 +96,20 @@ function loadMore() {
   loadRecords(false)
 }
 
+function goToDetail(id: number) {
+  uni.navigateTo({ url: `/pages/diagnosis-history/detail?id=${id}` })
+}
+
 function goToLogin() {
   uni.navigateTo({ url: '/pages/login/index' })
+}
+
+function getFormulas(item: any): string[] {
+  if (!item.suggested_formulas) return []
+  try {
+    const arr = typeof item.suggested_formulas === 'string' ? JSON.parse(item.suggested_formulas) : item.suggested_formulas
+    return Array.isArray(arr) ? arr.slice(0, 3) : []
+  } catch { return [] }
 }
 </script>
 
@@ -100,6 +117,7 @@ function goToLogin() {
 .container {
   min-height: 100vh;
   background: #F5F0E8;
+  box-sizing: border-box;
 }
 
 .empty-state {
@@ -109,11 +127,6 @@ function goToLogin() {
   justify-content: center;
   min-height: 60vh;
   padding: 40rpx;
-}
-
-.empty-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
 }
 
 .empty-text {
@@ -137,8 +150,10 @@ function goToLogin() {
 }
 
 .record-list {
-  height: calc(100vh - 120rpx);
+  height: calc(100vh - 40rpx);
   padding: 24rpx;
+  overflow: hidden;
+  width: auto;
 }
 
 .record-card {
@@ -147,6 +162,9 @@ function goToLogin() {
   padding: 24rpx;
   margin-bottom: 16rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .record-header {
@@ -156,47 +174,72 @@ function goToLogin() {
   margin-bottom: 12rpx;
 }
 
-.record-date {
+.meridian-badge {
   font-size: 24rpx;
-  color: #999;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
 }
 
-.record-tag {
+.record-date {
   font-size: 22rpx;
-  color: #8B2500;
-  background: rgba(139, 37, 0, 0.1);
-  padding: 4rpx 12rpx;
-  border-radius: 12rpx;
+  color: #999;
 }
 
 .record-body {
   border-top: 1rpx solid #f0f0f0;
   padding-top: 12rpx;
+  margin-bottom: 12rpx;
 }
 
 .record-question {
-  display: block;
   font-size: 28rpx;
   color: #333;
-  margin-bottom: 8rpx;
-}
-
-.record-answer {
-  font-size: 26rpx;
-  color: #666;
+  margin-bottom: 12rpx;
   line-height: 1.6;
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-.loading {
+.record-formulas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  overflow: hidden;
+}
+
+.formula-tag {
+  font-size: 22rpx;
+  color: #8B2500;
+  background: rgba(139, 37, 0, 0.08);
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+}
+
+.record-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 12rpx;
+}
+
+.record-source {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.loading, .no-more {
   display: flex;
   justify-content: center;
   padding: 40rpx;
   color: #999;
-}
-
-.empty-hint {
-  text-align: center;
-  padding: 40rpx;
-  color: #999;
+  font-size: 24rpx;
 }
 </style>

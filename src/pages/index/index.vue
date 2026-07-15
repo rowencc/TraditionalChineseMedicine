@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 搜索栏 -->
     <view class="search-section">
       <view class="search-wrap">
@@ -62,7 +62,7 @@
           v-for="item in sixMeridians"
           :key="item.name"
           class="meridian-card"
-          :class="'meridian-' + item.name"
+          :class="'meridian-' + item.cssClass"
           @tap="goToDiagnosis(item.name)"
         >
           <text class="meridian-name">{{ item.name }}</text>
@@ -94,7 +94,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const isLoggedIn = ref(false)
 const user = ref<any>(null)
 const learningTotal = ref(0)
@@ -113,22 +115,22 @@ const stats = ref([
   { value: 0, label: '医案' }
 ])
 
-const navItems = [
+const navItems = ref([
   { name: '方剂速查', url: '/pages/formulas/index', icon: '方', color: 'formula' },
   { name: '药物查询', url: '/pages/herbs/index', icon: '药', color: 'herb' },
   { name: '医案浏览', url: '/pages/cases/index', icon: '案', color: 'case' },
   { name: '六经辨证', url: '/pages/diagnosis/index', icon: '经', color: 'diagnosis' },
   { name: '针灸穴位', url: '/pages/acupuncture/index', icon: '穴', color: 'acupuncture' },
   { name: '关于', url: '/pages/about/index', icon: '识', color: 'about' }
-]
+])
 
 const sixMeridians = ref([
-  { name: '太阳', description: '表证', formula: '桂枝汤、麻黄汤' },
-  { name: '阳明', description: '里热证', formula: '白虎汤、承气汤' },
-  { name: '少阳', description: '半表半里证', formula: '小柴胡汤' },
-  { name: '太阴', description: '脾虚寒湿证', formula: '理中汤' },
-  { name: '少阴', description: '心肾阳虚证', formula: '四逆汤、真武汤' },
-  { name: '厥阴', description: '寒热错杂证', formula: '乌梅丸' }
+  { name: '太阳', cssClass: 'sun', description: '表证', formula: '桂枝汤、麻黄汤' },
+  { name: '阳明', cssClass: 'yangming', description: '里热证', formula: '白虎汤、承气汤' },
+  { name: '少阳', cssClass: 'shaoyang', description: '半表半里证', formula: '小柴胡汤' },
+  { name: '太阴', cssClass: 'taiyin', description: '脾虚寒湿证', formula: '理中汤' },
+  { name: '少阴', cssClass: 'shaoyin', description: '心肾阳虚证', formula: '四逆汤、真武汤' },
+  { name: '厥阴', cssClass: 'jueyin', description: '寒热错杂证', formula: '乌梅丸' }
 ])
 
 const hotFormulas = ref<any[]>([])
@@ -145,6 +147,23 @@ onShow(() => {
 
 // 加载统计数据
 onMounted(async () => {
+  // 先从缓存加载站点配置（快速显示）
+  const cached = uni.getStorageSync('site_config')
+  if (cached) {
+    applyNavConfig(cached)
+  }
+
+  // 再从服务器刷新站点配置
+  try {
+    const cfg = await api.getSiteConfig()
+    if (cfg.code === 1 && cfg.data) {
+      uni.setStorageSync('site_config', cfg.data)
+      applyNavConfig(cfg.data)
+    }
+  } catch (e) {
+    // 使用缓存或默认值
+  }
+
   try {
     const res = await api.getStats()
     if (res.code === 1) {
@@ -179,6 +198,17 @@ async function loadLearningStats() {
   } catch (e) {
     console.error('加载学习进度失败', e)
   }
+}
+
+function applyNavConfig(c: any) {
+  navItems.value = [
+    { name: c.nav_formulas || '识方剂', url: '/pages/formulas/index', icon: '方', color: 'formula' },
+    { name: c.nav_herbs || '识药', url: '/pages/herbs/index', icon: '药', color: 'herb' },
+    { name: c.nav_cases || '识医案', url: '/pages/cases/index', icon: '案', color: 'case' },
+    { name: c.nav_diagnosis || '识六经', url: '/pages/diagnosis/index', icon: '经', color: 'diagnosis' },
+    { name: c.nav_acupuncture || '识穴', url: '/pages/acupuncture/index', icon: '穴', color: 'acupuncture' },
+    { name: c.nav_about || '关于', url: '/pages/about/index', icon: '识', color: 'about' }
+  ]
 }
 
 function onSearch() {

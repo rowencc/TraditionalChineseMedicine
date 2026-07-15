@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- Logo区域 -->
     <view class="logo-section">
       <view class="logo">
@@ -91,7 +91,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const showRegister = ref(false)
 const loading = ref(false)
 const errorMsg = ref('')

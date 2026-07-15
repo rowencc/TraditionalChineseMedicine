@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 头部 -->
     <view class="header">
       <view class="logo-icon">
@@ -117,7 +117,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const serverConnected = ref(false)
 const stats = ref({
   formula_count: 0,

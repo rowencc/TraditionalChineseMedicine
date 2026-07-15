@@ -1,5 +1,5 @@
 <template>
-  <view class="container" v-if="caseItem">
+  <view class="container" :class="themeClass" v-if="caseItem">
     <!-- 头部 -->
     <view class="header">
       <view class="header-top">
@@ -45,7 +45,9 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const caseItem = ref<any>(null)
 const caseId = ref('')
 

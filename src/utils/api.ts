@@ -164,12 +164,33 @@ export function getLearningList(contentType = '', page = 1, limit = 20) {
   return request('learning', 'list', { content_type: contentType, page, limit })
 }
 
+export function getDiagnosisList(page = 1, limit = 20) {
+  return request('learning', 'diagnosis_list', { page, limit })
+}
+
+// 问诊记录 API（ai_diagnosis 表）
+export function getDiagnosisHistory(page = 1, limit = 20) {
+  return request('ai', 'list', { page, limit })
+}
+
+export function getDiagnosisDetail(id: number) {
+  return request('ai', 'detail', { id })
+}
+
+// 站点配置（公开接口）
+export function getSiteConfig() {
+  return request('site', 'config')
+}
+
 export function checkLearned(contentType: string, contentId: number) {
   return request('learning', 'check', { content_type: contentType, content_id: contentId })
 }
 
 // 导出
 export default {
+  // 通用请求
+  request,
+
   // 认证
   wxLogin,
   login,
@@ -180,7 +201,7 @@ export default {
   isLoggedIn,
   getUser,
   saveAuth,
-  
+
   // TCM 数据
   getStats,
   getFormulaList,
@@ -191,10 +212,18 @@ export default {
   getAcupointDetail,
   getCaseList,
   getCaseDetail,
-  
+
   // 学习记录
   recordLearning,
   getLearningStats,
   getLearningList,
-  checkLearned
+  getDiagnosisList,
+  checkLearned,
+
+  // 问诊记录
+  getDiagnosisHistory,
+  getDiagnosisDetail,
+
+  // 站点配置
+  getSiteConfig,
 }

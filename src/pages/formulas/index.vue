@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 搜索栏 -->
     <SearchBar v-model="keyword" @search="onSearch" />
 
@@ -37,7 +37,9 @@ import SearchBar from '@/components/SearchBar.vue'
 import TagFilter from '@/components/TagFilter.vue'
 import FormulaCard from '@/components/FormulaCard.vue'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const keyword = ref('')
 const selectedMeridians = ref<string[]>([])
 const formulas = ref<any[]>([])

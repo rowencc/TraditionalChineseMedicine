@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 用户信息卡片 -->
     <view class="user-card">
       <view class="avatar">
@@ -67,7 +67,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const user = ref<any>(null)
 const showPasswordModal = ref(false)
 const errorMsg = ref('')

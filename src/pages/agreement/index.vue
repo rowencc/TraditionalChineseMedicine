@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <view class="content-card">
       <text class="title">服务协议</text>
       <text class="update-time">更新时间：2026年1月1日</text>
@@ -14,7 +14,7 @@
       <view class="section">
         <text class="section-title">二、服务内容</text>
         <text class="paragraph">
-          本应用提供以下服务：方剂查询、药物查询、穴位查询、医案浏览、六经辨证、AI问诊等功能。本应用内容仅供中医学习与研究，不替代专业医疗诊断。
+          本应用提供以下服务：方剂查询、药物查询、穴位查询、医案浏览、六经辨证、问一问等功能。本应用内容仅供中医学习与研究，不替代专业医疗诊断。
         </text>
       </view>
 

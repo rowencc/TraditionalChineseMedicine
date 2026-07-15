@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <!-- 搜索栏 -->
     <SearchBar v-model="keyword" @search="onSearch" placeholder="搜索药物名称..." />
 
@@ -46,7 +46,9 @@ import { ref, onMounted } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import HerbCard from '@/components/HerbCard.vue'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const keyword = ref('')
 const selectedNature = ref('')
 const herbs = ref<any[]>([])

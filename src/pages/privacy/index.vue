@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <view class="content-card">
       <text class="title">隐私协议</text>
       <text class="update-time">更新时间：2026年1月1日</text>
@@ -7,7 +7,7 @@
       <view class="section">
         <text class="section-title">一、信息收集</text>
         <text class="paragraph">
-          本应用收集以下信息用于提供服务：账号信息（用户名、密码）、设备信息（设备型号、操作系统）、使用数据（学习记录、问诊记录）。
+          本应用收集以下信息用于提供服务：账号信息（用户名、密码）、设备信息（设备型号、操作系统）、使用数据（学习记录、问一问记录）。
         </text>
       </view>
 

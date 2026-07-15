@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container" :class="themeClass">
     <view v-if="!isLoggedIn" class="empty-state">
       <text class="empty-icon">📚</text>
       <text class="empty-text">请先登录查看学习记录</text>
@@ -78,7 +78,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { useTheme } from "@/utils/theme"
 
+const { themeClass } = useTheme()
 const isLoggedIn = ref(false)
 const loading = ref(false)
 const learningList = ref<any[]>([])
@@ -121,7 +123,7 @@ async function loadLearningStats() {
 async function loadLearningList() {
   loading.value = true
   try {
-    const res = await api.getLearningList('', 1, 50)
+    const res = await api.request('learning', 'list', { exclude_type: 'diagnosis', page: 1, limit: 50 })
     if (res.code === 1) {
       learningList.value = res.data.list || []
     }
