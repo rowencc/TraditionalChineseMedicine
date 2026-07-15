@@ -16,6 +16,15 @@
       </view>
     </view>
 
+    <!-- 用户状态 -->
+    <view class="user-bar" v-if="isLoggedIn">
+      <view class="user-avatar">
+        <text>{{ user?.username?.charAt(0).toUpperCase() }}</text>
+      </view>
+      <text class="user-greeting">欢迎回来，{{ user?.username }}</text>
+      <text class="user-learning">已学习 {{ learningTotal }} 项</text>
+    </view>
+
     <!-- Hero区域 -->
     <view class="hero-section">
       <view class="cloud-pattern"></view>
@@ -83,8 +92,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 
+const isLoggedIn = ref(false)
+const user = ref<any>(null)
+const learningTotal = ref(0)
 const searchQuery = ref('')
 const stats = ref([
   { value: 0, label: '经方' },
@@ -113,6 +126,16 @@ const sixMeridians = ref([
 
 const hotFormulas = ref<any[]>([])
 
+// 页面显示时检查登录状态
+onShow(() => {
+  isLoggedIn.value = api.isLoggedIn()
+  user.value = api.getUser()
+  
+  if (isLoggedIn.value) {
+    loadLearningStats()
+  }
+})
+
 // 加载统计数据
 onMounted(async () => {
   try {
@@ -139,6 +162,17 @@ onMounted(async () => {
     console.error('加载方剂数据失败', e)
   }
 })
+
+async function loadLearningStats() {
+  try {
+    const res = await api.getLearningStats()
+    if (res.code === 1) {
+      learningTotal.value = res.data.total || 0
+    }
+  } catch (e) {
+    console.error('加载学习进度失败', e)
+  }
+}
 
 function onSearch() {
   if (searchQuery.value.trim()) {
@@ -174,6 +208,38 @@ function goToFormula(name: string) {
 .search-section {
   padding: 24rpx;
   background: linear-gradient(180deg, #8B2500, #A63A1E);
+}
+
+.user-bar {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: linear-gradient(180deg, #8B2500, #A63A1E);
+  gap: 12rpx;
+}
+
+.user-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #fff;
+  font-weight: 600;
+}
+
+.user-greeting {
+  flex: 1;
+  font-size: 26rpx;
+  color: #fff;
+}
+
+.user-learning {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .search-wrap {

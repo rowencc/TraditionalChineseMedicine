@@ -9,22 +9,6 @@
       <text class="version">v1.0.0</text>
     </view>
 
-    <!-- 用户信息 -->
-    <view class="section user-section" v-if="isLoggedIn">
-      <view class="user-info">
-        <text class="user-name">{{ user?.username }}</text>
-        <text class="user-role">{{ user?.role === 'admin' ? '管理员' : '用户' }}</text>
-      </view>
-      <button class="btn-small" @tap="goToUser">个人中心</button>
-    </view>
-    <view class="section user-section" v-else>
-      <view class="user-info">
-        <text class="user-name">未登录</text>
-        <text class="user-desc">登录后可同步数据</text>
-      </view>
-      <button class="btn-small btn-primary" @tap="goToLogin">登录</button>
-    </view>
-
     <!-- 服务状态 -->
     <view class="section">
       <text class="section-title">服务状态</text>
@@ -42,32 +26,6 @@
       </view>
     </view>
 
-    <!-- 学习进度 -->
-    <view class="section" v-if="isLoggedIn">
-      <text class="section-title">学习进度</text>
-      <view class="learning-grid">
-        <view class="learning-item">
-          <text class="learning-num">{{ learningStats.formula }}</text>
-          <text class="learning-label">已学方剂</text>
-        </view>
-        <view class="learning-item">
-          <text class="learning-num">{{ learningStats.herb }}</text>
-          <text class="learning-label">已学药物</text>
-        </view>
-        <view class="learning-item">
-          <text class="learning-num">{{ learningStats.acupoint }}</text>
-          <text class="learning-label">已学穴位</text>
-        </view>
-        <view class="learning-item">
-          <text class="learning-num">{{ learningStats.case }}</text>
-          <text class="learning-label">已阅医案</text>
-        </view>
-      </view>
-      <view class="learning-total">
-        <text>共学习 {{ learningStats.total }} 项内容</text>
-      </view>
-    </view>
-
     <!-- 简介 -->
     <view class="section">
       <text class="section-title">关于</text>
@@ -79,72 +37,64 @@
       </text>
     </view>
 
-    <!-- 数据来源 -->
-    <view class="section">
-      <text class="section-title">数据来源</text>
-      <view class="source-list">
-        <view class="source-item">
-          <text class="source-name">伤寒论讲义</text>
-          <text class="source-pages">209页</text>
-        </view>
-        <view class="source-item">
-          <text class="source-name">金匮要略讲义</text>
-          <text class="source-pages">419页</text>
-        </view>
-        <view class="source-item">
-          <text class="source-name">黄帝内经讲义</text>
-          <text class="source-pages">461页</text>
-        </view>
-        <view class="source-item">
-          <text class="source-name">针灸教程讲义</text>
-          <text class="source-pages">216页</text>
-        </view>
-        <view class="source-item">
-          <text class="source-name">神农本草经文稿</text>
-          <text class="source-pages">339页</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- 功能说明 -->
+    <!-- 功能模块 -->
     <view class="section">
       <text class="section-title">功能模块</text>
       <view class="feature-list">
         <view class="feature-item">
-          <text class="feature-icon">经</text>
+          <view class="feature-icon formula">经</view>
           <view class="feature-info">
             <text class="feature-name">方剂速查</text>
             <text class="feature-desc">92首经方，按六经分类</text>
           </view>
         </view>
         <view class="feature-item">
-          <text class="feature-icon herb">药</text>
+          <view class="feature-icon herb">药</view>
           <view class="feature-info">
             <text class="feature-name">药物查询</text>
             <text class="feature-desc">349味药物，性味归经</text>
           </view>
         </view>
         <view class="feature-item">
-          <text class="feature-icon case">案</text>
+          <view class="feature-icon case">案</view>
           <view class="feature-info">
             <text class="feature-name">医案浏览</text>
             <text class="feature-desc">188例倪海厦临床医案</text>
           </view>
         </view>
         <view class="feature-item">
-          <text class="feature-icon diagnosis">辨</text>
+          <view class="feature-icon diagnosis">辨</view>
           <view class="feature-info">
             <text class="feature-name">六经辨证</text>
             <text class="feature-desc">交互式辨证辅助</text>
           </view>
         </view>
         <view class="feature-item">
-          <text class="feature-icon acupuncture">穴</text>
+          <view class="feature-icon acupuncture">穴</view>
           <view class="feature-info">
             <text class="feature-name">针灸穴位</text>
             <text class="feature-desc">309个穴位，12条经络</text>
           </view>
         </view>
+      </view>
+    </view>
+
+    <!-- 作者信息 -->
+    <view class="section">
+      <text class="section-title">关于作者</text>
+      <view class="author-info">
+        <text class="author-name">开发者</text>
+        <text class="author-contact">邮箱：rowen@rowen.cc</text>
+        <text class="author-desc">本项目为个人学习项目，旨在传播中医知识，仅供学习参考。</text>
+      </view>
+    </view>
+
+    <!-- 开源信息 -->
+    <view class="section">
+      <text class="section-title">开源信息</text>
+      <view class="opensource-info">
+        <text class="opensource-item">GitHub: github.com/rowencc/TraditionalChineseMedicine</text>
+        <text class="opensource-item">许可证：MulanPSL-2.0（木兰宽松许可证）</text>
       </view>
     </view>
 
@@ -168,8 +118,6 @@
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
 
-const isLoggedIn = ref(false)
-const user = ref<any>(null)
 const serverConnected = ref(false)
 const stats = ref({
   formula_count: 0,
@@ -178,20 +126,7 @@ const stats = ref({
   case_count: 0
 })
 
-const learningStats = ref({
-  formula: 0,
-  herb: 0,
-  acupoint: 0,
-  case: 0,
-  total: 0
-})
-
 onMounted(async () => {
-  // 检查登录状态
-  isLoggedIn.value = api.isLoggedIn()
-  user.value = api.getUser()
-
-  // 检查服务器连接并获取统计数据
   try {
     const res = await api.getStats()
     if (res.code === 1) {
@@ -201,27 +136,7 @@ onMounted(async () => {
   } catch (e) {
     serverConnected.value = false
   }
-
-  // 获取学习进度
-  if (isLoggedIn.value) {
-    try {
-      const res = await api.getLearningStats()
-      if (res.code === 1) {
-        learningStats.value = res.data
-      }
-    } catch (e) {
-      console.error('获取学习进度失败', e)
-    }
-  }
 })
-
-function goToLogin() {
-  uni.navigateTo({ url: '/pages/login/index' })
-}
-
-function goToUser() {
-  uni.navigateTo({ url: '/pages/user/index' })
-}
 </script>
 
 <style lang="scss" scoped>
@@ -290,44 +205,6 @@ function goToUser() {
   margin-bottom: 12rpx;
 }
 
-/* 用户信息 */
-.user-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user-info {
-  flex: 1;
-}
-
-.user-name {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4rpx;
-}
-
-.user-role, .user-desc {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.btn-small {
-  padding: 12rpx 24rpx;
-  font-size: 26rpx;
-  border-radius: 8rpx;
-  background: #f5f5f5;
-  color: #666;
-  border: none;
-}
-
-.btn-primary {
-  background: #8B2500;
-  color: #fff;
-}
-
 /* 服务状态 */
 .status-list {
   display: grid;
@@ -347,13 +224,8 @@ function goToUser() {
   margin-right: 12rpx;
 }
 
-.status-dot.online {
-  background: #28a745;
-}
-
-.status-dot.offline {
-  background: #dc3545;
-}
+.status-dot.online { background: #28a745; }
+.status-dot.offline { background: #dc3545; }
 
 .status-text {
   flex: 1;
@@ -364,70 +236,6 @@ function goToUser() {
 .status-value {
   font-size: 24rpx;
   color: #999;
-}
-
-/* 数据来源 */
-.source-list {
-  display: grid;
-  gap: 12rpx;
-}
-
-.source-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.source-item:last-child {
-  border-bottom: none;
-}
-
-.source-name {
-  font-size: 26rpx;
-  color: #333;
-}
-
-.source-pages {
-  font-size: 24rpx;
-  color: #999;
-}
-
-/* 学习进度 */
-.learning-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16rpx;
-  margin-bottom: 16rpx;
-}
-
-.learning-item {
-  text-align: center;
-  padding: 20rpx;
-  background: #FAFAF7;
-  border-radius: 8rpx;
-}
-
-.learning-num {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #8B2500;
-  margin-bottom: 4rpx;
-}
-
-.learning-label {
-  font-size: 22rpx;
-  color: #999;
-}
-
-.learning-total {
-  text-align: center;
-  font-size: 24rpx;
-  color: #666;
-  padding-top: 8rpx;
-  border-top: 1rpx solid #f0f0f0;
 }
 
 /* 功能模块 */
@@ -455,40 +263,61 @@ function goToUser() {
   font-weight: 700;
   color: #fff;
   margin-right: 16rpx;
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
 }
 
-.feature-icon.herb {
-  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+.feature-icon.formula { background: linear-gradient(135deg, #8B2500, #A63A1E); }
+.feature-icon.herb { background: linear-gradient(135deg, #2D5F4A, #3D7A62); }
+.feature-icon.case { background: linear-gradient(135deg, #2980B9, #3498DB); }
+.feature-icon.diagnosis { background: linear-gradient(135deg, #B8860B, #D4A017); }
+.feature-icon.acupuncture { background: linear-gradient(135deg, #8E44AD, #9B59B6); }
+
+.feature-info { flex: 1; }
+.feature-name { display: block; font-size: 28rpx; font-weight: 500; color: #333; margin-bottom: 4rpx; }
+.feature-desc { font-size: 24rpx; color: #999; }
+
+/* 作者信息 */
+.author-info {
+  padding: 16rpx;
+  background: #FAFAF7;
+  border-radius: 8rpx;
 }
 
-.feature-icon.case {
-  background: linear-gradient(135deg, #2980B9, #3498DB);
-}
-
-.feature-icon.diagnosis {
-  background: linear-gradient(135deg, #B8860B, #D4A017);
-}
-
-.feature-icon.acupuncture {
-  background: linear-gradient(135deg, #8E44AD, #9B59B6);
-}
-
-.feature-info {
-  flex: 1;
-}
-
-.feature-name {
+.author-name {
   display: block;
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
-  margin-bottom: 4rpx;
+  margin-bottom: 8rpx;
 }
 
-.feature-desc {
+.author-contact {
+  display: block;
+  font-size: 26rpx;
+  color: #8B2500;
+  margin-bottom: 8rpx;
+}
+
+.author-desc {
   font-size: 24rpx;
-  color: #999;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 开源信息 */
+.opensource-info {
+  padding: 16rpx;
+  background: #FAFAF7;
+  border-radius: 8rpx;
+}
+
+.opensource-item {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.opensource-item:last-child {
+  margin-bottom: 0;
 }
 
 /* 免责声明 */

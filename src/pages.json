@@ -9,6 +9,22 @@
       }
     },
     {
+      "path": "pages/diagnosis/index",
+      "style": {
+        "navigationBarTitleText": "AI问诊",
+        "navigationBarBackgroundColor": "#8B2500",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarBackgroundColor": "#8B2500",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
       "path": "pages/formulas/index",
       "style": {
         "navigationBarTitleText": "方剂速查"
@@ -45,12 +61,6 @@
       }
     },
     {
-      "path": "pages/diagnosis/index",
-      "style": {
-        "navigationBarTitleText": "六经辨证"
-      }
-    },
-    {
       "path": "pages/acupuncture/index",
       "style": {
         "navigationBarTitleText": "针灸穴位"
@@ -71,17 +81,21 @@
       }
     },
     {
-      "path": "pages/user/index",
-      "style": {
-        "navigationBarTitleText": "个人中心",
-        "navigationBarBackgroundColor": "#8B2500",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
       "path": "pages/about/index",
       "style": {
         "navigationBarTitleText": "关于"
+      }
+    },
+    {
+      "path": "pages/agreement/index",
+      "style": {
+        "navigationBarTitleText": "服务协议"
+      }
+    },
+    {
+      "path": "pages/privacy/index",
+      "style": {
+        "navigationBarTitleText": "隐私协议"
       }
     }
   ],
@@ -105,28 +119,16 @@
         "selectedIconPath": "static/tab-home-active.png"
       },
       {
-        "pagePath": "pages/acupuncture/index",
-        "text": "穴位",
-        "iconPath": "static/tab-acupuncture.png",
-        "selectedIconPath": "static/tab-acupuncture-active.png"
+        "pagePath": "pages/diagnosis/index",
+        "text": "问诊",
+        "iconPath": "static/tab-diagnosis.png",
+        "selectedIconPath": "static/tab-diagnosis-active.png"
       },
       {
-        "pagePath": "pages/formulas/index",
-        "text": "方剂",
-        "iconPath": "static/tab-formula.png",
-        "selectedIconPath": "static/tab-formula-active.png"
-      },
-      {
-        "pagePath": "pages/herbs/index",
-        "text": "药物",
-        "iconPath": "static/tab-herb.png",
-        "selectedIconPath": "static/tab-herb-active.png"
-      },
-      {
-        "pagePath": "pages/cases/index",
-        "text": "医案",
-        "iconPath": "static/tab-case.png",
-        "selectedIconPath": "static/tab-case-active.png"
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "static/tab-profile.png",
+        "selectedIconPath": "static/tab-profile-active.png"
       }
     ]
   }
