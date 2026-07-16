@@ -3,7 +3,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "岐黄小识",
+        "navigationBarTitleText": "岐闻小识",
         "navigationBarBackgroundColor": "#8B2500",
         "navigationBarTextStyle": "white"
       }
@@ -131,7 +131,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "岐黄小识",
+    "navigationBarTitleText": "岐闻小识",
     "navigationBarBackgroundColor": "#8B2500",
     "backgroundColor": "#F5F0E8",
     "backgroundTextStyle": "dark"

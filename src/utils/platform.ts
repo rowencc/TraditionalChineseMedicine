@@ -35,13 +35,13 @@ export function getPlatform(): string {
   return cachedPlatform || 'unknown'
 }
 
-// 应用名称：小程序用"若闻小识"，H5/其他用"岐黄小识"
+// 应用名称：小程序用"若闻小识"，H5/其他用"岐闻小识"
 export function getAppName(): string {
   const platform = getPlatform()
   if (platform === 'mp-weixin' || platform === 'mp-alipay' || platform === 'mp-toutiao') {
     return '若闻小识'
   }
-  return '岐黄小识'
+  return '岐闻小识'
 }
 
 // 应用副标题
