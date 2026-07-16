@@ -162,7 +162,7 @@ const learningStats = ref({
 onShow(() => {
   isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
-  
+
   // 初始化编辑表单
   if (user.value) {
     editForm.value.avatarUrl = user.value.avatarUrl || ''
@@ -171,8 +171,27 @@ onShow(() => {
 
   if (isLoggedIn.value) {
     loadLearningStats()
+    // 从服务端刷新用户资料（昵称、头像）
+    refreshUserProfile()
   }
 })
+
+async function refreshUserProfile() {
+  try {
+    const res = await api.getProfile()
+    if (res.code === 1 && res.data) {
+      const updatedUser = {
+        ...user.value,
+        nickname: res.data.nickname || user.value?.nickname || '',
+        avatarUrl: res.data.avatar_url || user.value?.avatarUrl || ''
+      }
+      api.saveAuth(uni.getStorageSync('token'), updatedUser)
+      user.value = updatedUser
+    }
+  } catch (e) {
+    // 网络失败忽略，使用本地缓存
+  }
+}
 
 async function loadLearningStats() {
   try {
@@ -191,7 +210,7 @@ function onChooseAvatar(e: any) {
   editForm.value.avatarUrl = avatarUrl
 }
 
-// 保存个人信息
+// 保存个人信息（同步到服务端）
 async function saveProfile() {
   if (!editForm.value.nickname) {
     editError.value = '请输入昵称'
@@ -199,7 +218,25 @@ async function saveProfile() {
   }
 
   try {
-    // 更新本地用户信息
+    // 保存到服务端
+    const res = await api.updateProfile(editForm.value.nickname, editForm.value.avatarUrl)
+    if (res.code === 1) {
+      // 用服务端返回的数据更新本地
+      const updatedUser = {
+        ...user.value,
+        nickname: res.data.nickname || editForm.value.nickname,
+        avatarUrl: res.data.avatar_url || editForm.value.avatarUrl
+      }
+      api.saveAuth(uni.getStorageSync('token'), updatedUser)
+      user.value = updatedUser
+
+      uni.showToast({ title: '保存成功', icon: 'success' })
+      showEditModal.value = false
+    } else {
+      editError.value = res.msg || '保存失败'
+    }
+  } catch (e) {
+    // 网络失败也保存到本地（离线容错）
     const updatedUser = {
       ...user.value,
       nickname: editForm.value.nickname,
@@ -207,11 +244,8 @@ async function saveProfile() {
     }
     api.saveAuth(uni.getStorageSync('token'), updatedUser)
     user.value = updatedUser
-    
-    uni.showToast({ title: '保存成功', icon: 'success' })
+    uni.showToast({ title: '已保存到本地', icon: 'none' })
     showEditModal.value = false
-  } catch (e) {
-    editError.value = '保存失败'
   }
 }
 

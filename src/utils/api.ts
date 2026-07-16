@@ -103,6 +103,11 @@ export function getProfile() {
   return request('auth', 'profile')
 }
 
+// 更新用户资料
+export function updateProfile(nickname: string, avatarUrl: string) {
+  return request('auth', 'update_profile', { nickname, avatar_url: avatarUrl }, 'POST')
+}
+
 // 修改密码
 export function changePassword(oldPassword: string, newPassword: string) {
   return request('auth', 'change_password', { old_password: oldPassword, new_password: newPassword }, 'POST')
@@ -196,6 +201,7 @@ export default {
   login,
   register,
   getProfile,
+  updateProfile,
   changePassword,
   logout,
   isLoggedIn,
