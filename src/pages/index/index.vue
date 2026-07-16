@@ -29,7 +29,7 @@
     <view class="hero-section">
       <view class="cloud-pattern"></view>
       <view class="hero-content">
-        <text class="hero-title">岐黄小识</text>
+        <text class="hero-title">{{ appName }}</text>
         <text class="hero-subtitle">经方中医学习工具</text>
         <text class="hero-desc">基于倪海厦中医知识体系</text>
       </view>
@@ -101,6 +101,7 @@ const isLoggedIn = ref(false)
 const user = ref<any>(null)
 const learningTotal = ref(0)
 const searchQuery = ref('')
+const appName = ref('岐黄小识')
 
 // 计算显示名称：优先使用nickname，其次username
 const displayName = computed(() => {
@@ -139,7 +140,11 @@ const hotFormulas = ref<any[]>([])
 onShow(() => {
   isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
-  
+
+  // 刷新应用名称（从缓存读取最新配置）
+  const cached = uni.getStorageSync('site_config')
+  if (cached?.app_name) appName.value = cached.app_name
+
   if (isLoggedIn.value) {
     loadLearningStats()
   }
@@ -201,6 +206,7 @@ async function loadLearningStats() {
 }
 
 function applyNavConfig(c: any) {
+  if (c.app_name) appName.value = c.app_name
   navItems.value = [
     { name: c.nav_formulas || '识方剂', url: '/pages/formulas/index', icon: '方', color: 'formula' },
     { name: c.nav_herbs || '识药', url: '/pages/herbs/index', icon: '药', color: 'herb' },

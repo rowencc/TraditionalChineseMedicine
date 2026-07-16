@@ -38,6 +38,13 @@ function loadSiteConfig() {
         if (cfg.tab_diagnosis) {
           uni.setTabBarItem({ index: 1, text: cfg.tab_diagnosis })
         }
+        // 动态更新导航栏标题
+        if (cfg.app_name) {
+          uni.setNavigationBarTitle({ title: cfg.app_name })
+          // 更新所有 tabBar 页面标题
+          uni.setTabBarItem({ index: 0, text: cfg.tab_home || '首页' })
+          uni.setTabBarItem({ index: 2, text: cfg.tab_profile || '我的' })
+        }
         // 缓存配置供各页面使用
         uni.setStorageSync('site_config', cfg)
       }
