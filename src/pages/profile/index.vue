@@ -3,7 +3,7 @@
     <!-- 用户信息卡片 -->
     <view class="user-card" @tap="isLoggedIn ? showEditModal = true : goToLogin()">
       <view class="avatar-wrap">
-        <image v-if="user?.avatarUrl" class="avatar-img" :src="user.avatarUrl" mode="aspectFill" />
+        <image v-if="user?.avatarUrl" class="avatar-img" :src="resolveAvatarUrl(user.avatarUrl)" mode="aspectFill" />
         <view v-else class="avatar">
           <text class="avatar-text">{{ user?.nickname?.charAt(0) || user?.username?.charAt(0) || '?' }}</text>
         </view>
@@ -110,7 +110,7 @@
         <!-- 获取微信头像 -->
         <view class="avatar-section">
           <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-            <image v-if="editForm.avatarUrl" class="edit-avatar" :src="editForm.avatarUrl" mode="aspectFill" />
+            <image v-if="editForm.avatarUrl" class="edit-avatar" :src="resolveAvatarUrl(editForm.avatarUrl)" mode="aspectFill" />
             <view v-else class="edit-avatar-placeholder">
               <text>点击选择头像</text>
             </view>
@@ -137,7 +137,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import api from '@/utils/api'
+import api, { resolveAvatarUrl } from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 
 const { themeClass, isDark, toggleTheme: doToggleTheme } = useTheme()
@@ -183,7 +183,7 @@ async function refreshUserProfile() {
       const updatedUser = {
         ...user.value,
         nickname: res.data.nickname || user.value?.nickname || '',
-        avatarUrl: res.data.avatar_url || user.value?.avatarUrl || ''
+        avatarUrl: resolveAvatarUrl(res.data.avatar_url) || user.value?.avatarUrl || ''
       }
       api.saveAuth(uni.getStorageSync('token'), updatedUser)
       user.value = updatedUser
@@ -204,10 +204,24 @@ async function loadLearningStats() {
   }
 }
 
-// 选择微信头像
-function onChooseAvatar(e: any) {
+// 选择微信头像并上传到服务端
+async function onChooseAvatar(e: any) {
   const { avatarUrl } = e.detail
-  editForm.value.avatarUrl = avatarUrl
+  if (!avatarUrl) return
+
+  try {
+    // 上传到服务端
+    const uploadRes = await api.uploadAvatar(avatarUrl)
+    if (uploadRes.code === 1) {
+      editForm.value.avatarUrl = uploadRes.data.avatar_url
+    } else {
+      // 上传失败，使用原 URL 作为备用
+      editForm.value.avatarUrl = avatarUrl
+    }
+  } catch (err) {
+    // 上传失败，使用原 URL
+    editForm.value.avatarUrl = avatarUrl
+  }
 }
 
 // 保存个人信息（同步到服务端）

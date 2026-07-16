@@ -4,6 +4,15 @@
  */
 
 const API_BASE = 'https://tcm.rowen.cc/index.php'
+const SERVER_BASE = 'https://tcm.rowen.cc'
+
+// 解析头像URL（相对路径补全为完整URL）
+export function resolveAvatarUrl(url: string): string {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  if (url.startsWith('/')) return SERVER_BASE + url
+  return url
+}
 
 // Token 和用户管理
 function getToken(): string | null {
@@ -108,6 +117,29 @@ export function updateProfile(nickname: string, avatarUrl: string) {
   return request('auth', 'update_profile', { nickname, avatar_url: avatarUrl }, 'POST')
 }
 
+// 上传头像到服务端
+export function uploadAvatar(filePath: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const token = getToken()
+    uni.uploadFile({
+      url: `${API_BASE}?module=upload&action=avatar`,
+      filePath: filePath,
+      name: 'avatar',
+      header: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      },
+      success: (res: any) => {
+        try {
+          resolve(JSON.parse(res.data))
+        } catch {
+          reject(new Error('解析响应失败'))
+        }
+      },
+      fail: (err: any) => reject(err)
+    })
+  })
+}
+
 // 修改密码
 export function changePassword(oldPassword: string, newPassword: string) {
   return request('auth', 'change_password', { old_password: oldPassword, new_password: newPassword }, 'POST')
@@ -202,6 +234,7 @@ export default {
   register,
   getProfile,
   updateProfile,
+  uploadAvatar,
   changePassword,
   logout,
   isLoggedIn,
