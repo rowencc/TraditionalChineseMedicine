@@ -5,7 +5,7 @@
       <view class="logo">
         <text class="logo-text">岐</text>
       </view>
-      <text class="app-name">若闻小识</text>
+      <text class="app-name">{{ getAppName() }}</text>
       <text class="app-desc">经方中医学习工具</text>
     </view>
 
@@ -94,6 +94,7 @@
 import { ref } from 'vue'
 import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
+import { getAppName } from '@/utils/platform'
 
 const { themeClass } = useTheme()
 const showRegister = ref(false)

@@ -99,7 +99,7 @@
 
     <!-- 版本信息 -->
     <view class="version-info">
-      <text>若闻小识 v1.0.0</text>
+      <text>{{ getAppName() }} v1.0.0</text>
     </view>
 
     <!-- 编辑信息弹窗 -->
@@ -139,6 +139,7 @@ import { ref, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api, { resolveAvatarUrl } from '@/utils/api'
 import { useTheme } from "@/utils/theme"
+import { getAppName } from '@/utils/platform'
 
 const { themeClass, isDark, toggleTheme: doToggleTheme } = useTheme()
 const isLoggedIn = ref(false)

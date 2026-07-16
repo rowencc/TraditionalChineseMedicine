@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onLaunch } from '@dcloudio/uni-app'
 import { initTheme, isDark } from '@/utils/theme'
+import { getAppName } from '@/utils/platform'
 import api from '@/utils/api'
 
 onLaunch(() => {
-  console.log('若闻小识 App Launch')
+  console.log(getAppName() + ' App Launch')
   initTheme()
   loadSiteConfig()
   updateTabBarStyle()

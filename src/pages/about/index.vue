@@ -5,7 +5,7 @@
       <view class="logo-icon">
         <text class="logo-text">岐</text>
       </view>
-      <text class="app-name">若闻小识</text>
+      <text class="app-name">{{ getAppName() }}</text>
       <text class="version">v1.0.0</text>
     </view>
 
@@ -118,6 +118,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
+import { getAppName } from '@/utils/platform'
 
 const { themeClass } = useTheme()
 const serverConnected = ref(false)
