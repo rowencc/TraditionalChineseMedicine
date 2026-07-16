@@ -4,7 +4,7 @@ import { initTheme, isDark } from '@/utils/theme'
 import api from '@/utils/api'
 
 onLaunch(() => {
-  console.log('岐黄小识 App Launch')
+  console.log('若闻小识 App Launch')
   initTheme()
   loadSiteConfig()
   updateTabBarStyle()

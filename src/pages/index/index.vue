@@ -101,7 +101,7 @@ const isLoggedIn = ref(false)
 const user = ref<any>(null)
 const learningTotal = ref(0)
 const searchQuery = ref('')
-const appName = ref('岐黄小识')
+const appName = ref('若闻小识')
 
 // 计算显示名称：优先使用nickname，其次username
 const displayName = computed(() => {

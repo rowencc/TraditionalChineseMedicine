@@ -99,7 +99,7 @@
 
     <!-- 版本信息 -->
     <view class="version-info">
-      <text>岐黄小识 v1.0.0</text>
+      <text>若闻小识 v1.0.0</text>
     </view>
 
     <!-- 编辑信息弹窗 -->

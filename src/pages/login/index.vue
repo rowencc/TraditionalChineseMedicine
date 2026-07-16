@@ -5,7 +5,7 @@
       <view class="logo">
         <text class="logo-text">岐</text>
       </view>
-      <text class="app-name">岐黄小识</text>
+      <text class="app-name">若闻小识</text>
       <text class="app-desc">经方中医学习工具</text>
     </view>
 

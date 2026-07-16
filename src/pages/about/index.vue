@@ -5,7 +5,7 @@
       <view class="logo-icon">
         <text class="logo-text">岐</text>
       </view>
-      <text class="app-name">岐黄小识</text>
+      <text class="app-name">若闻小识</text>
       <text class="version">v1.0.0</text>
     </view>
 
@@ -30,7 +30,7 @@
     <view class="section">
       <text class="section-title">关于</text>
       <text class="content">
-        本小程序基于倪海厦（1954-2012）中医知识库开发，收录伤寒论129条、金匮23篇、黄帝内经71篇、神农本草经345种药物、849个临床医案。
+        <text class="app-desc">本小程序基于倪海厦（1954-2012）中医知识库开发，收录伤寒论129条、金匮23篇、黄帝内经71篇、神农本草经345种药物、849个临床医案。</text>
       </text>
       <text class="content">
         倪海厦是台湾经方派中医代表人物，汉唐中医创始人。其核心学术思想包括六经辨证、阳气论、经典至上、经方为主。
