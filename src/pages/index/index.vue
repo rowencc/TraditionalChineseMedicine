@@ -119,7 +119,7 @@ const navItems = ref([
   { name: '方剂速查', url: '/pages/formulas/index', icon: '方', color: 'formula' },
   { name: '药物查询', url: '/pages/herbs/index', icon: '药', color: 'herb' },
   { name: '医案浏览', url: '/pages/cases/index', icon: '案', color: 'case' },
-  { name: '六经辨证', url: '/pages/diagnosis/index', icon: '经', color: 'diagnosis' },
+  { name: '六经辨证', url: '/pages/liujing/index', icon: '经', color: 'diagnosis' },
   { name: '针灸穴位', url: '/pages/acupuncture/index', icon: '穴', color: 'acupuncture' },
   { name: '关于', url: '/pages/about/index', icon: '识', color: 'about' }
 ])
@@ -205,7 +205,7 @@ function applyNavConfig(c: any) {
     { name: c.nav_formulas || '识方剂', url: '/pages/formulas/index', icon: '方', color: 'formula' },
     { name: c.nav_herbs || '识药', url: '/pages/herbs/index', icon: '药', color: 'herb' },
     { name: c.nav_cases || '识医案', url: '/pages/cases/index', icon: '案', color: 'case' },
-    { name: c.nav_diagnosis || '识六经', url: '/pages/diagnosis/index', icon: '经', color: 'diagnosis' },
+    { name: c.nav_diagnosis || '识六经', url: '/pages/liujing/index', icon: '经', color: 'diagnosis' },
     { name: c.nav_acupuncture || '识穴', url: '/pages/acupuncture/index', icon: '穴', color: 'acupuncture' },
     { name: c.nav_about || '关于', url: '/pages/about/index', icon: '识', color: 'about' }
   ]

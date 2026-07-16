@@ -111,6 +111,18 @@
       }
     },
     {
+      "path": "pages/liujing/index",
+      "style": {
+        "navigationBarTitleText": "识六经"
+      }
+    },
+    {
+      "path": "pages/liujing/detail",
+      "style": {
+        "navigationBarTitleText": "六经详情"
+      }
+    },
+    {
       "path": "pages/privacy/index",
       "style": {
         "navigationBarTitleText": "隐私协议"
