@@ -1,31 +1,37 @@
 <script setup lang="ts">
 import { onLaunch } from '@dcloudio/uni-app'
 import { initTheme, isDark } from '@/utils/theme'
-import { getAppName } from '@/utils/platform'
+import { getAppName, getPlatform } from '@/utils/platform'
 import api from '@/utils/api'
+
+const isMp = getPlatform().startsWith('mp-')
 
 onLaunch(() => {
   console.log(getAppName() + ' App Launch')
   initTheme()
   loadSiteConfig()
-  updateTabBarStyle()
+  if (isMp) updateTabBarStyle()
 })
 
 // 监听主题变化，更新 tabBar 样式
 import { watch } from 'vue'
 watch(isDark, () => {
-  updateTabBarStyle()
+  if (isMp) updateTabBarStyle()
 })
 
 function updateTabBarStyle() {
   const dark = isDark.value
   // tabBar 背景和文字颜色
-  uni.setTabBarStyle({
-    color: dark ? '#888' : '#999',
-    selectedColor: dark ? '#E07050' : '#8B2500',
-    backgroundColor: dark ? '#1A1A1A' : '#ffffff',
-    borderStyle: 'black'
-  })
+  try {
+    uni.setTabBarStyle({
+      color: dark ? '#888' : '#999',
+      selectedColor: dark ? '#E07050' : '#8B2500',
+      backgroundColor: dark ? '#1A1A1A' : '#ffffff',
+      borderStyle: 'black'
+    })
+  } catch (e) {
+    // H5 等无 tabBar 平台忽略
+  }
 }
 
 function loadSiteConfig() {
@@ -35,16 +41,17 @@ function loadSiteConfig() {
     success: (res: any) => {
       if (res.data?.code === 1 && res.data?.data) {
         const cfg = res.data.data
-        // 动态更新 tabBar 文字
-        if (cfg.tab_diagnosis) {
-          uni.setTabBarItem({ index: 1, text: cfg.tab_diagnosis })
-        }
-        // 动态更新导航栏标题
-        if (cfg.app_name) {
-          uni.setNavigationBarTitle({ title: cfg.app_name })
-          // 更新所有 tabBar 页面标题
-          uni.setTabBarItem({ index: 0, text: cfg.tab_home || '首页' })
-          uni.setTabBarItem({ index: 2, text: cfg.tab_profile || '我的' })
+        // 动态更新 tabBar 文字（仅小程序）
+        if (isMp) {
+          try {
+            if (cfg.tab_diagnosis) {
+              uni.setTabBarItem({ index: 1, text: cfg.tab_diagnosis })
+            }
+            if (cfg.app_name) {
+              uni.setTabBarItem({ index: 0, text: cfg.tab_home || '首页' })
+              uni.setTabBarItem({ index: 2, text: cfg.tab_profile || '我的' })
+            }
+          } catch (e) {}
         }
         // 缓存配置供各页面使用
         uni.setStorageSync('site_config', cfg)
