@@ -95,13 +95,14 @@ import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
+import { getAppName } from '@/utils/platform'
 
 const { themeClass } = useTheme()
 const isLoggedIn = ref(false)
 const user = ref<any>(null)
 const learningTotal = ref(0)
 const searchQuery = ref('')
-const appName = ref(getAppName())
+const appName = ref('')
 
 // 计算显示名称：优先使用nickname，其次username
 const displayName = computed(() => {
@@ -206,6 +207,7 @@ async function loadLearningStats() {
 }
 
 function applyNavConfig(c: any) {
+  appName.value = c.app_name || getAppName()
   navItems.value = [
     { name: c.nav_formulas || '识方剂', url: '/pages/formulas/index', icon: '方', color: 'formula' },
     { name: c.nav_herbs || '识药', url: '/pages/herbs/index', icon: '药', color: 'herb' },
