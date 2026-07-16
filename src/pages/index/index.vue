@@ -220,7 +220,13 @@ function onSearch() {
 }
 
 function goTo(url: string) {
-  uni.navigateTo({ url })
+  // tabBar 页面必须用 switchTab
+  const tabBarPages = ['/pages/index/index', '/pages/diagnosis/index', '/pages/profile/index']
+  if (tabBarPages.some(p => url.startsWith(p))) {
+    uni.switchTab({ url })
+  } else {
+    uni.navigateTo({ url })
+  }
 }
 
 function goToDiagnosis(name: string) {
