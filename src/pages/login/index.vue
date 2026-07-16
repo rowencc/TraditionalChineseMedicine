@@ -17,32 +17,33 @@
       </button>
     </view>
 
-    <!-- 分割线 -->
+    <!-- #ifndef MP-WEIXIN -->
+    <!-- 分割线（仅H5） -->
     <view class="divider">
       <view class="divider-line"></view>
       <text class="divider-text">或</text>
       <view class="divider-line"></view>
     </view>
 
-    <!-- 密码登录表单 -->
+    <!-- 密码登录表单（仅H5） -->
     <view class="form-section" v-if="!showRegister">
       <view class="form-card">
         <view class="form-group">
           <text class="form-label">用户名</text>
           <input class="form-input" v-model="loginForm.username" placeholder="请输入用户名" />
         </view>
-        
+
         <view class="form-group">
           <text class="form-label">密码</text>
           <input class="form-input" v-model="loginForm.password" type="password" placeholder="请输入密码" />
         </view>
-        
+
         <view v-if="errorMsg" class="error-msg">{{ errorMsg }}</view>
-        
+
         <button class="btn-primary" @tap="handleLogin" :disabled="loading">
           {{ loading ? '登录中...' : '登 录' }}
         </button>
-        
+
         <view class="switch-link" @tap="showRegister = true">
           <text>还没有账号？</text>
           <text class="link">注册新账号</text>
@@ -50,41 +51,42 @@
       </view>
     </view>
 
-    <!-- 注册表单 -->
+    <!-- 注册表单（仅H5） -->
     <view class="form-section" v-else>
       <view class="form-card">
         <view class="form-group">
           <text class="form-label">用户名</text>
           <input class="form-input" v-model="registerForm.username" placeholder="3-20个字符" />
         </view>
-        
+
         <view class="form-group">
           <text class="form-label">邮箱</text>
           <input class="form-input" v-model="registerForm.email" placeholder="请输入邮箱" />
         </view>
-        
+
         <view class="form-group">
           <text class="form-label">密码</text>
           <input class="form-input" v-model="registerForm.password" type="password" placeholder="至少6位" />
         </view>
-        
+
         <view class="form-group">
           <text class="form-label">确认密码</text>
           <input class="form-input" v-model="registerForm.password2" type="password" placeholder="再次输入密码" />
         </view>
-        
+
         <view v-if="errorMsg" class="error-msg">{{ errorMsg }}</view>
-        
+
         <button class="btn-primary" @tap="handleRegister" :disabled="loading">
           {{ loading ? '注册中...' : '注 册' }}
         </button>
-        
+
         <view class="switch-link" @tap="showRegister = false">
           <text>已有账号？</text>
           <text class="link">返回登录</text>
         </view>
       </view>
     </view>
+    <!-- #endif -->
   </view>
 </template>
 
@@ -114,9 +116,8 @@ const registerForm = ref({
 async function handleWxLogin() {
   loading.value = true
   errorMsg.value = ''
-  
+
   try {
-    // 调用微信登录
     const loginRes = await new Promise<UniApp.LoginRes>((resolve, reject) => {
       uni.login({
         provider: 'weixin',
@@ -124,12 +125,10 @@ async function handleWxLogin() {
         fail: reject
       })
     })
-    
+
     if (loginRes.code) {
-      // 发送code到服务器
       const res = await api.wxLogin(loginRes.code)
       if (res.code === 1) {
-        // token和user信息已由api.wxLogin自动保存
         uni.showToast({ title: '登录成功', icon: 'success' })
         setTimeout(() => {
           uni.switchTab({ url: '/pages/profile/index' })
@@ -146,20 +145,19 @@ async function handleWxLogin() {
   }
 }
 
-// 密码登录
+// 密码登录（仅H5）
 async function handleLogin() {
   if (!loginForm.value.username || !loginForm.value.password) {
     errorMsg.value = '请输入用户名和密码'
     return
   }
-  
+
   loading.value = true
   errorMsg.value = ''
-  
+
   try {
     const res = await api.login(loginForm.value.username, loginForm.value.password)
     if (res.code === 1) {
-      // token和user信息已由api.login自动保存
       uni.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
         uni.switchTab({ url: '/pages/profile/index' })
@@ -174,21 +172,21 @@ async function handleLogin() {
   }
 }
 
-// 注册
+// 注册（仅H5）
 async function handleRegister() {
   if (!registerForm.value.username || !registerForm.value.password) {
     errorMsg.value = '请填写完整信息'
     return
   }
-  
+
   if (registerForm.value.password !== registerForm.value.password2) {
     errorMsg.value = '两次密码不一致'
     return
   }
-  
+
   loading.value = true
   errorMsg.value = ''
-  
+
   try {
     const res = await api.register(
       registerForm.value.username,
