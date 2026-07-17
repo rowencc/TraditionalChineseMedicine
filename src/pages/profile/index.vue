@@ -181,7 +181,7 @@ async function refreshUserProfile() {
       const updatedUser = {
         ...user.value,
         nickname: res.data.nickname || user.value?.nickname || '',
-        avatarUrl: resolveAvatarUrl(res.data.avatar_url) || user.value?.avatarUrl || ''
+        avatarUrl: (res.data.avatar_url ? resolveAvatarUrl(res.data.avatar_url) : '') || user.value?.avatarUrl || ''
       }
       api.saveAuth(uni.getStorageSync('token'), updatedUser)
       user.value = updatedUser

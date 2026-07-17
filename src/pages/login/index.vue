@@ -173,16 +173,16 @@ async function handleWxLogin() {
     if (loginRes.code) {
       const res = await api.wxLogin(loginRes.code)
       if (res.code === 1) {
-        // 检查是否已有昵称（老用户）
+        // 登录成功后，从服务端拉取完整用户资料（昵称、头像）
+        await refreshUserAfterLogin()
+
         const user = api.getUser()
         if (user?.nickname) {
-          // 老用户，直接跳转
           uni.showToast({ title: '登录成功', icon: 'success' })
           setTimeout(() => {
             uni.switchTab({ url: '/pages/profile/index' })
           }, 1500)
         } else {
-          // 新用户，弹出资料设置弹窗
           showProfileModal.value = true
         }
       } else {
@@ -195,6 +195,24 @@ async function handleWxLogin() {
   } finally {
     loading.value = false
   }
+}
+
+// 登录后从服务端刷新用户资料
+async function refreshUserAfterLogin() {
+  try {
+    const res = await api.getProfile()
+    if (res.code === 1 && res.data) {
+      const localUser = api.getUser() || {}
+      const updatedUser = {
+        ...localUser,
+        id: res.data.id || localUser.id,
+        nickname: res.data.nickname || localUser.nickname || '',
+        avatarUrl: resolveAvatarUrl(res.data.avatar_url) || localUser.avatarUrl || '',
+        username: res.data.username || localUser.username || ''
+      }
+      api.saveAuth(uni.getStorageSync('token'), updatedUser)
+    }
+  } catch {}
 }
 
 // 选择微信头像
