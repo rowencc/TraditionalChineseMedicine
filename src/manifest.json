@@ -14,9 +14,6 @@
       "minified": true
     },
     "usingComponents": true,
-    "optimization": {
-      "subPackages": true
-    },
     "requiredPrivateInfos": [],
     "permission": {
       "scope.userLocation": {

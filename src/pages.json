@@ -136,7 +136,6 @@
     "backgroundColor": "#F5F0E8",
     "backgroundTextStyle": "dark"
   },
-  "subPackages": [],
   "tabBar": {
     "color": "#999",
     "selectedColor": "#8B2500",
