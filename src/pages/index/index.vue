@@ -1,3 +1,16 @@
+<script lang="ts">
+import { getAppName } from '@/utils/platform'
+
+export default {
+  onShareAppMessage() {
+    return { title: getAppName() }
+  },
+  onShareTimeline() {
+    return { title: getAppName() }
+  }
+}
+</script>
+
 <template>
   <view class="container" :class="themeClass">
     <!-- 搜索栏 -->

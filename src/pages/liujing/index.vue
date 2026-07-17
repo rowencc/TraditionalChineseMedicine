@@ -1,3 +1,14 @@
+<script lang="ts">
+export default {
+  onShareAppMessage() {
+    return { title: '识六经 - 伤寒论六经辨证' }
+  },
+  onShareTimeline() {
+    return { title: '识六经 - 伤寒论六经辨证' }
+  }
+}
+</script>
+
 <template>
   <view class="container" :class="themeClass">
     <!-- 标题 -->

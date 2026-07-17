@@ -61,6 +61,19 @@
   </view>
 </template>
 
+<script lang="ts">
+import { getCurrentPageShareInfo } from '@/utils/share'
+
+export default {
+  onShareAppMessage() {
+    return { title: getCurrentPageShareInfo('中药速查').title }
+  },
+  onShareTimeline() {
+    return { title: getCurrentPageShareInfo('中药速查').title }
+  }
+}
+</script>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'

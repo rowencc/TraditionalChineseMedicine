@@ -59,6 +59,31 @@
   </view>
 </template>
 
+<script lang="ts">
+import { getAppName } from '@/utils/platform'
+
+export default {
+  onShareAppMessage() {
+    const data = uni.getStorageSync('liujing_detail')
+    let title = getAppName()
+    try {
+      const item = JSON.parse(data)
+      title = `${item.name}经 - 六经辨证`
+    } catch {}
+    return { title }
+  },
+  onShareTimeline() {
+    const data = uni.getStorageSync('liujing_detail')
+    let title = getAppName()
+    try {
+      const item = JSON.parse(data)
+      title = `${item.name}经 - 六经辨证`
+    } catch {}
+    return { title }
+  }
+}
+</script>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'

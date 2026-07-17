@@ -1,3 +1,14 @@
+<script lang="ts">
+export default {
+  onShareAppMessage() {
+    return { title: '关于 - 经方中医学习工具' }
+  },
+  onShareTimeline() {
+    return { title: '关于 - 经方中医学习工具' }
+  }
+}
+</script>
+
 <template>
   <view class="container" :class="themeClass">
     <!-- 头部 -->
