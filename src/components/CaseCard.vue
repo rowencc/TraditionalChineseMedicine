@@ -1,11 +1,11 @@
 <template>
   <view class="case-card" @tap="onTap">
     <view class="card-header">
-      <text class="case-date">{{ caseItem.date || '未知日期' }}</text>
+      <text class="case-date">{{ displayDate }}</text>
       <text class="category-tag">{{ categoryLabel }}</text>
     </view>
     <view class="card-body">
-      <text class="disease">{{ caseItem.disease }}</text>
+      <text class="disease">{{ displayTitle }}</text>
       <text class="summary">{{ caseItem.summary }}</text>
     </view>
     <view class="card-tags">
@@ -22,6 +22,7 @@ import { computed } from 'vue'
 export interface CaseItem {
   id: string
   date: string
+  case_date?: string
   disease: string
   patient?: string
   meridian?: string
@@ -50,6 +51,20 @@ const categoryMap: Record<string, string> = {
 }
 
 const categoryLabel = computed(() => categoryMap[props.caseItem.category] || props.caseItem.category)
+
+// 优先使用 case_date，其次 date
+const displayDate = computed(() => props.caseItem.case_date || props.caseItem.date || '未知日期')
+
+// 从 content 中提取 ## 标题，去掉 # 符号；否则使用 disease 字段
+const displayTitle = computed(() => {
+  const content = props.caseItem.content || ''
+  // 匹配 ## 医案：xxx 或 ## xxx
+  const match = content.match(/^#{1,3}\s*(.+)$/m)
+  if (match) {
+    return match[1].replace(/^医案[：:]\s*/, '')
+  }
+  return props.caseItem.disease || ''
+})
 
 const outcomeClass = computed(() => {
   if (props.caseItem.outcome === '好转') return 'outcome-improved'
