@@ -233,7 +233,6 @@ function goToDetail(item: any) {
   padding: 24rpx;
   padding-bottom: 60rpx;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .header {

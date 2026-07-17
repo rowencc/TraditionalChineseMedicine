@@ -266,7 +266,6 @@ function goToFormula(name: string) {
 .container {
   min-height: 100vh;
   background: #F5F0E8;
-  overflow: hidden;
 }
 
 .search-section {

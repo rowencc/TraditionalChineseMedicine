@@ -66,6 +66,7 @@ function loadSiteConfig() {
 page {
   background-color: #F5F0E8;
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow-x: hidden;
 }
 
 /* 全局卡片样式 */
