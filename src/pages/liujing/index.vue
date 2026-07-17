@@ -61,17 +61,17 @@ export default {
       <view class="flow-card">
         <view class="flow-row">
           <view class="flow-item flow-sun">太阳<br><text class="flow-sub">表证初起</text></view>
-          <text class="flow-arrow">-></text>
+          <text class="flow-arrow">→</text>
           <view class="flow-item flow-yangming">阳明<br><text class="flow-sub">里热亢盛</text></view>
         </view>
         <view class="flow-row">
           <view class="flow-item flow-shaoyang">少阳<br><text class="flow-sub">半表半里</text></view>
-          <text class="flow-arrow">-></text>
+          <text class="flow-arrow">→</text>
           <view class="flow-item flow-taiyin">太阴<br><text class="flow-sub">脾虚寒湿</text></view>
         </view>
         <view class="flow-row">
           <view class="flow-item flow-shaoyin">少阴<br><text class="flow-sub">心肾阳虚</text></view>
-          <text class="flow-arrow">-></text>
+          <text class="flow-arrow">→</text>
           <view class="flow-item flow-jueyin">厥阴<br><text class="flow-sub">寒热错杂</text></view>
         </view>
       </view>
