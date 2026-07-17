@@ -87,12 +87,48 @@
       </view>
     </view>
     <!-- #endif -->
+
+    <!-- 登录后资料设置弹窗 -->
+    <view class="modal-overlay" v-if="showProfileModal" @tap="skipProfileSetup">
+      <view class="modal" @tap.stop>
+        <text class="modal-title">设置个人资料</text>
+        <text class="modal-desc">完善昵称和头像，让朋友更容易找到你</text>
+
+        <!-- 头像选择 -->
+        <view class="avatar-section">
+          <!-- #ifdef MP-WEIXIN -->
+          <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+            <image v-if="setupForm.avatarUrl" class="edit-avatar" :src="resolveAvatarUrl(setupForm.avatarUrl)" mode="aspectFill" />
+            <image v-else class="edit-avatar" src="/static/default-avatar.png" mode="aspectFill" />
+          </button>
+          <!-- #endif -->
+          <!-- #ifndef MP-WEIXIN -->
+          <view class="avatar-btn">
+            <image v-if="setupForm.avatarUrl" class="edit-avatar" :src="resolveAvatarUrl(setupForm.avatarUrl)" mode="aspectFill" />
+            <image v-else class="edit-avatar" src="/static/default-avatar.png" mode="aspectFill" />
+          </view>
+          <!-- #endif -->
+          <text class="avatar-hint">点击选择头像</text>
+        </view>
+
+        <!-- 昵称输入 -->
+        <view class="form-group">
+          <text class="form-label">昵称</text>
+          <input class="form-input" v-model="setupForm.nickname" type="nickname" placeholder="请输入昵称" />
+        </view>
+
+        <view class="modal-btns">
+          <button class="btn-skip" @tap="skipProfileSetup">跳过</button>
+          <button class="btn-confirm" @tap="saveProfileSetup">保存</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import api from '@/utils/api'
+import api, { resolveAvatarUrl } from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 import { getAppName } from '@/utils/platform'
 
@@ -100,6 +136,13 @@ const { themeClass } = useTheme()
 const showRegister = ref(false)
 const loading = ref(false)
 const errorMsg = ref('')
+
+// 登录后资料设置弹窗
+const showProfileModal = ref(false)
+const setupForm = ref({
+  nickname: '',
+  avatarUrl: ''
+})
 
 const loginForm = ref({
   username: '',
@@ -130,10 +173,18 @@ async function handleWxLogin() {
     if (loginRes.code) {
       const res = await api.wxLogin(loginRes.code)
       if (res.code === 1) {
-        uni.showToast({ title: '登录成功', icon: 'success' })
-        setTimeout(() => {
-          uni.switchTab({ url: '/pages/profile/index' })
-        }, 1500)
+        // 检查是否已有昵称（老用户）
+        const user = api.getUser()
+        if (user?.nickname) {
+          // 老用户，直接跳转
+          uni.showToast({ title: '登录成功', icon: 'success' })
+          setTimeout(() => {
+            uni.switchTab({ url: '/pages/profile/index' })
+          }, 1500)
+        } else {
+          // 新用户，弹出资料设置弹窗
+          showProfileModal.value = true
+        }
       } else {
         errorMsg.value = res.msg || '登录失败'
       }
@@ -144,6 +195,43 @@ async function handleWxLogin() {
   } finally {
     loading.value = false
   }
+}
+
+// 选择微信头像
+async function onChooseAvatar(e: any) {
+  const { avatarUrl } = e.detail
+  if (!avatarUrl) return
+
+  try {
+    const uploadRes = await api.uploadAvatar(avatarUrl)
+    if (uploadRes.code === 1) {
+      setupForm.value.avatarUrl = uploadRes.data.avatar_url
+    } else {
+      setupForm.value.avatarUrl = avatarUrl
+    }
+  } catch (err) {
+    setupForm.value.avatarUrl = avatarUrl
+  }
+}
+
+// 跳过资料设置，使用默认值
+function skipProfileSetup() {
+  saveProfileData('微信用户', '')
+}
+
+// 保存资料设置
+async function saveProfileSetup() {
+  const nickname = setupForm.value.nickname.trim() || '微信用户'
+  saveProfileData(nickname, setupForm.value.avatarUrl)
+}
+
+// 统一保存资料并跳转
+async function saveProfileData(nickname: string, avatarUrl: string) {
+  try {
+    await api.updateProfile(nickname, avatarUrl)
+  } catch {}
+  showProfileModal.value = false
+  uni.switchTab({ url: '/pages/profile/index' })
 }
 
 // 密码登录（仅H5）
@@ -372,5 +460,125 @@ async function handleRegister() {
 .link {
   color: #8B2500;
   margin-left: 8rpx;
+}
+
+/* 资料设置弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  width: 620rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+}
+
+.modal-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.modal-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+
+.avatar-btn {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f5f5f5;
+  border: none;
+  padding: 0;
+  line-height: normal;
+  margin-bottom: 8rpx;
+}
+
+.avatar-btn::after {
+  border: none;
+}
+
+.edit-avatar {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+}
+
+.avatar-hint {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.form-group {
+  margin-bottom: 24rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid #E8E0D4;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  background: #FAFAF7;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 28rpx;
+}
+
+.btn-skip {
+  flex: 1;
+  height: 80rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+}
+
+.btn-confirm {
+  flex: 1;
+  height: 80rpx;
+  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 28rpx;
 }
 </style>

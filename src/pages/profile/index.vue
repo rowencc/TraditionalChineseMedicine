@@ -4,9 +4,7 @@
     <view class="user-card" @tap="isLoggedIn ? showEditModal = true : goToLogin()">
       <view class="avatar-wrap">
         <image v-if="user?.avatarUrl" class="avatar-img" :src="resolveAvatarUrl(user.avatarUrl)" mode="aspectFill" />
-        <view v-else class="avatar">
-          <text class="avatar-text">{{ user?.nickname?.charAt(0) || user?.username?.charAt(0) || '?' }}</text>
-        </view>
+        <image v-else class="avatar-img" src="/static/default-avatar.png" mode="aspectFill" />
         <view class="edit-icon">
           <text>✎</text>
         </view>
@@ -111,10 +109,9 @@
         <view class="avatar-section">
           <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
             <image v-if="editForm.avatarUrl" class="edit-avatar" :src="resolveAvatarUrl(editForm.avatarUrl)" mode="aspectFill" />
-            <view v-else class="edit-avatar-placeholder">
-              <text>点击选择头像</text>
-            </view>
+            <image v-else class="edit-avatar" src="/static/default-avatar.png" mode="aspectFill" />
           </button>
+          <text class="avatar-hint">点击更换头像</text>
         </view>
 
         <!-- 获取微信昵称 -->
@@ -537,16 +534,10 @@ function handleLogout() {
   border-radius: 50%;
 }
 
-.edit-avatar-placeholder {
-  width: 150rpx;
-  height: 150rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0;
-  font-size: 24rpx;
+.avatar-hint {
+  font-size: 22rpx;
   color: #999;
+  margin-top: 8rpx;
 }
 
 .form-group {
