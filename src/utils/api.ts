@@ -76,9 +76,22 @@ function request(module: string, action: string, params: Record<string, any> = {
 export function wxLogin(code: string): Promise<any> {
   return new Promise(async (resolve, reject) => {
     try {
+      // 记录登录前的用户信息，用于检测服务端是否错误创建了新用户
+      const oldUser = getUser()
+      const oldUserId = oldUser?.id
+
       const res = await request('auth', 'wx_login', { code }, 'POST')
       if (res.code === 1 && res.data) {
-        saveAuth(res.data.token, res.data.user)
+        const newUser = res.data.user
+
+        // 检测服务端是否创建了新用户（ID 变了说明是重复创建）
+        if (oldUserId && newUser?.id && oldUserId !== newUser.id) {
+          // 服务端错误创建了新用户，恢复旧用户的昵称和头像
+          newUser.nickname = oldUser.nickname || ''
+          newUser.avatarUrl = oldUser.avatarUrl || ''
+        }
+
+        saveAuth(res.data.token, newUser)
       }
       resolve(res)
     } catch (e) {
