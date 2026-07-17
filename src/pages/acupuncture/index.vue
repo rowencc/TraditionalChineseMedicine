@@ -132,9 +132,6 @@ function goToDetail(meridian: string, point: string) {
   font-size: 22rpx;
   color: #999;
   line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .arrow {
