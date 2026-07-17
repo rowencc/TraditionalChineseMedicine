@@ -425,6 +425,7 @@ async function handleRegister() {
   font-size: 28rpx;
   color: #333;
   background: #FAFAF7;
+  box-sizing: border-box;
 }
 
 .error-msg {
@@ -481,6 +482,7 @@ async function handleRegister() {
   background: #fff;
   border-radius: 20rpx;
   padding: 40rpx;
+  overflow: hidden;
 }
 
 .modal-title {
@@ -554,6 +556,7 @@ async function handleRegister() {
   font-size: 28rpx;
   color: #333;
   background: #FAFAF7;
+  box-sizing: border-box;
 }
 
 .modal-btns {

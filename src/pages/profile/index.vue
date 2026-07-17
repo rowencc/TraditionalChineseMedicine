@@ -558,6 +558,7 @@ function handleLogout() {
   border: 2rpx solid #E8E0D4;
   border-radius: 8rpx;
   font-size: 28rpx;
+  box-sizing: border-box;
 }
 
 .error-msg {
