@@ -375,6 +375,7 @@ async function handleRegister() {
   align-items: center;
   justify-content: center;
   gap: 12rpx;
+  padding: 0;
 }
 
 .btn-wx:disabled {
@@ -456,6 +457,7 @@ async function handleRegister() {
 .btn-primary {
   width: 100%;
   height: 88rpx;
+  line-height: 88rpx;
   background: linear-gradient(135deg, #8B2500, #A63A1E);
   color: #fff;
   border: none;
@@ -463,6 +465,8 @@ async function handleRegister() {
   font-size: 30rpx;
   font-weight: 500;
   margin-top: 20rpx;
+  text-align: center;
+  padding: 0;
 }
 
 .btn-primary:disabled {
@@ -586,20 +590,26 @@ async function handleRegister() {
 .btn-skip {
   flex: 1;
   height: 80rpx;
+  line-height: 80rpx;
   background: #f5f5f5;
   color: #666;
   border: none;
   border-radius: 12rpx;
   font-size: 28rpx;
+  text-align: center;
+  padding: 0;
 }
 
 .btn-confirm {
   flex: 1;
   height: 80rpx;
+  line-height: 80rpx;
   background: linear-gradient(135deg, #8B2500, #A63A1E);
   color: #fff;
   border: none;
   border-radius: 12rpx;
   font-size: 28rpx;
+  text-align: center;
+  padding: 0;
 }
 </style>

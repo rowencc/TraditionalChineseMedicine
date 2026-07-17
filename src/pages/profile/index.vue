@@ -464,11 +464,14 @@ function handleLogout() {
 .btn-logout {
   width: 100%;
   height: 88rpx;
+  line-height: 88rpx;
   background: #fff;
   color: #DC3545;
   border: 2rpx solid #DC3545;
   border-radius: 12rpx;
   font-size: 30rpx;
+  text-align: center;
+  padding: 0;
 }
 
 .version-info {
@@ -577,20 +580,26 @@ function handleLogout() {
 .btn-cancel {
   flex: 1;
   height: 72rpx;
+  line-height: 72rpx;
   background: #f5f5f5;
   color: #666;
   border: none;
   border-radius: 8rpx;
   font-size: 28rpx;
+  text-align: center;
+  padding: 0;
 }
 
 .btn-confirm {
   flex: 1;
   height: 72rpx;
+  line-height: 72rpx;
   background: #8B2500;
   color: #fff;
   border: none;
   border-radius: 8rpx;
   font-size: 28rpx;
+  text-align: center;
+  padding: 0;
 }
 </style>

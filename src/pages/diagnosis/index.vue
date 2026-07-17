@@ -248,6 +248,7 @@ function goToFormula(name: string) {
 .submit-btn {
   width: 100%;
   height: 88rpx;
+  line-height: 88rpx;
   background: linear-gradient(135deg, #8B2500, #A63A1E);
   color: #fff;
   border: none;
@@ -255,10 +256,12 @@ function goToFormula(name: string) {
   font-size: 30rpx;
   font-weight: 500;
   margin: 24rpx 0;
+  text-align: center;
 }
 
 .submit-btn:disabled {
-  opacity: 0.5;
+  background: #ccc;
+  color: #fff;
 }
 
 .result-section {
