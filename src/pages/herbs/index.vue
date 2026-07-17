@@ -179,7 +179,6 @@ onMounted(() => {
 
 .herb-list {
   height: calc(100vh - 280rpx);
-  padding: 0 24rpx;
 }
 
 .loading {
@@ -189,6 +188,7 @@ onMounted(() => {
   height: 100rpx;
   color: #999;
   font-size: 26rpx;
+  margin: 0 24rpx;
 }
 
 .empty {
@@ -198,5 +198,6 @@ onMounted(() => {
   height: 200rpx;
   color: #999;
   font-size: 28rpx;
+  margin: 0 24rpx;
 }
 </style>

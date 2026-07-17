@@ -87,13 +87,12 @@ function goToDetail(meridian: string, point: string) {
 
 .meridian-list {
   height: calc(100vh - 120rpx);
-  padding: 24rpx;
 }
 
 .meridian-section {
   background: #fff;
   border-radius: 12rpx;
-  margin-bottom: 16rpx;
+  margin: 0 24rpx 16rpx;
   overflow: hidden;
 }
 

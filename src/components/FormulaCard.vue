@@ -56,7 +56,7 @@ function onTap() {
   background: #fff;
   border-radius: 12rpx;
   padding: 24rpx;
-  margin-bottom: 16rpx;
+  margin: 0 24rpx 16rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
