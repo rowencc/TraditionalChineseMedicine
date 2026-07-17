@@ -162,10 +162,6 @@ async function handleWxLogin() {
   errorMsg.value = ''
 
   try {
-    // 记录登录前的用户 ID
-    const oldUser = api.getUser()
-    const oldUserId = oldUser?.id
-
     const loginRes = await new Promise<UniApp.LoginRes>((resolve, reject) => {
       uni.login({
         provider: 'weixin',
@@ -177,14 +173,7 @@ async function handleWxLogin() {
     if (loginRes.code) {
       const res = await api.wxLogin(loginRes.code)
       if (res.code === 1) {
-        // 检测服务端是否创建了重复用户
-        const newUser = api.getUser()
-        if (oldUserId && newUser?.id && oldUserId !== newUser.id) {
-          uni.showToast({ title: '账号异常，请联系客服', icon: 'none', duration: 3000 })
-          // 仍然继续登录流程
-        }
-
-        // 从服务端拉取完整用户资料
+        // 登录成功后，从服务端拉取完整用户资料（昵称、头像）
         await refreshUserAfterLogin()
 
         const user = api.getUser()
