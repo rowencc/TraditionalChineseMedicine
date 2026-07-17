@@ -95,7 +95,8 @@ export default {
       <text class="section-title">关于作者</text>
       <view class="author-info">
         <text class="author-name">王通沐</text>
-        <text class="author-contact">邮箱：rowen@rowen.cc</text>
+        <text class="author-contact">微信号：RowenSong</text>
+        <text class="author-contact">邮箱：master@rowen.cc</text>
         <text class="author-desc">本项目为个人学习项目，旨在传播中医知识，仅供学习参考。</text>
       </view>
     </view>
