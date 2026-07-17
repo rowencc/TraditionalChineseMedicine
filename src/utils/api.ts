@@ -76,7 +76,11 @@ function request(module: string, action: string, params: Record<string, any> = {
 export function wxLogin(code: string): Promise<any> {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await request('auth', 'wx_login', { code }, 'POST')
+      // 获取当前小程序的 appid，传给服务端匹配对应的 secret
+      const manifest = require('../manifest.json')
+      const appid = manifest?.['mp-weixin']?.appid || ''
+
+      const res = await request('auth', 'wx_login', { code, appid }, 'POST')
       if (res.code === 1 && res.data) {
         saveAuth(res.data.token, res.data.user)
       }
