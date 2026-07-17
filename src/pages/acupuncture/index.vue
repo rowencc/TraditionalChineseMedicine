@@ -1,7 +1,7 @@
 <script lang="ts">
 export default {
   onShareAppMessage() {
-    return { title: '针灸穴位 - 经方中医学习' }
+    return { title: '针灸穴位 - 经方中医学习', path: '/pages/acupuncture/index' }
   },
   onShareTimeline() {
     return { title: '针灸穴位 - 经方中医学习' }

@@ -1,7 +1,7 @@
 <script lang="ts">
 export default {
   onShareAppMessage() {
-    return { title: '药物查询 - 经方中医学习' }
+    return { title: '药物查询 - 经方中医学习', path: '/pages/herbs/index' }
   },
   onShareTimeline() {
     return { title: '药物查询 - 经方中医学习' }

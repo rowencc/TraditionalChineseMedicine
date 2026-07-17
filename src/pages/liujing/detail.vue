@@ -64,13 +64,16 @@ import { getAppName } from '@/utils/platform'
 
 export default {
   onShareAppMessage() {
+    const pages = getCurrentPages()
+    const page = pages[pages.length - 1] as any
+    const path = '/' + (page?.route || 'pages/liujing/detail')
     const data = uni.getStorageSync('liujing_detail')
     let title = getAppName()
     try {
       const item = JSON.parse(data)
       title = `${item.name}经 - 六经辨证`
     } catch {}
-    return { title }
+    return { title, path }
   },
   onShareTimeline() {
     const data = uni.getStorageSync('liujing_detail')

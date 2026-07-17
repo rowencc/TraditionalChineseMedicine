@@ -57,7 +57,7 @@ import { getCurrentPageShareInfo } from '@/utils/share'
 
 export default {
   onShareAppMessage() {
-    return { title: getCurrentPageShareInfo('针灸速查').title }
+    return getCurrentPageShareInfo('针灸速查')
   },
   onShareTimeline() {
     return { title: getCurrentPageShareInfo('针灸速查').title }

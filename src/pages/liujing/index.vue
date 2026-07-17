@@ -1,7 +1,7 @@
 <script lang="ts">
 export default {
   onShareAppMessage() {
-    return { title: '识六经 - 伤寒论六经辨证' }
+    return { title: '识六经 - 伤寒论六经辨证', path: '/pages/liujing/index' }
   },
   onShareTimeline() {
     return { title: '识六经 - 伤寒论六经辨证' }

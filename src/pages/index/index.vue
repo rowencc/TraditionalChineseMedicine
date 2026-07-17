@@ -3,7 +3,7 @@ import { getAppName } from '@/utils/platform'
 
 export default {
   onShareAppMessage() {
-    return { title: getAppName() }
+    return { title: getAppName(), path: '/pages/index/index' }
   },
   onShareTimeline() {
     return { title: getAppName() }

@@ -1,7 +1,7 @@
 <script lang="ts">
 export default {
   onShareAppMessage() {
-    return { title: '关于 - 经方中医学习工具' }
+    return { title: '关于 - 经方中医学习工具', path: '/pages/about/index' }
   },
   onShareTimeline() {
     return { title: '关于 - 经方中医学习工具' }

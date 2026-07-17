@@ -1,7 +1,7 @@
 <script lang="ts">
 export default {
   onShareAppMessage() {
-    return { title: '问一问 - 六经辨证辅助分析' }
+    return { title: '问一问 - 六经辨证辅助分析', path: '/pages/diagnosis/index' }
   },
   onShareTimeline() {
     return { title: '问一问 - 六经辨证辅助分析' }
