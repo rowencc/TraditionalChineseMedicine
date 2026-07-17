@@ -232,6 +232,8 @@ function goToDetail(item: any) {
   background: #F5F0E8;
   padding: 24rpx;
   padding-bottom: 60rpx;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .header {

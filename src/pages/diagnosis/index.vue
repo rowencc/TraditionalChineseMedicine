@@ -168,6 +168,8 @@ function goToFormula(name: string) {
   background: #F5F0E8;
   padding: 24rpx;
   padding-bottom: 120rpx;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .header {
