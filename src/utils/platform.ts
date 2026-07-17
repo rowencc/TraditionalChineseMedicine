@@ -35,12 +35,14 @@ export function getPlatform(): string {
   return cachedPlatform || 'unknown'
 }
 
-// 应用名称：小程序用"若闻小识"，H5/其他用"岐闻小识"
+// 应用名称：优先从服务器配置读取 app_name，其次使用默认值
 export function getAppName(): string {
-  const platform = getPlatform()
-  if (platform === 'mp-weixin' || platform === 'mp-alipay' || platform === 'mp-toutiao') {
-    return '若闻小识'
-  }
+  // 优先从缓存的服务器配置中读取
+  try {
+    const cached = uni.getStorageSync('site_config')
+    if (cached?.app_name) return cached.app_name
+  } catch {}
+  // 默认值
   return '岐闻小识'
 }
 
