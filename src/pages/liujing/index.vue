@@ -41,7 +41,7 @@ export default {
               <text class="mc-name">{{ item.name }}经</text>
               <text class="mc-en">{{ item.enName }}</text>
             </view>
-            <text class="mc-arrow">></text>
+            <text class="mc-arrow">›</text>
           </view>
           <text class="mc-desc">{{ item.summary }}</text>
           <view class="mc-tags">

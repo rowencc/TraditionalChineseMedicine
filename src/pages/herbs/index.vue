@@ -142,6 +142,7 @@ onMounted(() => {
 
 .filter-section {
   padding: 0 24rpx;
+  overflow: hidden;
 }
 
 .tag-scroll {

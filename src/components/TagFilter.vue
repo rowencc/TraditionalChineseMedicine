@@ -58,6 +58,7 @@ function toggleTag(value: string) {
 <style lang="scss" scoped>
 .tag-filter {
   padding: 16rpx 0;
+  overflow: hidden;
 }
 
 .tag-list {
