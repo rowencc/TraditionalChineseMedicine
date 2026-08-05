@@ -93,21 +93,38 @@ const stats = ref({
   total: 0
 })
 
-// 总数统计
+// 总数统计（从API动态获取）
 const totalStats = ref({
-  formula: 92,
-  herb: 349,
-  acupoint: 309,
-  case: 188
+  formula: 0,
+  herb: 0,
+  acupoint: 0,
+  case: 0
 })
 
 onShow(() => {
   isLoggedIn.value = api.isLoggedIn()
+  loadTotalStats()
   if (isLoggedIn.value) {
     loadLearningStats()
     loadLearningList()
   }
 })
+
+async function loadTotalStats() {
+  try {
+    const res = await api.getStats()
+    if (res.code === 1) {
+      totalStats.value = {
+        formula: res.data.formula_count || 0,
+        herb: res.data.herb_count || 0,
+        acupoint: res.data.acupoint_count || 0,
+        case: res.data.case_count || 0
+      }
+    }
+  } catch (e) {
+    console.error('加载总数统计失败', e)
+  }
+}
 
 async function loadLearningStats() {
   try {

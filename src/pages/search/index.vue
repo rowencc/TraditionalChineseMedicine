@@ -136,6 +136,14 @@ const herbResults = ref<any[]>([])
 const acupointResults = ref<any[]>([])
 const caseResults = ref<any[]>([])
 
+// 分页状态
+const formulaPage = ref(1)
+const herbPage = ref(1)
+const casePage = ref(1)
+const formulaHasMore = ref(true)
+const herbHasMore = ref(true)
+const caseHasMore = ref(true)
+
 const tabs = computed(() => [
   { key: 'formulas', label: '方剂', count: formulaResults.value.length },
   { key: 'herbs', label: '药物', count: herbResults.value.length },
@@ -183,6 +191,12 @@ async function onSearch() {
   herbResults.value = []
   acupointResults.value = []
   caseResults.value = []
+  formulaPage.value = 1
+  herbPage.value = 1
+  casePage.value = 1
+  formulaHasMore.value = true
+  herbHasMore.value = true
+  caseHasMore.value = true
 
   try {
     const [formulaRes, herbRes, caseRes] = await Promise.all([
@@ -191,15 +205,25 @@ async function onSearch() {
       api.getCaseList(1, 50, '', kw).catch(() => ({ code: 0, data: { list: [] } }))
     ])
 
-    if (formulaRes.code === 1) formulaResults.value = formulaRes.data?.list || []
+    if (formulaRes.code === 1) {
+      formulaResults.value = formulaRes.data?.list || []
+      formulaHasMore.value = formulaResults.value.length >= 50
+      formulaPage.value = 2
+    }
     if (herbRes.code === 1) {
       // 过滤掉药物表中混入的非药物条目（如"乳癌形成机制"等）
       const nonHerbPatterns = /机制|因素|形成|高危|症状|预防|原因|治疗方式|诊断/
       herbResults.value = (herbRes.data?.list || []).filter(
         (h: any) => h.name && !h.name.endsWith('：') && !nonHerbPatterns.test(h.name)
       )
+      herbHasMore.value = herbResults.value.length >= 50
+      herbPage.value = 2
     }
-    if (caseRes.code === 1) caseResults.value = caseRes.data?.list || []
+    if (caseRes.code === 1) {
+      caseResults.value = caseRes.data?.list || []
+      caseHasMore.value = caseResults.value.length >= 50
+      casePage.value = 2
+    }
 
     // 穴位：优先走API，如果无结果则本地搜索
     try {
@@ -231,7 +255,46 @@ async function onSearch() {
   }
 }
 
-function loadMore() {}
+async function loadMore() {
+  const kw = keyword.value.trim()
+  if (!kw || loading.value) return
+
+  loading.value = true
+  try {
+    if (activeTab.value === 'formulas' && formulaHasMore.value) {
+      const res = await api.getFormulaList(formulaPage.value, 50, '', kw)
+      if (res.code === 1) {
+        const list = res.data?.list || []
+        formulaResults.value = [...formulaResults.value, ...list]
+        formulaHasMore.value = list.length >= 50
+        formulaPage.value++
+      }
+    } else if (activeTab.value === 'herbs' && herbHasMore.value) {
+      const res = await api.getHerbList(herbPage.value, 50, '', '', kw)
+      if (res.code === 1) {
+        const nonHerbPatterns = /机制|因素|形成|高危|症状|预防|原因|治疗方式|诊断/
+        const list = (res.data?.list || []).filter(
+          (h: any) => h.name && !h.name.endsWith('：') && !nonHerbPatterns.test(h.name)
+        )
+        herbResults.value = [...herbResults.value, ...list]
+        herbHasMore.value = list.length >= 50
+        herbPage.value++
+      }
+    } else if (activeTab.value === 'cases' && caseHasMore.value) {
+      const res = await api.getCaseList(casePage.value, 50, '', kw)
+      if (res.code === 1) {
+        const list = res.data?.list || []
+        caseResults.value = [...caseResults.value, ...list]
+        caseHasMore.value = list.length >= 50
+        casePage.value++
+      }
+    }
+  } catch (e) {
+    console.error('加载更多失败', e)
+  } finally {
+    loading.value = false
+  }
+}
 
 function goToFormula(name: string) {
   uni.navigateTo({ url: `/pages/formulas/detail?name=${encodeURIComponent(name)}` })

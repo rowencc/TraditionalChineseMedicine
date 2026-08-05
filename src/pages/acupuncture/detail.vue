@@ -154,7 +154,14 @@ onLoad((options) => {
     loadPointImage(options.point)
   }
   if (options?.point && api.isLoggedIn()) {
-    api.recordLearning('acupoint', 0, decodeURIComponent(options.point))
+    // 尝试从API获取穴位ID
+    const pointName = decodeURIComponent(options.point)
+    api.getAcupointDetail(undefined, pointName).then(res => {
+      const id = res.code === 1 && res.data?.id ? Number(res.data.id) : 0
+      api.recordLearning('acupoint', id, pointName)
+    }).catch(() => {
+      api.recordLearning('acupoint', 0, pointName)
+    })
   }
 })
 

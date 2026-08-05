@@ -75,36 +75,24 @@ function request(module: string, action: string, params: Record<string, any> = {
 }
 
 // 微信登录（自动保存token和用户信息）
-export function wxLogin(code: string): Promise<any> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // 获取当前小程序的 appid，传给服务端匹配对应的 secret
-      const appid = (manifest as any)?.['mp-weixin']?.appid || ''
+export async function wxLogin(code: string): Promise<any> {
+  // 获取当前小程序的 appid，传给服务端匹配对应的 secret
+  const appid = (manifest as any)?.['mp-weixin']?.appid || ''
 
-      const res = await request('auth', 'wx_login', { code, appid }, 'POST')
-      if (res.code === 1 && res.data) {
-        saveAuth(res.data.token, res.data.user)
-      }
-      resolve(res)
-    } catch (e) {
-      reject(e)
-    }
-  })
+  const res = await request('auth', 'wx_login', { code, appid }, 'POST')
+  if (res.code === 1 && res.data) {
+    saveAuth(res.data.token, res.data.user)
+  }
+  return res
 }
 
 // 密码登录（自动保存token和用户信息）
-export function login(username: string, password: string): Promise<any> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const res = await request('auth', 'login', { username, password }, 'POST')
-      if (res.code === 1 && res.data) {
-        saveAuth(res.data.token, res.data.user)
-      }
-      resolve(res)
-    } catch (e) {
-      reject(e)
-    }
-  })
+export async function login(username: string, password: string): Promise<any> {
+  const res = await request('auth', 'login', { username, password }, 'POST')
+  if (res.code === 1 && res.data) {
+    saveAuth(res.data.token, res.data.user)
+  }
+  return res
 }
 
 // 注册

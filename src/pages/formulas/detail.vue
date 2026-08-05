@@ -117,14 +117,17 @@ onLoad(async (options) => {
       const res = await api.getFormulaDetail(undefined, formulaName.value)
       if (res.code === 1 && res.data) {
         formula.value = res.data
-        
+
         // 记录学习
         if (api.isLoggedIn()) {
           api.recordLearning('formula', res.data.id, res.data.name)
         }
+      } else {
+        uni.showToast({ title: '未找到该方剂', icon: 'none' })
       }
     } catch (e) {
       console.error('获取方剂详情失败', e)
+      uni.showToast({ title: '加载失败', icon: 'none' })
     }
     
     // 获取相关方剂
