@@ -65,10 +65,16 @@ onLoad(async (options) => {
         record.value = res.data
         // 解析方剂
         if (res.data.suggested_formulas) {
-          const arr = typeof res.data.suggested_formulas === 'string'
-            ? JSON.parse(res.data.suggested_formulas)
-            : res.data.suggested_formulas
-          formulas.value = Array.isArray(arr) ? arr : []
+          try {
+            const arr = typeof res.data.suggested_formulas === 'string'
+              ? JSON.parse(res.data.suggested_formulas)
+              : res.data.suggested_formulas
+            formulas.value = Array.isArray(arr) ? arr : []
+          } catch {
+            // 畸形JSON时尝试按逗号分隔
+            const raw = String(res.data.suggested_formulas)
+            formulas.value = raw.includes('、') ? raw.split('、').filter(Boolean) : raw ? [raw] : []
+          }
         }
         uni.setNavigationBarTitle({ title: record.value.meridian ? record.value.meridian + '辨证' : '问一问详情' })
       }

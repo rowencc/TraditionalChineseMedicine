@@ -109,23 +109,51 @@ onLoad(async (options) => {
   if (options?.name) {
     herbName.value = decodeURIComponent(options.name)
     uni.setNavigationBarTitle({ title: herbName.value })
-    
+
     // 从服务器获取药物详情
     try {
       const res = await api.getHerbDetail(undefined, herbName.value)
       if (res.code === 1 && res.data) {
         herb.value = res.data
-        
+
         // 记录学习
         if (api.isLoggedIn()) {
           api.recordLearning('herb', res.data.id, res.data.name)
         }
+
+        // 加载同归经药物
+        loadRelatedHerbs()
+      } else {
+        uni.showToast({ title: '未找到该药物', icon: 'none' })
       }
     } catch (e) {
       console.error('获取药物详情失败', e)
+      uni.showToast({ title: '加载失败', icon: 'none' })
     }
   }
 })
+
+async function loadRelatedHerbs() {
+  if (!herb.value) return
+  const meridians = parseJsonArray(herb.value.meridian)
+  if (meridians.length === 0) return
+
+  try {
+    // 用第一个归经搜索同归经药物
+    const res = await api.getHerbList(1, 10, '', '', '')
+    if (res.code === 1 && res.data?.list) {
+      relatedHerbs.value = res.data.list
+        .filter((h: any) => {
+          if (h.id === herb.value.id) return false
+          const hMeridians = parseJsonArray(h.meridian)
+          return hMeridians.some((m: string) => meridians.includes(m))
+        })
+        .slice(0, 6)
+    }
+  } catch (e) {
+    console.error('加载同归经药物失败', e)
+  }
+}
 
 function goToDetail(name: string) {
   uni.redirectTo({

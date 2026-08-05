@@ -32,6 +32,6 @@ export function getCurrentPageShareInfo(suffix?: string) {
 
   return {
     title,
-    path: fullPath ? `/${route}${fullPath}` : `/${route}`
+    path: fullPath || `/${route}`
   }
 }

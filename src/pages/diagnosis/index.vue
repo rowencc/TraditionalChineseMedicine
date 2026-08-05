@@ -105,6 +105,7 @@ export default {
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 
@@ -112,6 +113,15 @@ const { themeClass } = useTheme()
 const symptoms = ref('')
 const loading = ref(false)
 const result = ref<any>(null)
+
+// 从首页六经卡片跳转过来时，读取 storage 中的经络名
+onShow(() => {
+  const meridian = uni.getStorageSync('diagnosis_meridian')
+  if (meridian) {
+    uni.removeStorageSync('diagnosis_meridian')
+    symptoms.value = meridian + '证'
+  }
+})
 
 const quickSymptoms = [
   '发热', '恶寒', '头痛', '无汗', '有汗', '口渴',

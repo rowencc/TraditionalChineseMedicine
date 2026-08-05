@@ -250,9 +250,9 @@ function goTo(url: string) {
 }
 
 function goToDiagnosis(name: string) {
-  uni.navigateTo({
-    url: `/pages/diagnosis/index?meridian=${encodeURIComponent(name)}`
-  })
+  // tabBar 页面必须用 switchTab，参数通过 storage 传递
+  uni.setStorageSync('diagnosis_meridian', name)
+  uni.switchTab({ url: '/pages/diagnosis/index' })
 }
 
 function goToFormula(name: string) {
