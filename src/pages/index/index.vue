@@ -270,7 +270,7 @@ function goToFormula(name: string) {
 
 .search-section {
   padding: 24rpx;
-  background: linear-gradient(180deg, #8B2500, #A63A1E);
+  background: linear-gradient(180deg, #A63A1E, #8B2500);
 }
 
 .user-bar {

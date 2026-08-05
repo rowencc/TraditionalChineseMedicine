@@ -162,6 +162,10 @@ page.is-dark {
     color: #E0E0E0;
   }
 
+  .placeholder {
+    color: #777;
+  }
+
   /* 次要文字 */
   .text-secondary,
   .meridian-desc,

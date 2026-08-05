@@ -66,7 +66,7 @@ function request(module: string, action: string, params: Record<string, any> = {
       data: method === 'POST' ? params : {},
       header: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': token ? `Bearer ${token}` : ''
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       },
       success: (res: any) => resolve(res.data),
       fail: (err: any) => reject(err)
