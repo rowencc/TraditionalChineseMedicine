@@ -3,6 +3,8 @@
  * 支持微信登录和学习记录
  */
 
+import manifest from '../manifest.json'
+
 const API_BASE = 'https://tcm.rowen.cc/index.php'
 const SERVER_BASE = 'https://tcm.rowen.cc'
 
@@ -77,8 +79,7 @@ export function wxLogin(code: string): Promise<any> {
   return new Promise(async (resolve, reject) => {
     try {
       // 获取当前小程序的 appid，传给服务端匹配对应的 secret
-      const manifest = require('../manifest.json')
-      const appid = manifest?.['mp-weixin']?.appid || ''
+      const appid = (manifest as any)?.['mp-weixin']?.appid || ''
 
       const res = await request('auth', 'wx_login', { code, appid }, 'POST')
       if (res.code === 1 && res.data) {

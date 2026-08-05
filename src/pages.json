@@ -127,6 +127,12 @@
       "style": {
         "navigationBarTitleText": "隐私协议"
       }
+    },
+    {
+      "path": "pages/search/index",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
     }
   ],
   "globalStyle": {

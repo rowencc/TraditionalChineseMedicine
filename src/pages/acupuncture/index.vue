@@ -16,8 +16,12 @@ export default {
 
     <!-- 经络列表 -->
     <scroll-view scroll-y class="meridian-list">
+      <!-- 搜索无结果提示 -->
+      <view v-if="keyword.trim() && filteredMeridians.length === 0" class="empty-hint">
+        <text>未找到匹配的穴位或经络</text>
+      </view>
       <view
-        v-for="meridian in meridiansData.meridians"
+        v-for="meridian in filteredMeridians"
         :key="meridian.name"
         class="meridian-section"
       >
@@ -52,7 +56,7 @@ export default {
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import meridiansData from '@/data/acupoints.json'
 import { useTheme } from "@/utils/theme"
@@ -61,7 +65,33 @@ const { themeClass } = useTheme()
 const keyword = ref('')
 const expandedMeridians = ref<string[]>(['手太阴肺经'])
 
-function onSearch() {}
+const filteredMeridians = computed(() => {
+  const q = keyword.value.trim().toLowerCase()
+  if (!q) return meridiansData.meridians
+
+  return meridiansData.meridians
+    .map(meridian => {
+      const matchedPoints = meridian.points.filter(point =>
+        point.name.toLowerCase().includes(q) ||
+        point.position.toLowerCase().includes(q) ||
+        (point.indication && point.indication.toLowerCase().includes(q))
+      )
+      if (matchedPoints.length > 0 || meridian.name.toLowerCase().includes(q)) {
+        return { ...meridian, points: matchedPoints.length > 0 ? matchedPoints : meridian.points }
+      }
+      return null
+    })
+    .filter(Boolean) as typeof meridiansData.meridians
+})
+
+function onSearch() {
+  // 搜索时自动展开所有匹配的经络
+  if (keyword.value.trim()) {
+    expandedMeridians.value = filteredMeridians.value.map(m => m.name)
+  } else {
+    expandedMeridians.value = ['手太阴肺经']
+  }
+}
 
 function toggleMeridian(name: string) {
   const index = expandedMeridians.value.indexOf(name)
@@ -146,8 +176,6 @@ function goToDetail(meridian: string, point: string) {
 
 .points-list {
   border-top: 1rpx solid #f0f0f0;
-  max-height: 600rpx;
-  overflow-y: auto;
 }
 
 .point-item {
@@ -183,5 +211,14 @@ function goToDetail(meridian: string, point: string) {
 .point-arrow {
   font-size: 28rpx;
   color: #ccc;
+}
+
+.empty-hint {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200rpx;
+  color: #999;
+  font-size: 28rpx;
 }
 </style>

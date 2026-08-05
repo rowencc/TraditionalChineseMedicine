@@ -234,7 +234,7 @@ function applyNavConfig(c: any) {
 function onSearch() {
   if (searchQuery.value.trim()) {
     uni.navigateTo({
-      url: `/pages/formulas/index?keyword=${encodeURIComponent(searchQuery.value)}`
+      url: `/pages/search/index?keyword=${encodeURIComponent(searchQuery.value)}`
     })
   }
 }
