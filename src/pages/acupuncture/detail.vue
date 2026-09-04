@@ -70,7 +70,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import meridiansData from '@/data/acupoints.json'
 import PointLocator from '@/components/PointLocator.vue'
-import api from '@/utils/api'
+import api, { resolveAvatarUrl } from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 
 const { themeClass } = useTheme()
@@ -167,11 +167,13 @@ onLoad((options) => {
 
 async function loadPointImage(point: string) {
   try {
-    const res = await api.getSiteConfig()
-    if (res.code === 1 && res.data) {
-      const key = 'acupoint_img_' + decodeURIComponent(point)
-      if (res.data[key]) {
-        pointImage.value = res.data[key]
+    const name = decodeURIComponent(point)
+    const res = await api.request('tcm', 'acupoint_detail', { name })
+    if (res.code === 1 && res.data?.image_url) {
+      const url = res.data.image_url
+      // 只使用服务端配置的有效图片（以 /uploads 开头或 http 开头）
+      if (url.startsWith('/uploads') || url.startsWith('http')) {
+        pointImage.value = resolveAvatarUrl(url)
       }
     }
   } catch (e) {

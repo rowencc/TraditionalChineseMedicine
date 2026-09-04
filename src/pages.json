@@ -133,6 +133,22 @@
       "style": {
         "navigationBarTitleText": "搜索"
       }
+    },
+    {
+      "path": "pages/recharge/index",
+      "style": {
+        "navigationBarTitleText": "充值代币",
+        "navigationBarBackgroundColor": "#8B2500",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/transactions/index",
+      "style": {
+        "navigationBarTitleText": "交易记录",
+        "navigationBarBackgroundColor": "#8B2500",
+        "navigationBarTextStyle": "white"
+      }
     }
   ],
   "globalStyle": {

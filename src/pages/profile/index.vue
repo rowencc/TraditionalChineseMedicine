@@ -19,6 +19,27 @@
       </view>
     </view>
 
+    <!-- 代币余额 -->
+    <view class="section coin-section" v-if="isLoggedIn">
+      <view class="coin-header">
+        <text class="section-title">我的古币</text>
+        <view class="coin-recharge" @tap="goTo('/pages/recharge/index')">
+          <text class="recharge-text">充值</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+      <view class="coin-body">
+        <view class="coin-main">
+          <text class="coin-num">{{ coinBalance.balance }}</text>
+          <text class="coin-label">古币</text>
+        </view>
+        <view class="coin-info">
+          <text class="coin-tip" v-if="coinBalance.free_remaining > 0">今日免费：{{ coinBalance.free_remaining }}次</text>
+          <text class="coin-tip used" v-else>今日免费已用完</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 学习进度 -->
     <view class="section" v-if="isLoggedIn">
       <text class="section-title">学习进度</text>
@@ -137,6 +158,8 @@ import { onShow } from '@dcloudio/uni-app'
 import api, { resolveAvatarUrl } from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 import { getAppName } from '@/utils/platform'
+import { getBalance } from '@/utils/pay'
+import type { CoinBalance } from '@/utils/pay'
 
 const { themeClass, isDark, toggleTheme: doToggleTheme } = useTheme()
 const isLoggedIn = ref(false)
@@ -157,6 +180,14 @@ const learningStats = ref({
   total: 0
 })
 
+const coinBalance = ref<CoinBalance>({
+  balance: 0,
+  total_recharged: 0,
+  total_consumed: 0,
+  free_remaining: 1,
+  free_used: 0
+})
+
 onShow(() => {
   isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
@@ -169,6 +200,7 @@ onShow(() => {
 
   if (isLoggedIn.value) {
     loadLearningStats()
+    loadCoinBalance()
     // 从服务端刷新用户资料（昵称、头像）
     refreshUserProfile()
   }
@@ -199,6 +231,15 @@ async function loadLearningStats() {
     }
   } catch (e) {
     console.error('获取学习进度失败', e)
+  }
+}
+
+async function loadCoinBalance() {
+  try {
+    const data = await getBalance()
+    coinBalance.value = data
+  } catch (e) {
+    console.error('获取代币余额失败', e)
   }
 }
 
@@ -601,5 +642,73 @@ function handleLogout() {
   font-size: 28rpx;
   text-align: center;
   padding: 0;
+}
+
+/* 代币卡片 */
+.coin-section {
+  position: relative;
+}
+
+.coin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.coin-recharge {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.recharge-text {
+  font-size: 26rpx;
+  color: #8B2500;
+  font-weight: 500;
+}
+
+.coin-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coin-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.coin-num {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #8B2500;
+  line-height: 1;
+}
+
+.coin-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.coin-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
+.coin-tip {
+  font-size: 22rpx;
+  color: #2D5F4A;
+  background: rgba(45, 95, 74, 0.1);
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.coin-tip.used {
+  color: #999;
+  background: rgba(0, 0, 0, 0.05);
 }
 </style>

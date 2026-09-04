@@ -7,7 +7,6 @@ import api from '@/utils/api'
 const isMp = getPlatform().startsWith('mp-')
 
 onLaunch(() => {
-  console.log(getAppName() + ' App Launch')
   initTheme()
   loadSiteConfig()
   if (isMp) updateTabBarStyle()

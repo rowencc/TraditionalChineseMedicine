@@ -23,7 +23,7 @@ export function getPlatform(): string {
     // 运行时兜底检测
     try {
       // @ts-ignore
-      if (typeof wx !== 'undefined' && wx.getSystemInfoSync) {
+      if (typeof wx !== 'undefined' && typeof wx.getDeviceInfo === 'function') {
         cachedPlatform = 'mp-weixin'
       } else if (typeof window !== 'undefined') {
         cachedPlatform = 'h5'
