@@ -91,6 +91,21 @@ export default {
         </view>
       </view>
 
+      <!-- 推荐穴位 -->
+      <view class="section" v-if="result.suggested_acupoints?.length > 0">
+        <text class="section-title">推荐穴位</text>
+        <view class="acupoint-tags">
+          <view
+            v-for="point in result.suggested_acupoints"
+            :key="point"
+            class="acupoint-tag"
+            @tap="goToAcupoint(point)"
+          >
+            {{ point }}
+          </view>
+        </view>
+      </view>
+
       <!-- 详细分析 -->
       <view class="section">
         <text class="section-title">详细分析</text>
@@ -261,6 +276,12 @@ async function analyzeSymptoms() {
 function goToFormula(name: string) {
   uni.navigateTo({
     url: `/pages/formulas/detail?name=${encodeURIComponent(name)}`
+  })
+}
+
+function goToAcupoint(name: string) {
+  uni.navigateTo({
+    url: `/pages/acupuncture/detail?name=${encodeURIComponent(name)}`
   })
 }
 
@@ -502,6 +523,25 @@ function goToRecharge() {
 
 .formula-tag:active {
   background: rgba(139, 37, 0, 0.15);
+}
+
+.acupoint-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.acupoint-tag {
+  padding: 10rpx 20rpx;
+  background: rgba(45, 95, 74, 0.08);
+  color: #2D5F4A;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.acupoint-tag:active {
+  background: rgba(45, 95, 74, 0.15);
 }
 
 .analysis-text {
