@@ -55,13 +55,16 @@ export default {
     </view>
 
     <!-- 提交按钮 -->
-    <button 
-      class="submit-btn" 
-      @tap="analyzeSymptoms" 
-      :disabled="!symptoms || loading"
+    <view 
+      class="submit-btn-wrap"
+      :class="{ 'submit-btn-disabled': !symptoms || loading }"
+      @tap="analyzeSymptoms"
     >
-      {{ loading ? '分析中...' : (coinBalance.free_remaining > 0 ? '免费辨证' : '消耗1古币辨证') }}
-    </button>
+      <!-- 进度条背景 -->
+      <view v-if="loading" class="submit-progress" :style="{ width: progress + '%' }"></view>
+      <!-- 按钮内容 -->
+      <text class="submit-btn-text">{{ loading ? '分析中...' : '分析辨证' }}</text>
+    </view>
 
     <!-- 诊断结果 -->
     <view v-if="result" class="result-section">
@@ -109,13 +112,13 @@ export default {
       <!-- 详细分析 -->
       <view class="section">
         <text class="section-title">详细分析</text>
-        <text class="analysis-text">{{ result.analysis || result.raw_response }}</text>
+        <markdown-view :content="result.analysis || result.raw_response" />
       </view>
 
       <!-- 注意事项 -->
       <view class="section advice-section" v-if="result.advice">
         <text class="section-title">注意事项</text>
-        <text class="advice-text">{{ result.advice }}</text>
+        <markdown-view :content="result.advice" />
       </view>
     </view>
 
@@ -135,11 +138,14 @@ import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 import { getBalance, useFree, consumeCoins } from '@/utils/pay'
 import type { CoinBalance } from '@/utils/pay'
+import MarkdownView from '@/components/MarkdownView.vue'
 
 const { themeClass } = useTheme()
 const symptoms = ref('')
 const loading = ref(false)
 const result = ref<any>(null)
+const progress = ref(0)
+let progressTimer: any = null
 
 // 代币信息
 const coinBalance = ref<CoinBalance>({
@@ -242,6 +248,14 @@ async function analyzeSymptoms() {
 
   loading.value = true
   result.value = null
+  progress.value = 0
+
+  // 启动进度条动画：每秒 +5%，最大 95%
+  progressTimer = setInterval(() => {
+    if (progress.value < 95) {
+      progress.value += 5
+    }
+  }, 1000)
 
   try {
     const res = await api.request('ai', 'consult', { symptoms: symptoms.value }, 'POST')
@@ -270,6 +284,11 @@ async function analyzeSymptoms() {
     uni.showToast({ title: '网络错误，请重试', icon: 'none' })
   } finally {
     loading.value = false
+    // 清除进度条定时器
+    if (progressTimer) {
+      clearInterval(progressTimer)
+      progressTimer = null
+    }
   }
 }
 
@@ -426,23 +445,47 @@ function goToRecharge() {
   color: #8B2500;
 }
 
-.submit-btn {
+.submit-btn-wrap {
+  position: relative;
   width: 100%;
   height: 88rpx;
-  line-height: 88rpx;
   background: linear-gradient(135deg, #8B2500, #A63A1E);
-  color: #fff;
-  border: none;
   border-radius: 12rpx;
-  font-size: 30rpx;
-  font-weight: 500;
   margin: 24rpx 0;
-  text-align: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.submit-btn:disabled {
+.submit-btn-wrap:active:not(.submit-btn-disabled) {
+  opacity: 0.9;
+}
+
+.submit-btn-disabled {
   background: #ccc;
+  pointer-events: none;
+}
+
+.submit-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #A63A1E, #8B2500);
+  transition: width 0.3s ease;
+}
+
+.submit-btn-text {
+  position: relative;
+  z-index: 1;
+  font-size: 30rpx;
+  font-weight: 500;
   color: #fff;
+}
+
+.submit-btn-disabled .submit-btn-text {
+  color: #999;
 }
 
 .result-section {

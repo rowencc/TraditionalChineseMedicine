@@ -207,6 +207,11 @@ export function getDiagnosisDetail(id: number) {
   return request('ai', 'detail', { id })
 }
 
+// 导入分享的问诊记录到当前用户账户
+export function importSharedDiagnosis(sourceId: number) {
+  return request('ai', 'import_shared', { source_id: sourceId }, 'POST')
+}
+
 // 站点配置（公开接口）
 export function getSiteConfig() {
   return request('site', 'config')
@@ -255,6 +260,7 @@ export default {
   // 问诊记录
   getDiagnosisHistory,
   getDiagnosisDetail,
+  importSharedDiagnosis,
 
   // 站点配置
   getSiteConfig,

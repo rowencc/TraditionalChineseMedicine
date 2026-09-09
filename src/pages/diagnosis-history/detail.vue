@@ -25,13 +25,13 @@
     <!-- 详细分析 -->
     <view class="section">
       <text class="section-title">辨证分析</text>
-      <text class="content analysis">{{ record.analysis || record.raw_response }}</text>
+      <markdown-view :content="record.analysis || record.raw_response" />
     </view>
 
     <!-- 注意事项 -->
     <view class="section advice" v-if="record.advice">
       <text class="section-title">注意事项</text>
-      <text class="content">{{ record.advice }}</text>
+      <markdown-view :content="record.advice" />
     </view>
 
     <!-- 元信息 -->
@@ -48,19 +48,23 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
+import MarkdownView from '@/components/MarkdownView.vue'
 
 const { themeClass } = useTheme()
 const record = ref<any>(null)
 const loading = ref(true)
 const formulas = ref<string[]>([])
+const recordId = ref<number | null>(null)
 
 onLoad(async (options) => {
   if (options?.id) {
+    const id = Number(options.id)
+    recordId.value = id
     try {
-      const res = await api.getDiagnosisDetail(Number(options.id))
+      const res = await api.getDiagnosisDetail(id)
       if (res.code === 1 && res.data) {
         record.value = res.data
         // 解析方剂
@@ -71,18 +75,57 @@ onLoad(async (options) => {
               : res.data.suggested_formulas
             formulas.value = Array.isArray(arr) ? arr : []
           } catch {
-            // 畸形JSON时尝试按逗号分隔
             const raw = String(res.data.suggested_formulas)
             formulas.value = raw.includes('、') ? raw.split('、').filter(Boolean) : raw ? [raw] : []
           }
         }
         uni.setNavigationBarTitle({ title: record.value.meridian ? record.value.meridian + '辨证' : '问一问详情' })
+
+        // 如果是分享链接打开，且用户已登录，尝试将记录导入到当前用户账户
+        if (api.isLoggedIn() && res.data.user_id && res.data.user_id !== api.getUser()?.id) {
+          let importRes: any
+          try {
+            importRes = await api.request('ai', 'import_shared', { source_id: id }, 'POST')
+            if (importRes.code === 1 && importRes.data?.new_id) {
+              // 导入成功，更新 recordId 为新的记录
+              recordId.value = importRes.data.new_id
+              uni.showToast({ title: '已加入我的问诊记录', icon: 'success' })
+            }
+          } catch {
+            // 导入失败，不影响查看，静默处理
+            console.warn('导入分享记录失败', importRes?.msg)
+          }
+        }
       }
     } catch (e) {
       console.error('加载问诊详情失败', e)
     } finally {
       loading.value = false
     }
+  }
+})
+
+// 分享好友
+onShareAppMessage(() => {
+  const id = recordId.value
+  const meridian = record.value?.meridian || ''
+  const title = meridian ? `【岐黄小识】${meridian}辨证分析` : '【岐黄小识】中医六经辨证分析'
+  return {
+    title,
+    path: id ? `/pages/diagnosis-history/detail?id=${id}` : '/pages/diagnosis-history/detail',
+    imageUrl: ''
+  }
+})
+
+// 分享朋友圈
+onShareTimeline(() => {
+  const id = recordId.value
+  const meridian = record.value?.meridian || ''
+  const title = meridian ? `【岐黄小识】${meridian}辨证分析` : '【岐黄小识】中医六经辨证分析'
+  return {
+    title,
+    query: id ? `id=${id}` : '',
+    imageUrl: ''
   }
 })
 
