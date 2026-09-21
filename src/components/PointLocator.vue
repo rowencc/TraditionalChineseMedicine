@@ -6,7 +6,7 @@
 
     <!-- 参考图 -->
     <view class="reference-section">
-      <text class="ref-label">经络参考图</text>
+      <text class="ref-label">经络穴位图</text>
       <image class="reference-image" :src="referenceImage" mode="aspectFit" @tap="previewImage" />
       <text class="ref-hint">点击查看大图</text>
     </view>
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { resolveAvatarUrl } from '@/utils/api'
 
 const props = defineProps<{
   pointName: string
@@ -54,24 +55,24 @@ const props = defineProps<{
   position: string
 }>()
 
-// 参考图映射
+// 参考图映射（每条经络专属图，来源：Wellcome Historical Medical Library / Wikimedia Commons）
 const referenceImages: Record<string, string> = {
-  '手太阴肺经': '/static/acupuncture/chinese.jpg',
-  '手阳明大肠经': '/static/acupuncture/meridians.jpg',
-  '足阳明胃经': '/static/acupuncture/meridians.jpg',
-  '足太阴脾经': '/static/acupuncture/meridians.jpg',
-  '手少阴心经': '/static/acupuncture/chinese.jpg',
-  '手太阳小肠经': '/static/acupuncture/meridians.jpg',
-  '足太阳膀胱经': '/static/acupuncture/meridians.jpg',
-  '足少阴肾经': '/static/acupuncture/meridians.jpg',
-  '手厥阴心包经': '/static/acupuncture/chinese.jpg',
-  '手少阳三焦经': '/static/acupuncture/meridians.jpg',
-  '足少阳胆经': '/static/acupuncture/meridians.jpg',
-  '足厥阴肝经': '/static/acupuncture/meridians.jpg'
+  '手太阴肺经': '/uploads/acupuncture/lung.jpg',
+  '手阳明大肠经': '/uploads/acupuncture/large-intestine.jpg',
+  '足阳明胃经': '/uploads/acupuncture/stomach.jpg',
+  '足太阴脾经': '/uploads/acupuncture/spleen.jpg',
+  '手少阴心经': '/uploads/acupuncture/heart.jpg',
+  '手太阳小肠经': '/uploads/acupuncture/small-intestine.jpg',
+  '足太阳膀胱经': '/uploads/acupuncture/bladder.jpg',
+  '足少阴肾经': '/uploads/acupuncture/kidney.jpg',
+  '手厥阴心包经': '/uploads/acupuncture/pericardium.jpg',
+  '手少阳三焦经': '/uploads/acupuncture/triple-warmer.jpg',
+  '足少阳胆经': '/uploads/acupuncture/gall-bladder.jpg',
+  '足厥阴肝经': '/uploads/acupuncture/liver.jpg'
 }
 
 const referenceImage = computed(() => {
-  return referenceImages[props.meridianName] || '/static/acupuncture/meridians.jpg'
+  return resolveAvatarUrl(referenceImages[props.meridianName] || '/uploads/acupuncture/meridians.jpg')
 })
 
 // 穴位定位步骤

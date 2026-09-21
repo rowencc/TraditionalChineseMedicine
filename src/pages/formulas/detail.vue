@@ -14,6 +14,29 @@
       </view>
     </view>
 
+    <!-- 配伍分析 -->
+    <view class="section" v-if="compositionAnalysis">
+      <text class="section-title">配伍分析（君臣佐使）</text>
+      <view class="analysis-list">
+        <view class="analysis-item" v-if="compositionAnalysis.jun">
+          <text class="ai-role jun">君</text>
+          <text class="ai-text">{{ compositionAnalysis.jun }}</text>
+        </view>
+        <view class="analysis-item" v-if="compositionAnalysis.chen">
+          <text class="ai-role chen">臣</text>
+          <text class="ai-text">{{ compositionAnalysis.chen }}</text>
+        </view>
+        <view class="analysis-item" v-if="compositionAnalysis.zuo">
+          <text class="ai-role zuo">佐</text>
+          <text class="ai-text">{{ compositionAnalysis.zuo }}</text>
+        </view>
+        <view class="analysis-item" v-if="compositionAnalysis.shi">
+          <text class="ai-role shi">使</text>
+          <text class="ai-text">{{ compositionAnalysis.shi }}</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 剂量 -->
     <view class="section">
       <text class="section-title">剂量</text>
@@ -32,6 +55,39 @@
     <view class="section">
       <text class="section-title">功效</text>
       <text class="content">{{ formula.formula_usage || formula.usage }}</text>
+    </view>
+
+    <!-- 功效详解 -->
+    <view class="section" v-if="formula.efficacy">
+      <text class="section-title">功效详解</text>
+      <text class="content efficacy">{{ formula.efficacy }}</text>
+    </view>
+
+    <!-- 禁忌 -->
+    <view class="section warning-section" v-if="formula.contraindications">
+      <text class="section-title warning-title">禁忌</text>
+      <text class="content warning-text">{{ formula.contraindications }}</text>
+    </view>
+
+    <!-- 古籍引用 -->
+    <view class="section" v-if="classicalQuotes && classicalQuotes.length">
+      <text class="section-title">古籍引用</text>
+      <view class="classical-list">
+        <view v-for="(q, i) in classicalQuotes" :key="i" class="classical-item">
+          <text class="cq-title">{{ q.title }}</text>
+          <text class="cq-text">「{{ q.text }}」</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加减变化 -->
+    <view class="section" v-if="modifications && modifications.length">
+      <text class="section-title">加减变化</text>
+      <view class="modification-list">
+        <view v-for="(m, i) in modifications" :key="i" class="modification-item">
+          <text class="mo-text">{{ m }}</text>
+        </view>
+      </view>
     </view>
 
     <!-- 来源 -->
@@ -103,6 +159,32 @@ const compositionList = computed(() => {
 const symptomsList = computed(() => {
   if (!formula.value) return []
   return parseJsonArray(formula.value.symptoms)
+})
+
+const classicalQuotes = computed(() => {
+  if (!formula.value?.classical_quotes) return []
+  try {
+    const val = formula.value.classical_quotes
+    const arr = typeof val === 'string' ? JSON.parse(val) : val
+    return Array.isArray(arr) ? arr : []
+  } catch { return [] }
+})
+
+const compositionAnalysis = computed(() => {
+  if (!formula.value?.composition_analysis) return null
+  try {
+    const val = formula.value.composition_analysis
+    return typeof val === 'string' ? JSON.parse(val) : val
+  } catch { return null }
+})
+
+const modifications = computed(() => {
+  if (!formula.value?.modifications) return []
+  try {
+    const val = formula.value.modifications
+    const arr = typeof val === 'string' ? JSON.parse(val) : val
+    return Array.isArray(arr) ? arr : []
+  } catch { return [] }
 })
 
 const relatedFormulas = ref<any[]>([])
@@ -250,5 +332,110 @@ function goToDetail(name: string) {
 .related-meridian {
   font-size: 22rpx;
   color: #8B2500;
+}
+
+.analysis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.analysis-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  background: #FAFAF7;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+}
+
+.ai-role {
+  display: inline-block;
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ai-role.jun { background: linear-gradient(135deg, #8B2500, #A63A1E); }
+.ai-role.chen { background: linear-gradient(135deg, #2D5F4A, #3D7A62); }
+.ai-role.zuo { background: linear-gradient(135deg, #B8860B, #DAA520); }
+.ai-role.shi { background: linear-gradient(135deg, #4A90E2, #5BA3E8); }
+
+.ai-text {
+  font-size: 24rpx;
+  color: #555;
+  line-height: 1.7;
+  flex: 1;
+}
+
+.efficacy {
+  color: #2D5F4A;
+  font-weight: 500;
+}
+
+.warning-section {
+  border-left: 4rpx solid #C0392B;
+}
+
+.warning-title {
+  color: #C0392B;
+}
+
+.warning-text {
+  color: #C0392B;
+  font-weight: 500;
+}
+
+.classical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.classical-item {
+  background: #FFF8DC;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  border-left: 4rpx solid #B8860B;
+}
+
+.cq-title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #B8860B;
+  margin-bottom: 8rpx;
+}
+
+.cq-text {
+  font-size: 26rpx;
+  color: #5D4E37;
+  line-height: 1.8;
+  font-style: italic;
+}
+
+.modification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.modification-item {
+  background: #F5F0E8;
+  border-radius: 8rpx;
+  padding: 14rpx 20rpx;
+  border-left: 3rpx solid #2D5F4A;
+}
+
+.mo-text {
+  font-size: 24rpx;
+  color: #555;
+  line-height: 1.6;
 }
 </style>

@@ -12,10 +12,34 @@
       <text class="content">{{ pointInfo.position }}</text>
     </view>
 
+    <!-- 功效 -->
+    <view class="section" v-if="pointInfo.function">
+      <text class="section-title">穴位功效</text>
+      <text class="content">{{ pointInfo.function }}</text>
+    </view>
+
+    <!-- 归类 -->
+    <view class="section" v-if="pointInfo.classification">
+      <text class="section-title">穴位归类</text>
+      <text class="content">{{ pointInfo.classification }}</text>
+    </view>
+
+    <!-- 古籍记载 -->
+    <view class="section" v-if="pointInfo.classical">
+      <text class="section-title">古籍记载</text>
+      <text class="content classical-text">{{ pointInfo.classical }}</text>
+    </view>
+
     <!-- 主治 -->
     <view class="section">
       <text class="section-title">主治病症</text>
       <text class="content highlight-text">{{ pointInfo.indication }}</text>
+    </view>
+
+    <!-- 针灸禁忌 -->
+    <view class="section" v-if="pointInfo.contraindications">
+      <text class="section-title">针灸禁忌</text>
+      <text class="content warning-text">{{ pointInfo.contraindications }}</text>
     </view>
 
     <!-- 常用配穴 -->
@@ -171,13 +195,16 @@ async function loadPointImage(point: string) {
     const res = await api.request('tcm', 'acupoint_detail', { name })
     if (res.code === 1 && res.data?.image_url) {
       const url = res.data.image_url
-      // 只使用服务端配置的有效图片（以 /uploads 开头或 http 开头）
       if (url.startsWith('/uploads') || url.startsWith('http')) {
         pointImage.value = resolveAvatarUrl(url)
       }
     }
   } catch (e) {
     // 忽略
+  }
+  // 回退：使用配置的经络图（服务端或本地）
+  if (!pointImage.value && pointInfo.value?.image_url) {
+    pointImage.value = resolveAvatarUrl(pointInfo.value.image_url)
   }
 }
 
@@ -239,6 +266,17 @@ function previewImage(url: string) {
 
 .highlight-text {
   color: #8B0000;
+  font-weight: 500;
+}
+
+.classical-text {
+  color: #555;
+  font-size: 24rpx;
+  line-height: 1.8;
+}
+
+.warning-text {
+  color: #D4453D;
   font-weight: 500;
 }
 

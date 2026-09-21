@@ -36,6 +36,17 @@
       </view>
     </view>
 
+    <!-- 古籍引用 -->
+    <view class="section" v-if="item.detail.classicalQuotes && item.detail.classicalQuotes.length">
+      <text class="section-title">古籍引用</text>
+      <view class="classical-list">
+        <view v-for="(q, i) in item.detail.classicalQuotes" :key="i" class="classical-item">
+          <text class="cq-title">{{ q.title }}</text>
+          <text class="cq-text">「{{ q.text }}」</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 代表方剂 -->
     <view class="section">
       <text class="section-title">代表方剂</text>
@@ -46,6 +57,35 @@
         </view>
         <text class="fc-usage">{{ f.usage }}</text>
         <text class="fc-composition">组成：{{ f.composition }}</text>
+      </view>
+    </view>
+
+    <!-- 常用针灸穴位 -->
+    <view class="section" v-if="item.detail.acupoints && item.detail.acupoints.length">
+      <text class="section-title">常用针灸穴位</text>
+      <view class="acupoint-list">
+        <view v-for="(p, i) in item.detail.acupoints" :key="i" class="acupoint-item">
+          <view class="ap-header">
+            <text class="ap-name">{{ p.name }}</text>
+            <text class="ap-meridian">{{ p.meridian }}</text>
+          </view>
+          <text class="ap-indication">{{ p.indication }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 按摩手法 -->
+    <view class="section" v-if="item.detail.massage && item.detail.massage.length">
+      <text class="section-title">按摩手法</text>
+      <view class="massage-list">
+        <view v-for="(m, i) in item.detail.massage" :key="i" class="massage-item">
+          <view class="mg-header">
+            <text class="mg-technique">{{ m.technique }}</text>
+            <text class="mg-duration">{{ m.duration }}</text>
+          </view>
+          <text class="mg-position">{{ m.position }}</text>
+          <text v-if="m.caution && m.caution !== '无'" class="mg-caution">注意：{{ m.caution }}</text>
+        </view>
       </view>
     </view>
 
@@ -258,5 +298,123 @@ function goToFormula(name: string) {
   font-size: 26rpx;
   color: #8B4513;
   line-height: 1.8;
+}
+
+.classical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.classical-item {
+  background: #FFF8DC;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  border-left: 4rpx solid #B8860B;
+}
+
+.cq-title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #B8860B;
+  margin-bottom: 8rpx;
+}
+
+.cq-text {
+  font-size: 26rpx;
+  color: #5D4E37;
+  line-height: 1.8;
+  font-style: italic;
+}
+
+.acupoint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.acupoint-item {
+  background: #FAFAF7;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  border-left: 4rpx solid #2D5F4A;
+}
+
+.ap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.ap-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #8B2500;
+}
+
+.ap-meridian {
+  font-size: 22rpx;
+  color: #999;
+  background: rgba(45, 95, 74, 0.08);
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.ap-indication {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.massage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.massage-item {
+  background: #FAFAF7;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  border-left: 4rpx solid #4A90E2;
+}
+
+.mg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.mg-technique {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #2C5AA0;
+}
+
+.mg-duration {
+  font-size: 22rpx;
+  color: #fff;
+  background: #4A90E2;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.mg-position {
+  display: block;
+  font-size: 24rpx;
+  color: #555;
+  margin-bottom: 6rpx;
+}
+
+.mg-caution {
+  display: block;
+  font-size: 22rpx;
+  color: #C0392B;
+  background: rgba(192, 57, 43, 0.08);
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
 }
 </style>
