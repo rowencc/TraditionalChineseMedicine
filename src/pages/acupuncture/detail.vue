@@ -194,10 +194,7 @@ async function loadPointImage(point: string) {
     const name = decodeURIComponent(point)
     const res = await api.request('tcm', 'acupoint_detail', { name })
     if (res.code === 1 && res.data?.image_url) {
-      const url = res.data.image_url
-      if (url.startsWith('/uploads') || url.startsWith('http')) {
-        pointImage.value = resolveAvatarUrl(url)
-      }
+      pointImage.value = resolveAvatarUrl(res.data.image_url)
     }
   } catch (e) {
     // 忽略

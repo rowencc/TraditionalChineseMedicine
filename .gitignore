@@ -19,4 +19,5 @@ Thumbs.db
 
 # Temporary
 temp_nihaixia/
+scripts/_staging/
 *.log

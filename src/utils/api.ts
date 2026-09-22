@@ -8,10 +8,11 @@ import manifest from '../manifest.json'
 const API_BASE = 'https://tcm.rowen.cc/index.php'
 const SERVER_BASE = 'https://tcm.rowen.cc'
 
-// 解析头像URL（相对路径补全为完整URL）
+// 解析头像URL（相对路径补全为完整URL；拒绝 http:// — 真机 <image> 不加载非 HTTPS）
 export function resolveAvatarUrl(url: string): string {
   if (!url) return ''
-  if (url.startsWith('http')) return url
+  if (url.startsWith('http://')) return ''
+  if (url.startsWith('https://')) return url
   if (url.startsWith('/')) return SERVER_BASE + url
   return url
 }
