@@ -72,8 +72,8 @@ function toggleTag(value: string) {
   padding: 12rpx 24rpx;
   margin-right: 16rpx;
   font-size: 26rpx;
-  color: #666;
-  background: #f5f5f5;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
   border-radius: 32rpx;
   transition: all 0.2s;
 

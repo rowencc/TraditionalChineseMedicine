@@ -48,6 +48,7 @@ import SearchBar from '@/components/SearchBar.vue'
 import TagFilter from '@/components/TagFilter.vue'
 import FormulaCard from '@/components/FormulaCard.vue'
 import api from '@/utils/api'
+import { searchFormulas } from '@/utils/search'
 import { useTheme } from "@/utils/theme"
 
 const { themeClass } = useTheme()
@@ -84,7 +85,16 @@ async function loadFormulas(reset = false) {
   
   try {
     const meridian = selectedMeridians.value[0] || ''
-    const res = await api.getFormulaList(page.value, 20, meridian, keyword.value)
+    const kw = keyword.value.trim()
+
+    // 有关键词时走本地相关性搜索（后端 keyword 参数无效，见 src/utils/search.ts）
+    if (kw) {
+      formulas.value = searchFormulas(kw, meridian)
+      hasMore.value = false
+      return
+    }
+
+    const res = await api.getFormulaList(page.value, 20, meridian, '')
     
     if (res.code === 1) {
       const newList = res.data.list || []
@@ -134,7 +144,7 @@ onLoad((options) => {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
 }
 
 .formula-list {
@@ -146,7 +156,7 @@ onLoad((options) => {
   justify-content: center;
   align-items: center;
   height: 100rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 26rpx;
   margin: 0 24rpx;
 }
@@ -156,7 +166,7 @@ onLoad((options) => {
   justify-content: center;
   align-items: center;
   height: 200rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 28rpx;
   margin: 0 24rpx;
 }

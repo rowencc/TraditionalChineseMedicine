@@ -157,12 +157,12 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding-bottom: 40rpx;
 }
 
 .header {
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   padding: 60rpx 40rpx;
   text-align: center;
 }
@@ -199,7 +199,7 @@ onMounted(async () => {
 
 .section {
   margin: 24rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
 }
@@ -208,14 +208,14 @@ onMounted(async () => {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
 }
 
 .content {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.8;
   margin-bottom: 12rpx;
 }
@@ -245,12 +245,12 @@ onMounted(async () => {
 .status-text {
   flex: 1;
   font-size: 26rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .status-value {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 /* 功能模块 */
@@ -263,7 +263,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   padding: 16rpx;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
 }
 
@@ -280,20 +280,20 @@ onMounted(async () => {
   margin-right: 16rpx;
 }
 
-.feature-icon.formula { background: linear-gradient(135deg, #8B2500, #A63A1E); }
-.feature-icon.herb { background: linear-gradient(135deg, #2D5F4A, #3D7A62); }
+.feature-icon.formula { background: linear-gradient(135deg, var(--brand), var(--brand-light)); }
+.feature-icon.herb { background: linear-gradient(135deg, var(--jade), var(--jade)); }
 .feature-icon.case { background: linear-gradient(135deg, #2980B9, #3498DB); }
-.feature-icon.diagnosis { background: linear-gradient(135deg, #B8860B, #D4A017); }
+.feature-icon.diagnosis { background: linear-gradient(135deg, var(--accent), var(--accent)); }
 .feature-icon.acupuncture { background: linear-gradient(135deg, #8E44AD, #9B59B6); }
 
 .feature-info { flex: 1; }
-.feature-name { display: block; font-size: 28rpx; font-weight: 500; color: #333; margin-bottom: 4rpx; }
-.feature-desc { font-size: 24rpx; color: #999; }
+.feature-name { display: block; font-size: 28rpx; font-weight: 500; color: var(--text-primary); margin-bottom: 4rpx; }
+.feature-desc { font-size: 24rpx; color: var(--text-muted); }
 
 /* 作者信息 */
 .author-info {
   padding: 16rpx;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
 }
 
@@ -301,33 +301,33 @@ onMounted(async () => {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
 }
 
 .author-contact {
   display: block;
   font-size: 26rpx;
-  color: #8B2500;
+  color: var(--brand-ink);
   margin-bottom: 8rpx;
 }
 
 .author-desc {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 /* 开源信息 */
 .opensource-info {
   padding: 16rpx;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
 }
 
 .opensource-item {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8rpx;
 }
 
@@ -338,7 +338,7 @@ onMounted(async () => {
 /* 免责声明 */
 .disclaimer {
   margin: 24rpx;
-  background: #FFF8DC;
+  background: var(--bg-quote);
   border-radius: 12rpx;
   padding: 24rpx;
   border-left: 4rpx solid #DAA520;
@@ -348,13 +348,13 @@ onMounted(async () => {
   display: block;
   font-size: 26rpx;
   font-weight: 600;
-  color: #8B4513;
+  color: var(--brown-ink);
   margin-bottom: 8rpx;
 }
 
 .disclaimer-text {
   font-size: 24rpx;
-  color: #8B4513;
+  color: var(--brown-ink);
   line-height: 1.6;
 }
 </style>

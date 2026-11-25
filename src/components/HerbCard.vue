@@ -47,7 +47,7 @@ function onTap() {
 
 <style lang="scss" scoped>
 .herb-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin: 0 24rpx 16rpx;
@@ -64,7 +64,7 @@ function onTap() {
 .herb-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .tags {
@@ -79,7 +79,7 @@ function onTap() {
 }
 
 .tag.nature {
-  color: #8B4513;
+  color: var(--brown-ink);
   background: rgba(139, 69, 19, 0.1);
 }
 
@@ -94,17 +94,17 @@ function onTap() {
 
 .effect {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .card-footer {
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
   padding-top: 12rpx;
 }
 
 .meridian {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 </style>

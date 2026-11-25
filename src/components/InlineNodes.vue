@@ -1,6 +1,6 @@
 <template>
   <text class="inline-wrap">
-    <template v-for="(node, ni) in nodes" :key="ni">
+    <template v-for="(node, ni) in safeNodes" :key="ni">
       <text v-if="node.type === 'text'">{{ node.content }}</text>
       <text v-else-if="node.type === 'bold'" class="md-bold">{{ node.content }}</text>
       <text v-else-if="node.type === 'italic'" class="md-italic">{{ node.content }}</text>
@@ -12,11 +12,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { InlineNode } from '@/utils/markdown'
 
-defineProps<{
-  nodes: InlineNode[]
+const props = defineProps<{
+  nodes?: InlineNode[]
 }>()
+
+// 兜底：任何非数组输入都按空数组渲染，避免小程序 wx:for 迭代 undefined 报错
+const safeNodes = computed<InlineNode[]>(() => (Array.isArray(props.nodes) ? props.nodes : []))
 </script>
 
 <style lang="scss" scoped>
@@ -26,26 +30,26 @@ defineProps<{
 
 .md-bold {
   font-weight: 700;
-  color: var(--text-primary, #2C2C2C);
+  color: var(--text-primary, var(--text-primary));
 }
 
 .md-italic {
   font-style: italic;
-  color: var(--text-primary, #2C2C2C);
+  color: var(--text-primary, var(--text-primary));
 }
 
 .md-inline-code {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 0.9em;
-  background: rgba(139, 37, 0, 0.08);
-  color: var(--primary, #8B2500);
+  background: var(--brand-soft);
+  color: var(--primary, var(--brand-ink));
   padding: 2rpx 8rpx;
   border-radius: 4rpx;
 }
 
 .md-strike {
   text-decoration: line-through;
-  color: var(--text-muted, #999);
+  color: var(--text-muted, var(--text-muted));
 }
 
 /* 暗色主题 */

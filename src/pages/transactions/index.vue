@@ -1,5 +1,12 @@
 <template>
   <view class="container" :class="themeClass">
+    <!-- 未登录：留在本页提示，不再自动跳转登录页（可在登录后回到本页） -->
+    <view v-if="!isLoggedIn" class="login-state">
+      <text class="login-state-text">登录后可查看交易记录</text>
+      <button class="btn-login" @tap="goToLogin">去登录</button>
+    </view>
+
+    <block v-else>
     <!-- 余额卡片 -->
     <view class="balance-card">
       <text class="balance-label">当前余额</text>
@@ -39,16 +46,20 @@
     <view class="load-more" v-if="!loading && hasMore" @tap="loadMore">
       <text class="load-more-text">加载更多</text>
     </view>
+    </block>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useTheme } from '@/utils/theme'
 import api from '@/utils/api'
+import { authState } from '@/utils/auth'
 
 const { themeClass } = useTheme()
+// 登录态响应式：会话过期时自动回到登录提示，不再反复跳转登录页
+const isLoggedIn = computed(() => authState.loggedIn)
 const orders = ref<any[]>([])
 const balance = ref(0)
 const loading = ref(false)
@@ -64,14 +75,22 @@ const productNames: Record<string, string> = {
 }
 
 onShow(() => {
-  if (!api.isLoggedIn()) {
-    uni.navigateTo({ url: '/pages/login/index' })
+  if (!isLoggedIn.value) {
+    // 未登录时清空列表，由页面内提示引导登录，避免"返回即跳登录页"的死循环
+    orders.value = []
+    balance.value = 0
+    hasMore.value = true
+    page.value = 1
     return
   }
   page.value = 1
   orders.value = []
   loadOrders()
 })
+
+function goToLogin() {
+  uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
+}
 
 async function loadOrders() {
   loading.value = true
@@ -118,13 +137,35 @@ function getStatusClass(order: any): string {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
   padding-bottom: 40rpx;
 }
 
+.login-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.login-state-text {
+  font-size: 30rpx;
+  color: var(--text-secondary);
+  margin-bottom: 24rpx;
+}
+
+.btn-login {
+  padding: 16rpx 48rpx;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
 .balance-card {
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   border-radius: 16rpx;
   padding: 32rpx 40rpx;
   margin-bottom: 24rpx;
@@ -154,7 +195,7 @@ function getStatusClass(order: any): string {
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -170,7 +211,7 @@ function getStatusClass(order: any): string {
 .order-product {
   font-size: 30rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .order-status {
@@ -180,8 +221,8 @@ function getStatusClass(order: any): string {
 }
 
 .status-completed {
-  color: #2D5F4A;
-  background: rgba(45, 95, 74, 0.1);
+  color: var(--jade-ink);
+  background: var(--jade-soft);
 }
 
 .status-pending {
@@ -190,7 +231,7 @@ function getStatusClass(order: any): string {
 }
 
 .status-refunded {
-  color: #999;
+  color: var(--text-muted);
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -203,19 +244,19 @@ function getStatusClass(order: any): string {
 
 .order-amount {
   font-size: 28rpx;
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 600;
 }
 
 .order-time {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .order-no {
   display: flex;
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   margin-bottom: 12rpx;
 }
 
@@ -234,7 +275,7 @@ function getStatusClass(order: any): string {
 
 .empty-text {
   font-size: 28rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .loading-more, .load-more {
@@ -244,10 +285,10 @@ function getStatusClass(order: any): string {
 
 .loading-text, .load-more-text {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .load-more-text {
-  color: #8B2500;
+  color: var(--brand-ink);
 }
 </style>

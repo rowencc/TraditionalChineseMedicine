@@ -79,7 +79,7 @@ function onTap() {
 
 <style lang="scss" scoped>
 .case-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin: 0 24rpx 16rpx;
@@ -95,7 +95,7 @@ function onTap() {
 
 .case-date {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .category-tag {
@@ -113,14 +113,14 @@ function onTap() {
 .disease {
   font-size: 30rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   display: block;
   margin-bottom: 8rpx;
 }
 
 .summary {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -132,7 +132,7 @@ function onTap() {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
   padding-top: 12rpx;
 }
 
@@ -143,7 +143,7 @@ function onTap() {
 }
 
 .tag.meridian {
-  color: #8B4513;
+  color: var(--brown-ink);
   background: rgba(139, 69, 19, 0.1);
 }
 

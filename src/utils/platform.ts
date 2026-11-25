@@ -54,3 +54,45 @@ export function getAppSubtitle(): string {
 export function getAppDesc(): string {
   return '基于倪海厦中医知识体系'
 }
+
+// 从 site_config 获取导航/标签名称
+export function getTabName(key: 'home' | 'diagnosis' | 'profile'): string {
+  const keyMap = {
+    home: 'tab_home',
+    diagnosis: 'tab_diagnosis',
+    profile: 'tab_profile'
+  }
+  try {
+    const cached = uni.getStorageSync('site_config')
+    if (cached?.[keyMap[key]]) return cached[keyMap[key]]
+  } catch {}
+  // 默认值
+  const defaults = { home: '首页', diagnosis: '问一问', profile: '我的' }
+  return defaults[key]
+}
+
+// 获取导航卡片名称
+export function getNavName(key: 'formulas' | 'herbs' | 'cases' | 'diagnosis' | 'acupuncture' | 'about'): string {
+  const keyMap = {
+    formulas: 'nav_formulas',
+    herbs: 'nav_herbs',
+    cases: 'nav_cases',
+    diagnosis: 'nav_diagnosis',
+    acupuncture: 'nav_acupuncture',
+    about: 'nav_about'
+  }
+  try {
+    const cached = uni.getStorageSync('site_config')
+    if (cached?.[keyMap[key]]) return cached[keyMap[key]]
+  } catch {}
+  // 默认值
+  const defaults = {
+    formulas: '识方剂',
+    herbs: '识药',
+    cases: '识医案',
+    diagnosis: '识六经',
+    acupuncture: '识穴',
+    about: '关于'
+  }
+  return defaults[key]
+}

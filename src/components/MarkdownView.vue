@@ -1,5 +1,5 @@
 <template>
-  <view class="markdown" :class="themeClass">
+  <view class="markdown" :class="themeClass" :style="props.size ? 'font-size:' + props.size + 'rpx' : ''">
     <template v-for="(block, bi) in blocks" :key="bi">
       <!-- 标题 -->
       <view v-if="block.type === 'heading'" class="md-heading" :class="`level-${block.level}`">
@@ -78,16 +78,26 @@ import InlineNodes from './InlineNodes.vue'
 
 const props = defineProps<{
   content: string
+  /** 正文字号（rpx），不传则沿用组件默认 28rpx */
+  size?: number
 }>()
 
 const { themeClass } = useTheme()
-const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
+// 解析失败或返回非法值时退化为空块，保证 wx:for 永远拿到数组
+const blocks = computed<Block[]>(() => {
+  try {
+    const list = parseMarkdown(props.content || '')
+    return Array.isArray(list) ? list : []
+  } catch {
+    return []
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 .markdown {
   font-size: 28rpx;
-  color: var(--text-secondary, #444);
+  color: var(--text-secondary, var(--text-secondary));
   line-height: 1.75;
   word-break: break-word;
 }
@@ -98,13 +108,13 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
   align-items: baseline;
   gap: 8rpx;
   font-weight: 700;
-  color: var(--text-primary, #2C2C2C);
+  color: var(--text-primary, var(--text-primary));
   margin-bottom: 12rpx;
   margin-top: 4rpx;
 }
 
 .md-heading-mark {
-  color: var(--primary, #8B2500);
+  color: var(--primary, var(--brand-ink));
   font-size: 22rpx;
   line-height: 1;
   flex-shrink: 0;
@@ -115,14 +125,14 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 .level-1 { font-size: 38rpx; margin-top: 16rpx; margin-bottom: 16rpx; }
 .level-2 { font-size: 34rpx; }
 .level-3 { font-size: 30rpx; }
-.level-4 { font-size: 28rpx; color: var(--primary, #8B2500); }
-.level-5 { font-size: 28rpx; color: var(--secondary, #2D5F4A); }
-.level-6 { font-size: 26rpx; color: var(--text-muted, #999); }
+.level-4 { font-size: 28rpx; color: var(--primary, var(--brand-ink)); }
+.level-5 { font-size: 28rpx; color: var(--secondary, var(--jade-ink)); }
+.level-6 { font-size: 26rpx; color: var(--text-muted, var(--text-muted)); }
 
 /* 段落 */
 .md-paragraph {
   margin-bottom: 12rpx;
-  color: var(--text-secondary, #444);
+  color: var(--text-secondary, var(--text-secondary));
 }
 
 /* 列表 */
@@ -138,7 +148,7 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 }
 
 .md-bullet {
-  color: var(--primary, #8B2500);
+  color: var(--primary, var(--brand-ink));
   font-size: 32rpx;
   line-height: 1;
   flex-shrink: 0;
@@ -146,7 +156,7 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 }
 
 .md-num {
-  color: var(--primary, #8B2500);
+  color: var(--primary, var(--brand-ink));
   font-size: 26rpx;
   font-weight: 600;
   flex-shrink: 0;
@@ -155,7 +165,7 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 
 .md-list-content {
   flex: 1;
-  color: var(--text-secondary, #444);
+  color: var(--text-secondary, var(--text-secondary));
 }
 
 /* 引用 */
@@ -165,14 +175,14 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
   padding: 12rpx 20rpx;
   margin: 12rpx 0;
   border-radius: 4rpx;
-  color: var(--text-secondary, #555);
+  color: var(--text-secondary, var(--text-secondary));
   font-style: italic;
 }
 
 /* 代码块 */
 .md-code {
-  background: #FAF7F0;
-  border: 1rpx solid #E8E0D4;
+  background: var(--bg-elevated);
+  border: 1rpx solid var(--border);
   border-radius: 8rpx;
   padding: 16rpx 20rpx;
   margin: 12rpx 0;
@@ -182,7 +192,7 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 .md-code-lang {
   display: block;
   font-size: 20rpx;
-  color: var(--text-muted, #999);
+  color: var(--text-muted, var(--text-muted));
   margin-bottom: 8rpx;
   text-transform: uppercase;
   letter-spacing: 1rpx;
@@ -191,7 +201,7 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 .md-code-content {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 24rpx;
-  color: #333;
+  color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-all;
   line-height: 1.5;
@@ -200,14 +210,14 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 /* 分隔线 */
 .md-hr {
   height: 2rpx;
-  background: linear-gradient(to right, transparent, var(--border, #E8E0D4) 20%, var(--border, #E8E0D4) 80%, transparent);
+  background: linear-gradient(to right, transparent, var(--border, var(--border)) 20%, var(--border, var(--border)) 80%, transparent);
   margin: 20rpx 0;
 }
 
 /* 表格 */
 .md-table-wrap {
   margin: 16rpx 0;
-  border: 1rpx solid var(--border, #E8E0D4);
+  border: 1rpx solid var(--border, var(--border));
   border-radius: 8rpx;
   overflow: hidden;
 }
@@ -225,7 +235,7 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 
 .md-table-row {
   display: flex;
-  border-bottom: 1rpx solid var(--border, #E8E0D4);
+  border-bottom: 1rpx solid var(--border, var(--border));
 }
 
 .md-table-row:last-child {
@@ -233,9 +243,9 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 }
 
 .md-table-header {
-  background: rgba(139, 37, 0, 0.08);
+  background: var(--brand-soft);
   font-weight: 600;
-  color: var(--text-primary, #2C2C2C);
+  color: var(--text-primary, var(--text-primary));
 }
 
 .md-table-row-even {
@@ -245,12 +255,12 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 .md-table-cell {
   padding: 12rpx 16rpx;
   font-size: 24rpx;
-  color: var(--text-secondary, #444);
+  color: var(--text-secondary, var(--text-secondary));
   min-width: 120rpx;
   max-width: 320rpx;
   white-space: normal;
   word-break: break-word;
-  border-right: 1rpx solid var(--border, #E8E0D4);
+  border-right: 1rpx solid var(--border, var(--border));
 }
 
 .md-table-cell:last-child {
@@ -279,16 +289,16 @@ const blocks = computed<Block[]>(() => parseMarkdown(props.content || ''))
 }
 .is-dark .md-code {
   background: #1E1E1E;
-  border-color: #2C2C2C;
+  border-color: var(--border);
 }
 .is-dark .md-code-lang { color: #707070; }
 .is-dark .md-code-content { color: #D0D0D0; }
 .is-dark .md-hr {
   background: linear-gradient(to right, transparent, #3A3A3A 20%, #3A3A3A 80%, transparent);
 }
-.is-dark .md-table-wrap { border-color: #2C2C2C; }
-.is-dark .md-table-row { border-color: #2C2C2C; }
-.is-dark .md-table-cell { border-color: #2C2C2C; color: #D0D0D0; }
+.is-dark .md-table-wrap { border-color: var(--border); }
+.is-dark .md-table-row { border-color: var(--border-light); }
+.is-dark .md-table-cell { border-color: var(--border-light); color: var(--text-secondary); }
 .is-dark .md-table-header { background: rgba(192, 69, 32, 0.15); color: #E8E8E8; }
 .is-dark .md-table-row-even { background: rgba(255, 255, 255, 0.02); }
 </style>

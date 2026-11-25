@@ -110,15 +110,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useTheme } from '@/utils/theme'
 import api from '@/utils/api'
+import { authState } from '@/utils/auth'
 import { getBalance, getProducts, createOrderAndPay, getSignInStatus, signIn } from '@/utils/pay'
 import type { CoinBalance, CoinPackage, SignInStatus } from '@/utils/pay'
 
 const { themeClass } = useTheme()
-const isLoggedIn = ref(false)
+// 登录态响应式：会话过期时自动回到未登录状态（充值/签到会引导登录）
+const isLoggedIn = computed(() => authState.loggedIn)
 const balanceInfo = ref<CoinBalance>({
   balance: 0,
   total_recharged: 0,
@@ -138,7 +140,6 @@ const signInStatus = ref<SignInStatus>({
 })
 
 onShow(() => {
-  isLoggedIn.value = api.isLoggedIn()
   if (isLoggedIn.value) {
     loadData()
   }
@@ -165,7 +166,7 @@ function getSelectedPrice(): string {
 
 async function handleRecharge() {
   if (!isLoggedIn.value) {
-    uni.navigateTo({ url: '/pages/login/index' })
+    uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
     return
   }
   if (!selectedPackage.value) {
@@ -187,6 +188,10 @@ async function handleRecharge() {
 }
 
 async function handleSignIn() {
+  if (!isLoggedIn.value) {
+    uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
+    return
+  }
   if (signInStatus.value.is_signed || signingIn.value) return
   signingIn.value = true
   try {
@@ -224,13 +229,13 @@ function goToTransactions() {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
   padding-bottom: 200rpx;
 }
 
 .balance-card {
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   border-radius: 16rpx;
   padding: 40rpx;
   margin-bottom: 24rpx;
@@ -300,7 +305,7 @@ function goToTransactions() {
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -310,7 +315,7 @@ function goToTransactions() {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
 }
 
@@ -322,7 +327,7 @@ function goToTransactions() {
 
 .info-item {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   padding-left: 16rpx;
   position: relative;
 }
@@ -334,7 +339,7 @@ function goToTransactions() {
   top: 14rpx;
   width: 8rpx;
   height: 8rpx;
-  background: #8B2500;
+  background: var(--brand);
   border-radius: 50%;
 }
 
@@ -346,8 +351,8 @@ function goToTransactions() {
 
 .package-card {
   position: relative;
-  background: #FAFAF7;
-  border: 2rpx solid #E8E0D4;
+  background: var(--bg-elevated);
+  border: 2rpx solid var(--border);
   border-radius: 12rpx;
   padding: 24rpx 16rpx;
   text-align: center;
@@ -371,18 +376,18 @@ function goToTransactions() {
 .pkg-coins {
   font-size: 40rpx;
   font-weight: 700;
-  color: #8B2500;
+  color: var(--brand-ink);
 }
 
 .pkg-unit {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .pkg-price {
   display: block;
   font-size: 26rpx;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -390,7 +395,7 @@ function goToTransactions() {
   position: absolute;
   top: -2rpx;
   right: -2rpx;
-  background: linear-gradient(135deg, #DAA520, #B8860B);
+  background: linear-gradient(135deg, #DAA520, var(--accent));
   color: #fff;
   font-size: 18rpx;
   padding: 2rpx 12rpx;
@@ -402,7 +407,7 @@ function goToTransactions() {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--bg-card);
   padding: 20rpx 24rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.06);
@@ -412,7 +417,7 @@ function goToTransactions() {
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   color: #fff;
   border: none;
   border-radius: 12rpx;
@@ -423,7 +428,7 @@ function goToTransactions() {
 }
 
 .recharge-btn:disabled {
-  background: #ccc;
+  background: var(--border);
   color: #fff;
 }
 
@@ -431,7 +436,7 @@ function goToTransactions() {
   display: block;
   text-align: center;
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 12rpx;
 }
 
@@ -444,12 +449,12 @@ function goToTransactions() {
 
 .record-text {
   font-size: 28rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .record-arrow {
   font-size: 32rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 /* 签到区域 */
@@ -501,25 +506,25 @@ function goToTransactions() {
 
 .day-label {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .day-dot {
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  background: #F5F0E8;
-  border: 2rpx solid #E8E0D4;
+  background: var(--bg-base);
+  border: 2rpx solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22rpx;
-  color: #ccc;
+  color: var(--text-muted);
   transition: all 0.3s;
 }
 
 .sign-day.signed .day-dot {
-  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+  background: linear-gradient(135deg, var(--jade), var(--jade));
   border-color: #2D5F4A;
   color: #fff;
   font-size: 24rpx;
@@ -528,12 +533,12 @@ function goToTransactions() {
 
 .sign-day.today .day-dot {
   border-color: #8B2500;
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 600;
 }
 
 .sign-day.today.signed .day-dot {
-  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+  background: linear-gradient(135deg, var(--jade), var(--jade));
   border-color: #2D5F4A;
   color: #fff;
 }
@@ -542,7 +547,7 @@ function goToTransactions() {
   width: 100%;
   height: 80rpx;
   line-height: 80rpx;
-  background: linear-gradient(135deg, #DAA520, #B8860B);
+  background: linear-gradient(135deg, #DAA520, var(--accent));
   color: #fff;
   border: none;
   border-radius: 12rpx;
@@ -553,8 +558,8 @@ function goToTransactions() {
 }
 
 .sign-btn.signed {
-  background: #E8E0D4;
-  color: #999;
+  background: var(--border);
+  color: var(--text-muted);
 }
 
 .sign-btn:disabled {

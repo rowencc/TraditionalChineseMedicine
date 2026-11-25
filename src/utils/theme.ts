@@ -28,10 +28,25 @@ export function setTheme(dark: boolean) {
   applyPageClass()
 }
 
-// 应用 page 级别 class
+// 应用 page 级别背景（小程序无法直接切换 page 的 class）
 function applyPageClass() {
-  // 微信小程序不支持直接操作 page 元素 class
-  // 通过 page-meta 组件在各页面实现
+  const dark = isDark.value
+  // #ifdef MP-WEIXIN
+  try {
+    uni.setBackgroundColor({
+      backgroundColor: dark ? '#14110E' : '#F5F0E8',
+      backgroundColorTop: dark ? '#14110E' : '#F5F0E8',
+      backgroundColorBottom: dark ? '#14110E' : '#F5F0E8'
+    })
+    // 状态栏文字：暗色下用白字，亮色下用黑字
+    uni.setNavigationBarColor({
+      frontColor: dark ? '#ffffff' : '#000000',
+      backgroundColor: dark ? '#1D1916' : '#8B2500'
+    })
+  } catch (e) {
+    // 非小程序环境忽略
+  }
+  // #endif
 }
 
 // 获取当前主题状态

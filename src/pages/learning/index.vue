@@ -78,10 +78,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { authState } from '@/utils/auth'
 import { useTheme } from "@/utils/theme"
 
 const { themeClass } = useTheme()
-const isLoggedIn = ref(false)
+// 登录态响应式：会话过期时自动切回"请先登录"状态
+const isLoggedIn = computed(() => authState.loggedIn)
 const loading = ref(false)
 const learningList = ref<any[]>([])
 
@@ -102,13 +104,18 @@ const totalStats = ref({
 })
 
 onShow(() => {
-  isLoggedIn.value = api.isLoggedIn()
   loadTotalStats()
   if (isLoggedIn.value) {
     loadLearningStats()
     loadLearningList()
+  } else {
+    learningList.value = []
   }
 })
+
+function goToLogin() {
+  uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
+}
 
 async function loadTotalStats() {
   try {
@@ -180,7 +187,7 @@ function getTypeName(type: string): string {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
 }
 
 .empty-state {
@@ -199,13 +206,13 @@ function getTypeName(type: string): string {
 
 .empty-text {
   font-size: 32rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 24rpx;
 }
 
 .btn-login {
   padding: 16rpx 48rpx;
-  background: #8B2500;
+  background: var(--brand);
   color: #fff;
   border-radius: 8rpx;
   font-size: 28rpx;
@@ -213,7 +220,7 @@ function getTypeName(type: string): string {
 
 .progress-section {
   margin: 24rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
 }
@@ -222,7 +229,7 @@ function getTypeName(type: string): string {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 20rpx;
 }
 
@@ -233,7 +240,7 @@ function getTypeName(type: string): string {
 
 .progress-item {
   padding: 16rpx;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
 }
 
@@ -245,36 +252,36 @@ function getTypeName(type: string): string {
 
 .progress-label {
   font-size: 26rpx;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .progress-num {
   font-size: 26rpx;
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 600;
 }
 
 .progress-bar {
   height: 12rpx;
-  background: #E8E0D4;
+  background: var(--border);
   border-radius: 6rpx;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #8B2500, #A63A1E);
+  background: linear-gradient(90deg, var(--brand), var(--brand-light));
   border-radius: 6rpx;
   transition: width 0.3s ease;
 }
 
 .progress-fill.herb {
-  background: linear-gradient(90deg, #2D5F4A, #3D7A62);
+  background: linear-gradient(90deg, var(--jade), var(--jade));
 }
 
 .progress-fill.acupoint {
-  background: linear-gradient(90deg, #B8860B, #D4A017);
+  background: linear-gradient(90deg, var(--accent), var(--accent));
 }
 
 .progress-fill.case {
@@ -283,7 +290,7 @@ function getTypeName(type: string): string {
 
 .section {
   margin: 24rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
 }
@@ -297,7 +304,7 @@ function getTypeName(type: string): string {
   display: flex;
   align-items: center;
   padding: 16rpx;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
   gap: 16rpx;
 }
@@ -314,9 +321,9 @@ function getTypeName(type: string): string {
   color: #fff;
 }
 
-.learning-icon.formula { background: #8B2500; }
-.learning-icon.herb { background: #2D5F4A; }
-.learning-icon.acupoint { background: #B8860B; }
+.learning-icon.formula { background: var(--brand); }
+.learning-icon.herb { background: var(--jade); }
+.learning-icon.acupoint { background: var(--accent); }
 .learning-icon.case { background: #2980B9; }
 
 .learning-info {
@@ -327,23 +334,23 @@ function getTypeName(type: string): string {
   display: block;
   font-size: 28rpx;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 4rpx;
 }
 
 .learning-meta {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .learning-time {
   font-size: 22rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .empty-hint {
   text-align: center;
   padding: 40rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 </style>

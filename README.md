@@ -125,6 +125,33 @@ npm run dev:mp-weixin
 - 正文：黑体/无衬线
 - 数据：等宽字体
 
+## 知识库同步
+
+`src/data/formulas.json`、`src/data/acupoints.json` 是知识库的唯一数据源，服务端 `data/*.json` 与 MySQL 都由脚本同步，请勿手工改库或直接跑旧的 `import_*.php`。
+
+```bash
+# 预演：只打印将要新增/更新/清理的内容
+SSHPASS='***' ./scripts/sync-knowledge.sh --dry-run
+
+# 正式同步（幂等，可重复执行）
+SSHPASS='***' ./scripts/sync-knowledge.sh
+```
+
+- 方剂按 `name` upsert，穴位按 `(name, meridian)` upsert，重复执行结果不变；
+- 自动备份服务端 JSON（`data/*.json.bak.<时间戳>`）与数据表（`tcm_*_bak_<时间戳>`）；
+- 同名重复行会被清理，并建立唯一索引 `uk_name` / `uk_point` 从库层面兜底；
+- `public/sync_tcm_data.php`、`public/import_*.php` 均已限制为 CLI 执行，HTTP 访问返回 403；
+- 同步完成后脚本会比对本地/服务端文件 md5，并核对库内数量。
+
+### 后台按钮
+
+管理后台 → **系统设置 → 数据更新**（`/admin/?page=data_sync`）：
+
+- 页面显示库内方剂/穴位数量，以及库内条数与 `data/formulas.json` 是否一致；
+- 点「立即同步」会二次确认，然后调用 `tcm_admin/sync_data` 执行同一套同步逻辑；
+- 执行前自动备份数据表（保留最近 5 份），完成后显示新增/更新/去重数量，并记录最近一次同步时间与操作人；
+- 接口与 CLI 共用 `core/KnowledgeSync.php`，两条路径行为一致。
+
 ## 许可证
 
 MulanPSL-2.0（木兰宽松许可证）

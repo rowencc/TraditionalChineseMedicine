@@ -21,3 +21,9 @@ Thumbs.db
 temp_nihaixia/
 scripts/_staging/
 *.log
+
+# 本地 Agent 运行缓存
+.opencode/
+
+# 穴位渲染 QA 图（不入库，仅本地核对）
+docs/acu_renders/

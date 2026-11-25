@@ -47,6 +47,7 @@ import SearchBar from '@/components/SearchBar.vue'
 import TagFilter from '@/components/TagFilter.vue'
 import CaseCard from '@/components/CaseCard.vue'
 import api from '@/utils/api'
+import { searchCases } from '@/utils/search'
 import { useTheme } from "@/utils/theme"
 
 const { themeClass } = useTheme()
@@ -82,7 +83,16 @@ async function loadCases(reset = false) {
   
   try {
     const category = selectedCategories.value[0] || ''
-    const res = await api.getCaseList(page.value, 20, category, keyword.value)
+    const kw = keyword.value.trim()
+
+    // 有关键词时走本地相关性搜索（后端 keyword 参数无效，见 src/utils/search.ts）
+    if (kw) {
+      cases.value = searchCases(kw, category)
+      hasMore.value = false
+      return
+    }
+
+    const res = await api.getCaseList(page.value, 20, category, '')
     
     if (res.code === 1) {
       const newList = res.data.list || []
@@ -129,7 +139,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
 }
 
 .case-list {
@@ -141,7 +151,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 100rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 26rpx;
   margin: 0 24rpx;
 }
@@ -151,7 +161,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 200rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 28rpx;
   margin: 0 24rpx;
 }

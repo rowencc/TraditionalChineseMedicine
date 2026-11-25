@@ -44,68 +44,107 @@
   <view v-else-if="loading" class="loading-wrap">
     <text>加载中...</text>
   </view>
+
+  <!-- 未登录 / 加载失败 -->
+  <view v-else class="state-wrap">
+    <text class="state-text">{{ needLogin ? '登录后可查看该问诊记录' : '记录加载失败' }}</text>
+    <button v-if="needLogin" class="btn-login" @tap="goToLogin">去登录</button>
+  </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
+import { ref, computed } from 'vue'
+import { onLoad, onShow, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import api from '@/utils/api'
 import { useTheme } from "@/utils/theme"
+import { getTabName } from '@/utils/platform'
 import MarkdownView from '@/components/MarkdownView.vue'
 
 const { themeClass } = useTheme()
+const diagnosisName = computed(() => getTabName('diagnosis'))
 const record = ref<any>(null)
 const loading = ref(true)
+const needLogin = ref(false)
 const formulas = ref<string[]>([])
 const recordId = ref<number | null>(null)
 
-onLoad(async (options) => {
+onLoad((options) => {
   if (options?.id) {
-    const id = Number(options.id)
-    recordId.value = id
-    try {
-      const res = await api.getDiagnosisDetail(id)
-      if (res.code === 1 && res.data) {
-        record.value = res.data
-        // 解析方剂
-        if (res.data.suggested_formulas) {
-          try {
-            const arr = typeof res.data.suggested_formulas === 'string'
-              ? JSON.parse(res.data.suggested_formulas)
-              : res.data.suggested_formulas
-            formulas.value = Array.isArray(arr) ? arr : []
-          } catch {
-            const raw = String(res.data.suggested_formulas)
-            formulas.value = raw.includes('、') ? raw.split('、').filter(Boolean) : raw ? [raw] : []
-          }
-        }
-        uni.setNavigationBarTitle({ title: record.value.meridian ? record.value.meridian + '辨证' : '问一问详情' })
-
-        // 如果是分享链接打开，且用户已登录，尝试将记录导入到当前用户账户
-        if (api.isLoggedIn() && res.data.user_id && res.data.user_id !== api.getUser()?.id) {
-          let importRes: any
-          try {
-            importRes = await api.request('ai', 'import_shared', { source_id: id }, 'POST')
-            if (importRes.code === 1 && importRes.data?.new_id) {
-              // 导入成功，更新 recordId 为新的记录
-              recordId.value = importRes.data.new_id
-              uni.showToast({ title: '已加入我的问诊记录', icon: 'success' })
-            }
-          } catch {
-            // 导入失败，不影响查看，静默处理
-            console.warn('导入分享记录失败', importRes?.msg)
-          }
-        }
-      }
-    } catch (e) {
-      console.error('加载问诊详情失败', e)
-    } finally {
-      loading.value = false
-    }
+    recordId.value = Number(options.id)
+    loadDetail(recordId.value)
   }
 })
 
-// 分享好友
+// 从登录页返回后自动继续加载
+onShow(() => {
+  if (needLogin.value && recordId.value && api.isLoggedIn()) {
+    needLogin.value = false
+    loadDetail(recordId.value)
+  }
+})
+
+async function loadDetail(id: number) {
+  if (!id) return
+
+  // 未登录直接引导登录，避免白屏（接口会返回 401）
+  if (!api.isLoggedIn()) {
+    needLogin.value = true
+    loading.value = false
+    return
+  }
+
+  loading.value = true
+  needLogin.value = false
+
+  try {
+    const res = await api.getDiagnosisDetail(id)
+    if (res.code === 401) {
+      needLogin.value = true
+      return
+    }
+    if (res.code === 1 && res.data) {
+      record.value = res.data
+      // 解析方剂
+      if (res.data.suggested_formulas) {
+        try {
+          const arr = typeof res.data.suggested_formulas === 'string'
+            ? JSON.parse(res.data.suggested_formulas)
+            : res.data.suggested_formulas
+          formulas.value = Array.isArray(arr) ? arr : []
+        } catch {
+          const raw = String(res.data.suggested_formulas)
+          formulas.value = raw.includes('、') ? raw.split('、').filter(Boolean) : raw ? [raw] : []
+        }
+      }
+      uni.setNavigationBarTitle({ title: record.value.meridian ? record.value.meridian + '辨证' : `${diagnosisName.value}详情` })
+
+      // 如果是分享链接打开，且用户已登录，尝试将记录导入到当前用户账户
+      if (api.isLoggedIn() && res.data.user_id && res.data.user_id !== api.getUser()?.id) {
+        let importRes: any
+        try {
+          importRes = await api.request('ai', 'import_shared', { source_id: id }, 'POST')
+          if (importRes.code === 1 && importRes.data?.new_id) {
+            // 导入成功，更新 recordId 为新的记录
+            recordId.value = importRes.data.new_id
+            uni.showToast({ title: '已加入我的问诊记录', icon: 'success' })
+          }
+        } catch {
+          // 导入失败，不影响查看，静默处理
+          console.warn('导入分享记录失败', importRes?.msg)
+        }
+      }
+    }
+  } catch (e) {
+    console.error('加载问诊详情失败', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+function goToLogin() {
+  uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
+}
+
 onShareAppMessage(() => {
   const id = recordId.value
   const meridian = record.value?.meridian || ''
@@ -137,13 +176,13 @@ function goToFormula(name: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
   padding-bottom: 60rpx;
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -153,23 +192,23 @@ function goToFormula(name: string) {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
 }
 
 .content {
   font-size: 26rpx;
-  color: #555;
+  color: var(--text-secondary);
   line-height: 1.8;
   white-space: pre-wrap;
 }
 
 .analysis {
-  color: #444;
+  color: var(--text-secondary);
 }
 
 .meridian-card {
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -197,13 +236,13 @@ function goToFormula(name: string) {
 
 .formula-item {
   padding: 10rpx 24rpx;
-  background: rgba(139, 37, 0, 0.08);
+  background: var(--brand-soft);
   border-radius: 20rpx;
 }
 
 .formula-name {
   font-size: 26rpx;
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 500;
 }
 
@@ -224,6 +263,28 @@ function goToFormula(name: string) {
   justify-content: center;
   align-items: center;
   min-height: 60vh;
-  color: #999;
+  color: var(--text-muted);
+}
+
+.state-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.state-text {
+  font-size: 30rpx;
+  color: var(--text-secondary);
+  margin-bottom: 24rpx;
+}
+
+.btn-login {
+  padding: 16rpx 48rpx;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
 }
 </style>

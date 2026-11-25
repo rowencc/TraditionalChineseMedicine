@@ -1,10 +1,13 @@
 <script lang="ts">
+import { getNavName } from '@/utils/platform'
 export default {
   onShareAppMessage() {
-    return { title: '识六经 - 伤寒论六经辨证', path: '/pages/liujing/index' }
+    const name = getNavName('diagnosis')
+    return { title: `${name} - 伤寒论六经辨证`, path: '/pages/liujing/index' }
   },
   onShareTimeline() {
-    return { title: '识六经 - 伤寒论六经辨证' }
+    const name = getNavName('diagnosis')
+    return { title: `${name} - 伤寒论六经辨证` }
   }
 }
 </script>
@@ -13,7 +16,7 @@ export default {
   <view class="container" :class="themeClass">
     <!-- 标题 -->
     <view class="header">
-      <text class="title">识六经</text>
+      <text class="title">{{ navName }}</text>
       <text class="subtitle">伤寒论六经辨证体系</text>
     </view>
 
@@ -84,9 +87,12 @@ export default {
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { useTheme } from '@/utils/theme'
 
 const { themeClass } = useTheme()
+const navName = computed(() => getNavName('diagnosis'))
 
 const meridians = [
   {
@@ -389,19 +395,27 @@ function goToDetail(item: any) {
   uni.setStorageSync('liujing_detail', JSON.stringify(item))
   uni.navigateTo({ url: '/pages/liujing/detail' })
 }
+
+// 支持从首页“六经速查”直达某一经的详情
+onLoad((options: any) => {
+  const want = options?.meridian ? decodeURIComponent(options.meridian) : ''
+  if (!want) return
+  const item = meridians.find((m: any) => m.name === want)
+  if (item) setTimeout(() => goToDetail(item), 0)
+})
 </script>
 
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
   padding-bottom: 60rpx;
   box-sizing: border-box;
 }
 
 .header {
-  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+  background: linear-gradient(135deg, var(--jade), var(--jade));
   border-radius: 16rpx;
   padding: 40rpx;
   margin-bottom: 24rpx;
@@ -429,7 +443,7 @@ function goToDetail(item: any) {
   display: block;
   font-size: 30rpx;
   font-weight: 600;
-  color: #2C2C2C;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
   position: relative;
   padding-left: 20rpx;
@@ -443,12 +457,12 @@ function goToDetail(item: any) {
   transform: translateY(-50%);
   width: 6rpx;
   height: 28rpx;
-  background: linear-gradient(180deg, #2D5F4A, #B8860B);
+  background: linear-gradient(180deg, var(--jade), var(--accent));
   border-radius: 3rpx;
 }
 
 .intro-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   border-left: 4rpx solid #2D5F4A;
@@ -456,7 +470,7 @@ function goToDetail(item: any) {
 
 .intro-text {
   font-size: 26rpx;
-  color: #555;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 
@@ -466,7 +480,7 @@ function goToDetail(item: any) {
 }
 
 .meridian-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16rpx;
   padding: 28rpx;
   position: relative;
@@ -506,23 +520,23 @@ function goToDetail(item: any) {
 .mc-name {
   font-size: 36rpx;
   font-weight: 700;
-  color: #2C2C2C;
+  color: var(--text-primary);
 }
 
 .mc-en {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .mc-arrow {
   font-size: 32rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .mc-desc {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 16rpx;
 }
@@ -537,29 +551,29 @@ function goToDetail(item: any) {
 .mc-tag {
   font-size: 22rpx;
   padding: 6rpx 16rpx;
-  background: rgba(45, 95, 74, 0.08);
-  color: #2D5F4A;
+  background: var(--jade-soft);
+  color: var(--jade-ink);
   border-radius: 20rpx;
 }
 
 .mc-formula {
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
   padding-top: 12rpx;
 }
 
 .mc-formula-label {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .mc-formula-text {
   font-size: 24rpx;
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 500;
 }
 
 .flow-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16rpx;
   padding: 32rpx;
   margin-bottom: 16rpx;
@@ -591,18 +605,18 @@ function goToDetail(item: any) {
 
 .flow-sun { background: linear-gradient(135deg, #C0392B, #E74C3C); }
 .flow-yangming { background: linear-gradient(135deg, #E67E22, #F39C12); }
-.flow-shaoyang { background: linear-gradient(135deg, #F39C12, #F1C40F); color: #333; }
+.flow-shaoyang { background: linear-gradient(135deg, #F39C12, #F1C40F); color: var(--text-primary); }
 .flow-taiyin { background: linear-gradient(135deg, #8B4513, #A0522D); }
 .flow-shaoyin { background: linear-gradient(135deg, #2980B9, #3498DB); }
 .flow-jueyin { background: linear-gradient(135deg, #8E44AD, #9B59B6); }
 
 .flow-arrow {
   font-size: 28rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .note-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   border-left: 4rpx solid #B8860B;
@@ -612,13 +626,13 @@ function goToDetail(item: any) {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
 }
 
 .note-text {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 </style>

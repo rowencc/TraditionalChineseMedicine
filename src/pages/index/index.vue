@@ -76,7 +76,7 @@ export default {
           :key="item.name"
           class="meridian-card"
           :class="'meridian-' + item.cssClass"
-          @tap="goToDiagnosis(item.name)"
+          @tap="goToMeridian(item.name)"
         >
           <text class="meridian-name">{{ item.name }}</text>
           <text class="meridian-desc">{{ item.description }}</text>
@@ -107,11 +107,12 @@ export default {
 import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { authState } from '@/utils/auth'
 import { useTheme } from "@/utils/theme"
-import { getAppName } from '@/utils/platform'
 
 const { themeClass } = useTheme()
-const isLoggedIn = ref(false)
+// 登录态改为响应式：token 过期被静默登出时，首页用户栏自动隐藏
+const isLoggedIn = computed(() => authState.loggedIn)
 const user = ref<any>(null)
 const learningTotal = ref(0)
 const searchQuery = ref('')
@@ -152,7 +153,6 @@ const hotFormulas = ref<any[]>([])
 
 // 页面显示时检查登录状态
 onShow(() => {
-  isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
 
   // 刷新应用名称（从缓存读取最新配置）
@@ -249,10 +249,9 @@ function goTo(url: string) {
   }
 }
 
-function goToDiagnosis(name: string) {
-  // tabBar 页面必须用 switchTab，参数通过 storage 传递
-  uni.setStorageSync('diagnosis_meridian', name)
-  uni.switchTab({ url: '/pages/diagnosis/index' })
+function goToMeridian(name: string) {
+  // 六经速查 → 直接进入该经的详情页（不再跳到问一问）
+  uni.navigateTo({ url: `/pages/liujing/index?meridian=${encodeURIComponent(name)}` })
 }
 
 function goToFormula(name: string) {
@@ -265,19 +264,19 @@ function goToFormula(name: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
 }
 
 .search-section {
   padding: 24rpx;
-  background: linear-gradient(180deg, #A63A1E, #8B2500);
+  background: linear-gradient(180deg, var(--brand-light), var(--brand));
 }
 
 .user-bar {
   display: flex;
   align-items: center;
   padding: 16rpx 24rpx;
-  background: linear-gradient(180deg, #8B2500, #A63A1E);
+  background: linear-gradient(180deg, var(--brand), var(--brand-light));
   gap: 12rpx;
 }
 
@@ -310,7 +309,7 @@ function goToFormula(name: string) {
   align-items: center;
   gap: 12rpx;
   padding: 16rpx 24rpx;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-card);
   border-radius: 40rpx;
 }
 
@@ -321,17 +320,17 @@ function goToFormula(name: string) {
 .search-input {
   flex: 1;
   font-size: 28rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .placeholder {
-  color: #999;
+  color: var(--text-muted);
 }
 
 .hero-section {
   position: relative;
   padding: 60rpx 24rpx 40rpx;
-  background: linear-gradient(180deg, #A63A1E, #8B2500);
+  background: linear-gradient(180deg, var(--brand-light), var(--brand));
   overflow: hidden;
 }
 
@@ -380,7 +379,7 @@ function goToFormula(name: string) {
   justify-content: space-around;
   padding: 32rpx 24rpx;
   margin: -20rpx 24rpx 24rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
   position: relative;
@@ -395,12 +394,12 @@ function goToFormula(name: string) {
   display: block;
   font-size: 44rpx;
   font-weight: 700;
-  color: #8B2500;
+  color: var(--brand-ink);
 }
 
 .stat-label {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 4rpx;
 }
 
@@ -412,7 +411,7 @@ function goToFormula(name: string) {
   display: block;
   font-size: 30rpx;
   font-weight: 600;
-  color: #2C2C2C;
+  color: var(--text-primary);
   margin-bottom: 20rpx;
   position: relative;
   padding-left: 20rpx;
@@ -426,7 +425,7 @@ function goToFormula(name: string) {
   transform: translateY(-50%);
   width: 6rpx;
   height: 28rpx;
-  background: linear-gradient(180deg, #8B2500, #B8860B);
+  background: linear-gradient(180deg, var(--brand), var(--accent));
   border-radius: 3rpx;
 }
 
@@ -434,7 +433,7 @@ function goToFormula(name: string) {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16rpx;
   padding: 28rpx;
 }
@@ -460,16 +459,16 @@ function goToFormula(name: string) {
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
-.nav-icon.formula { background: linear-gradient(135deg, #8B2500, #A63A1E); }
-.nav-icon.herb { background: linear-gradient(135deg, #2D5F4A, #3D7A62); }
+.nav-icon.formula { background: linear-gradient(135deg, var(--brand), var(--brand-light)); }
+.nav-icon.herb { background: linear-gradient(135deg, var(--jade), var(--jade)); }
 .nav-icon.case { background: linear-gradient(135deg, #2980B9, #3498DB); }
-.nav-icon.diagnosis { background: linear-gradient(135deg, #B8860B, #D4A017); }
+.nav-icon.diagnosis { background: linear-gradient(135deg, var(--accent), var(--accent)); }
 .nav-icon.acupuncture { background: linear-gradient(135deg, #8E44AD, #9B59B6); }
 .nav-icon.about { background: linear-gradient(135deg, #7F8C8D, #95A5A6); }
 
 .nav-text {
   font-size: 24rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .meridian-grid {
@@ -479,7 +478,7 @@ function goToFormula(name: string) {
 }
 
 .meridian-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 20rpx;
   position: relative;
@@ -507,21 +506,21 @@ function goToFormula(name: string) {
   display: block;
   font-size: 32rpx;
   font-weight: 600;
-  color: #2C2C2C;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
 }
 
 .meridian-desc {
   display: block;
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8rpx;
 }
 
 .meridian-formula {
   display: block;
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .formula-grid {
@@ -531,7 +530,7 @@ function goToFormula(name: string) {
 }
 
 .formula-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 20rpx 12rpx;
   text-align: center;
@@ -547,14 +546,14 @@ function goToFormula(name: string) {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 6rpx;
 }
 
 .formula-card .formula-meridian {
   font-size: 22rpx;
-  color: #8B2500;
-  background: rgba(139, 37, 0, 0.08);
+  color: var(--brand-ink);
+  background: var(--brand-soft);
   padding: 2rpx 10rpx;
   border-radius: 10rpx;
   display: inline-block;

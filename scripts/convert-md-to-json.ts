@@ -362,6 +362,20 @@ function main() {
   const cases = parseCases()
   writeJson('cases.json', cases)
 
+  // 生成搜索用轻量医案数据（不含 content，控制小程序包体积；id 与后端自增 id 对齐）
+  const casesLite = cases.map((c: any, i: number) => ({
+    id: i + 1,
+    case_no: c.id,
+    date: c.date,
+    disease: c.disease,
+    meridian: c.meridian,
+    outcome: c.outcome,
+    summary: c.summary,
+    category: c.category,
+    treatment: c.treatment
+  }))
+  writeJson('cases-lite.json', casesLite)
+
   // 生成六经数据
   console.log('4. 生成六经辨证数据...')
   const sixMeridians = [

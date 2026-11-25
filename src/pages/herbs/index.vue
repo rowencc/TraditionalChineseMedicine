@@ -57,6 +57,7 @@ import { ref, onMounted } from 'vue'
 import SearchBar from '@/components/SearchBar.vue'
 import HerbCard from '@/components/HerbCard.vue'
 import api from '@/utils/api'
+import { searchHerbs } from '@/utils/search'
 import { useTheme } from "@/utils/theme"
 
 const { themeClass } = useTheme()
@@ -90,7 +91,16 @@ async function loadHerbs(reset = false) {
   loading.value = true
   
   try {
-    const res = await api.getHerbList(page.value, 20, '', selectedNature.value, keyword.value)
+    const kw = keyword.value.trim()
+
+    // 有关键词时走本地相关性搜索（后端 keyword 参数无效，见 src/utils/search.ts）
+    if (kw) {
+      herbs.value = searchHerbs(kw, selectedNature.value)
+      hasMore.value = false
+      return
+    }
+
+    const res = await api.getHerbList(page.value, 20, '', selectedNature.value, '')
     
     if (res.code === 1) {
       const newList = res.data.list || []
@@ -137,7 +147,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
 }
 
 .filter-section {
@@ -158,21 +168,21 @@ onMounted(() => {
 
 .group-label {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .tag {
   display: inline-block;
   padding: 8rpx 20rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 20rpx;
   font-size: 26rpx;
-  color: #666;
-  border: 1rpx solid #eee;
+  color: var(--text-secondary);
+  border: 1rpx solid var(--border-light);
 }
 
 .tag.active {
-  background: #8B2500;
+  background: var(--brand);
   color: #fff;
   border-color: #8B2500;
 }
@@ -186,7 +196,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 100rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 26rpx;
   margin: 0 24rpx;
 }
@@ -196,7 +206,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 200rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 28rpx;
   margin: 0 24rpx;
 }

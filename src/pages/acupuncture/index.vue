@@ -112,7 +112,7 @@ function goToDetail(meridian: string, point: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--bg-elevated);
 }
 
 .meridian-list {
@@ -120,7 +120,7 @@ function goToDetail(meridian: string, point: string) {
 }
 
 .meridian-section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   margin: 0 24rpx 16rpx;
   overflow: hidden;
@@ -146,7 +146,7 @@ function goToDetail(meridian: string, point: string) {
 .meridian-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .meridian-count {
@@ -160,13 +160,13 @@ function goToDetail(meridian: string, point: string) {
 .meridian-desc {
   display: block;
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 
 .arrow {
   font-size: 36rpx;
-  color: #ccc;
+  color: var(--text-muted);
   transition: transform 0.2s;
 }
 
@@ -175,7 +175,7 @@ function goToDetail(meridian: string, point: string) {
 }
 
 .points-list {
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
 }
 
 .point-item {
@@ -197,20 +197,20 @@ function goToDetail(meridian: string, point: string) {
   display: block;
   font-size: 28rpx;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 2rpx;
 }
 
 .point-position {
   display: block;
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 
 .point-arrow {
   font-size: 28rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .empty-hint {
@@ -218,7 +218,7 @@ function goToDetail(meridian: string, point: string) {
   justify-content: center;
   align-items: center;
   height: 200rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 28rpx;
 }
 </style>

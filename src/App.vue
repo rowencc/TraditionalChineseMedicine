@@ -1,16 +1,38 @@
 <script setup lang="ts">
-import { onLaunch } from '@dcloudio/uni-app'
+import { onLaunch, onShow } from '@dcloudio/uni-app'
 import { initTheme, isDark } from '@/utils/theme'
 import { getAppName, getPlatform } from '@/utils/platform'
 import api from '@/utils/api'
+import { initAuth, authState } from '@/utils/auth'
 
 const isMp = getPlatform().startsWith('mp-')
 
+// 上次会话校验时间，避免启动/切前台时重复请求
+let lastValidateAt = 0
+const VALIDATE_INTERVAL = 60 * 1000
+
 onLaunch(() => {
   initTheme()
+  // 恢复登录态：本地 token 已过期则直接静默登出（不跳转登录页，浏览功能不受影响）
+  initAuth()
   loadSiteConfig()
   if (isMp) updateTabBarStyle()
+  refreshSession()
 })
+
+// 从后台回到前台时补一次校验：长时间未使用导致 token 过期的情况
+onShow(() => {
+  if (!authState.loggedIn) return
+  refreshSession()
+})
+
+function refreshSession() {
+  const now = Date.now()
+  if (now - lastValidateAt < VALIDATE_INTERVAL) return
+  lastValidateAt = now
+  // 失败时保留本地登录态（离线可用）；只有明确 401 / 本地过期才登出
+  api.validateSession().catch(() => {})
+}
 
 // 监听主题变化，更新 tabBar 样式
 import { watch } from 'vue'
@@ -97,16 +119,62 @@ page {
   border-radius: 3rpx;
 }
 
+/* ========== 主题变量 ========== */
+page,
+.container {
+  --bg-base: #F5F0E8;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #FAFAF7;
+  --bg-quote: #FFF8DC;
+  --border: #E8E0D4;
+  --border-light: #F0EBE3;
+  --text-primary: #2C2C2C;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --brand: #8B2500;
+  --brand-light: #A63A1E;
+  --brand-ink: #8B2500;
+  --jade: #2D5F4A;
+  --jade-ink: #2D5F4A;
+  --accent: #B8860B;
+  --accent-ink: #8B6914;
+  --brown-ink: #8B4513;
+  --brand-soft: rgba(139, 37, 0, 0.08);
+  --jade-soft: rgba(45, 95, 74, 0.08);
+  --accent-soft: rgba(184, 134, 11, 0.10);
+}
+
 /* ========== 暗色主题 ========== */
 page.is-dark {
-  background-color: #121212;
+  background-color: #14110E;
 }
 
 .is-dark {
-  background: #121212;
-  color: #E0E0E0;
+  --bg-base: #14110E;
+  --bg-card: #1D1916;
+  --bg-elevated: #262119;
+  --bg-quote: #26200F;
+  --border: #35302A;
+  --border-light: #2A2521;
+  --text-primary: #EFE7DA;
+  --text-secondary: #BCB1A2;
+  --text-muted: #8C8377;
+  --brand: #B3441D;
+  --brand-light: #C95A2E;
+  --brand-ink: #E8835C;
+  --jade: #2F6B53;
+  --jade-ink: #6FB79B;
+  --accent: #C89A3C;
+  --accent-ink: #DDB25A;
+  --brown-ink: #C08D5F;
+  --brand-soft: rgba(232, 131, 92, 0.14);
+  --jade-soft: rgba(111, 183, 155, 0.14);
+  --accent-soft: rgba(221, 178, 90, 0.16);
 
-  /* 卡片和容器 */
+  background: var(--bg-base);
+  color: var(--text-primary);
+
+  /* 卡片容器 */
   .card,
   .section,
   .menu-section,
@@ -114,58 +182,40 @@ page.is-dark {
   .record-card,
   .learning-item,
   .table-card,
-  .nav-grid,
-  .formula-grid,
-  .meridian-grid,
-  .quick-tags,
-  .learning-grid,
-  .combo-list,
-  .related-list,
-  .tag-list,
-  .formula-list {
-    background: #1E1E1E;
-    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+  .info-card,
+  .content-card,
+  .intro-card,
+  .flow-card,
+  .note-card,
+  .meridian-section,
+  .modal,
+  .list-item {
+    background: var(--bg-card);
+    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.28);
   }
 
-  /* 页面背景 */
   .container {
-    background: #121212;
+    background: var(--bg-base);
   }
 
-  /* 标题文字 */
-  .section-title {
-    color: #E8E8E8;
+  /* 头部与渐变块 */
+  .header,
+  .hero-section,
+  .user-bar,
+  .user-card,
+  .search-section {
+    background: linear-gradient(135deg, #2A1206, #1B0D05);
   }
 
-  /* 正文内容 */
-  .content,
-  .effect,
-  .value,
-  .combo-effect,
-  .analysis-text,
-  .advice-text,
-  .record-question,
-  .learning-name,
-  .nickname,
+  .section-title,
+  .modal-title,
+  .menu-text,
   .name,
-  .point-name,
-  .herb-name,
-  .formula-name,
-  .case-title,
-  .hero-title,
-  .hero-subtitle,
-  .hero-desc,
-  .search-input,
-  input,
-  textarea {
-    color: #E0E0E0;
+  .nickname,
+  .case-title {
+    color: var(--text-primary);
   }
 
-  .placeholder {
-    color: #777;
-  }
-
-  /* 次要文字 */
   .text-secondary,
   .meridian-desc,
   .learning-meta,
@@ -177,12 +227,12 @@ page.is-dark {
   .meta,
   .combo-points,
   .related-name,
-  .formula-meridian,
-  .stat-label {
-    color: #A0A0A0;
+  .stat-label,
+  .subtitle,
+  .desc {
+    color: var(--text-secondary);
   }
 
-  /* 弱化文字 */
   .text-muted,
   .learning-label,
   .char-count,
@@ -196,320 +246,135 @@ page.is-dark {
   .user-id,
   .disclaimer-text,
   .date {
-    color: #707070;
+    color: var(--text-muted);
   }
 
-  /* 搜索栏 */
-  .search-wrap {
-    background: #2A2A2A;
+  /* 输入与选择 */
+  .search-wrap,
+  .form-input,
+  .symptom-input,
+  .filter-item,
+  .quick-tag,
+  .tag,
+  .avatar-btn {
+    background: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text-secondary);
   }
 
-  .search-section {
-    background: linear-gradient(180deg, #3A1500, #2A1000);
+  .quick-tag:active,
+  .filter-item.active {
+    background: rgba(232, 131, 92, 0.16);
+    color: var(--brand-ink);
   }
 
-  /* 标签 */
-  .quick-tag {
-    background: #2A2A2A;
-    border-color: #3A3A3A;
-    color: #B0B0B0;
-  }
-
-  .quick-tag:active {
-    background: rgba(192, 69, 32, 0.2);
-    color: #E07050;
+  .formula-tag,
+  .highlight,
+  .stat-num,
+  .progress-num {
+    color: var(--brand-ink);
   }
 
   .formula-tag {
-    background: rgba(192, 69, 32, 0.15);
-    color: #E07050;
-  }
-
-  .tag {
-    background: #2A2A2A;
-    color: #B0B0B0;
+    background: rgba(232, 131, 92, 0.14);
   }
 
   .tag.nature {
-    background: rgba(139, 69, 19, 0.15);
-    color: #C09060;
+    background: rgba(192, 141, 95, 0.16);
+    color: var(--brown-ink);
   }
 
   .tag.taste {
-    background: rgba(46, 139, 87, 0.15);
-    color: #60B080;
+    background: rgba(111, 183, 155, 0.14);
+    color: var(--jade-ink);
   }
 
   .meridian-tag {
-    background: rgba(139, 0, 0, 0.15);
-    color: #E07070;
+    background: rgba(232, 131, 92, 0.14);
+    color: #E88A8A;
   }
 
-  /* 统计数字 */
-  .stat-num {
-    color: #E07050;
+  /* 分隔与边框 */
+  .menu-item,
+  .list-item,
+  .table td {
+    border-bottom-color: var(--border-light);
   }
 
-  /* 菜单 */
-  .menu-item {
-    border-bottom-color: #2C2C2C;
-  }
-
-  .menu-text {
-    color: #E0E0E0;
-  }
-
-  .menu-arrow {
-    color: #555;
-  }
-
-  /* 进度条 */
-  .progress-item {
-    background: #2A2A2A;
-  }
-
-  .progress-num {
-    color: #E07050;
-  }
-
-  .progress-fill {
-    background: linear-gradient(90deg, #C04520, #E06040);
-  }
-
-  .progress-fill.herb {
-    background: linear-gradient(90deg, #3D8A6A, #50A080);
-  }
-
-  .progress-fill.acupoint {
-    background: linear-gradient(90deg, #C8960B, #E0B020);
-  }
-
-  .progress-fill.case {
-    background: linear-gradient(90deg, #3090C0, #40A0D0);
-  }
-
-  /* 免责声明 */
-  .disclaimer {
-    background: #2A2010;
-    border-left-color: #C8960B;
-  }
-
-  .disclaimer-text {
-    color: #C09060;
-  }
-
-  .advice {
-    border-left-color: #C8960B;
-  }
-
-  .caution {
-    border-left-color: #E05050;
-  }
-
-  /* 按钮 */
-  .btn-logout {
-    background: #1E1E1E;
-    border-color: #E05050;
-    color: #E05050;
-  }
-
-  .submit-btn {
-    background: linear-gradient(135deg, #C04520, #E06040);
-  }
-
-  /* 弹窗 */
-  .modal-overlay {
-    background: rgba(0, 0, 0, 0.7);
-  }
-
-  .modal {
-    background: #1E1E1E;
-  }
-
-  .modal-title {
-    color: #E8E8E8;
-  }
-
-  .form-label {
-    color: #A0A0A0;
-  }
-
-  .form-input {
-    background: #2A2A2A;
-    border-color: #3A3A3A;
-    color: #E0E0E0;
-  }
-
-  .btn-cancel {
-    background: #2A2A2A;
-    color: #A0A0A0;
-  }
-
-  .btn-confirm {
-    background: #C04520;
-  }
-
-  /* 输入框 */
-  .symptom-input {
-    background: #2A2A2A;
-    border-color: #3A3A3A;
-    color: #E0E0E0;
-  }
-
-  /* 头像 */
-  .edit-avatar-placeholder {
-    background: #2A2A2A;
-    color: #707070;
-  }
-
-  .avatar {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .edit-icon {
-    background: rgba(0, 0, 0, 0.6);
-  }
-
-  /* Hero 区域 */
-  .hero-section {
-    background: linear-gradient(180deg, #3A1500, #2A1000);
-  }
-
-  .cloud-pattern {
-    opacity: 0.3;
-  }
-
-  /* 用户栏 */
-  .user-bar {
-    background: linear-gradient(180deg, #3A1500, #2A1000);
-  }
-
-  /* 用户卡片 */
-  .user-card {
-    background: linear-gradient(135deg, #3A1500, #2A1000);
-  }
-
-  /* 页头 */
-  .header {
-    background: linear-gradient(135deg, #3A1500, #2A1000);
-  }
-
-  /* 导航项图标 */
-  .nav-icon {
-    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
-  }
-
-  /* 方剂卡片 */
-  .formula-card {
-    background: #1E1E1E;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
-  }
-
-  /* 六经卡片 */
-  .meridian-card {
-    background: #1E1E1E;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
-  }
-
-  /* 表格 */
-  .table {
-    color: #E0E0E0;
+  hr,
+  .divider,
+  .border-top,
+  .border-bottom {
+    border-color: var(--border-light);
   }
 
   .table .th-cell,
   .table th {
-    background: #2A2A2A;
-    color: #A0A0A0;
-    border-bottom-color: #3A3A3A;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border-bottom-color: var(--border);
   }
 
-  .table td {
-    border-bottom-color: #2C2C2C;
+  /* 提示块 */
+  .disclaimer,
+  .advice {
+    background: #241D10;
+    border-left-color: var(--accent);
   }
 
-  /* 分隔线 */
-  hr,
-  .divider {
-    border-color: #2C2C2C;
+  .disclaimer-text {
+    color: var(--accent-ink);
   }
 
-  /* 加载和空状态 */
-  .loading,
-  .no-more,
-  .empty-hint {
-    color: #707070;
+  .caution {
+    border-left-color: #D2685C;
   }
 
-  /* 选择器 */
-  .filter-item {
-    background: #2A2A2A;
-    color: #A0A0A0;
+  /* 按钮 */
+  .submit-btn,
+  .btn-confirm,
+  .progress-fill {
+    background: linear-gradient(135deg, #B3441D, #D2603A);
   }
 
-  .filter-item.active {
-    background: rgba(192, 69, 32, 0.15);
-    color: #E07050;
-  }
-
-  /* 滚动条和边框 */
-  .border-top,
-  .border-bottom {
-    border-color: #2C2C2C;
-  }
-
-  /* 穴位图片 */
-  .point-image {
-    background: #2A2A2A;
-  }
-
-  /* 临床笔记 */
-  .clinical-notes,
-  .diagram-placeholder {
-    background: #2A2A2A;
-  }
-
-  /* 问诊结果 */
-  .meridian-result {
-    background: linear-gradient(135deg, #5C1A00, #7A2800);
-  }
-
-  .result-section {
+  .btn-logout {
     background: transparent;
+    border-color: #C0554A;
+    color: #E08A7A;
   }
 
-  /* 搜索结果高亮 */
-  .highlight {
-    color: #E07050;
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.72);
+  }
+
+  /* 图片与占位 */
+  .point-image,
+  .clinical-notes,
+  .diagram-placeholder,
+  .edit-avatar-placeholder {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+  }
+
+  .avatar {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .meridian-result {
+    background: linear-gradient(135deg, #3A1206, #4C1A08);
+  }
+
+  .safe-bottom {
+    background: var(--bg-base);
+  }
+
+  .nav-icon {
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.35);
   }
 
   /* Switch 组件 */
   switch .wx-switch-input {
     background: #3A3A3A !important;
-  }
-
-  /* 导航栏 */
-  .nav-bar {
-    background: #1A1A1A;
-  }
-
-  /* 列表项 */
-  .list-item {
-    background: #1E1E1E;
-    border-bottom-color: #2C2C2C;
-  }
-
-  /* 底部安全区 */
-  .safe-bottom {
-    background: #121212;
-  }
-
-  /* 页面级别背景覆盖 */
-  .learning-list,
-  .nav-grid,
-  .formula-grid,
-  .meridian-grid {
-    background: transparent;
-    box-shadow: none;
   }
 }
 </style>

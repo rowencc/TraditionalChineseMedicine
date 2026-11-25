@@ -276,7 +276,7 @@ function previewImage() {
 
 <style lang="scss" scoped>
 .locator-container {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -285,7 +285,7 @@ function previewImage() {
 .locator-header {
   margin-bottom: 20rpx;
   padding-bottom: 12rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .locator-title {
@@ -301,7 +301,7 @@ function previewImage() {
 
 .ref-label {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8rpx;
   display: block;
 }
@@ -315,7 +315,7 @@ function previewImage() {
 
 .ref-hint {
   font-size: 20rpx;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 4rpx;
   display: block;
 }
@@ -327,7 +327,7 @@ function previewImage() {
 .steps-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
   display: block;
 }
@@ -355,16 +355,16 @@ function previewImage() {
 .step-text {
   flex: 1;
   font-size: 26rpx;
-  color: #444;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .quick-method {
-  background: linear-gradient(135deg, #fff9f0, #fff5e6);
+  background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
   border-radius: 8rpx;
   padding: 16rpx;
   margin-bottom: 24rpx;
-  border-left: 4rpx solid #B8860B;
+  border-left: 4rpx solid var(--accent);
 }
 
 .quick-title {
@@ -377,7 +377,7 @@ function previewImage() {
 
 .quick-text {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -388,7 +388,7 @@ function previewImage() {
 .landmarks-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
   display: block;
 }
@@ -411,11 +411,11 @@ function previewImage() {
 
 .landmark-text {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .anatomy-section {
-  background: #f8f8f8;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
   padding: 16rpx;
 }
@@ -423,14 +423,14 @@ function previewImage() {
 .anatomy-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
   display: block;
 }
 
 .anatomy-text {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 </style>

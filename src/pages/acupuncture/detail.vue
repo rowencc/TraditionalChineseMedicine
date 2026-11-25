@@ -74,6 +74,14 @@
       <text class="content">{{ clinicalNotes }}</text>
     </view>
   </view>
+
+  <!-- 未收录 / 名称不匹配时的兜底，避免白屏 -->
+  <view class="container empty-state" :class="themeClass" v-else>
+    <view class="empty-seal">穴</view>
+    <text class="empty-title">{{ pointName || '未指定穴位' }}</text>
+    <text class="empty-desc">知识库暂未收录该穴位，或该名称是穴性描述（如"合穴""原穴"）。</text>
+    <view class="empty-btn" @tap="goBack">返回</view>
+  </view>
 </template>
 
 <script lang="ts">
@@ -167,15 +175,34 @@ const clinicalNotes = computed(() => {
   return clinicalNotesData[pointName.value] || '该穴位为常用针灸穴位，具体临床应用请参考针灸学教材或咨询专业中医师。针刺操作需由专业医师进行。'
 })
 
+// 按穴名在所有经络中回查，兼容只传 name 的入口
+function findMeridianByPoint(name: string): string {
+  for (const meridian of meridiansData.meridians) {
+    if (meridian.points.some(p => p.name === name)) return meridian.name
+  }
+  return ''
+}
+
 onLoad((options) => {
   if (options?.meridian) {
     meridianName.value = decodeURIComponent(options.meridian)
   }
-  if (options?.point) {
-    pointName.value = decodeURIComponent(options.point)
+  // 兼容 point / name 两种参数名
+  const rawPoint = options?.point || options?.name
+  if (rawPoint) {
+    const decoded = decodeURIComponent(rawPoint)
+    // 去掉括号补充说明，兼容"大椎（督脉）"这类值
+    pointName.value = decoded.replace(/[（(].*$/, '').trim()
     uni.setNavigationBarTitle({ title: pointName.value })
+
+    // 未传经络或该经络下找不到时，按穴名全库回查
+    if (!meridianName.value || !pointInfo.value) {
+      const hit = findMeridianByPoint(pointName.value)
+      if (hit) meridianName.value = hit
+    }
+
     // 加载穴位图片配置
-    loadPointImage(options.point)
+    loadPointImage(pointName.value)
   }
   if (options?.point && api.isLoggedIn()) {
     // 尝试从API获取穴位ID
@@ -188,6 +215,15 @@ onLoad((options) => {
     })
   }
 })
+
+function goBack() {
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack()
+  } else {
+    uni.switchTab({ url: '/pages/diagnosis/index' })
+  }
+}
 
 async function loadPointImage(point: string) {
   try {
@@ -213,7 +249,7 @@ function previewImage(url: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--bg-elevated);
   padding: 24rpx;
 }
 
@@ -239,7 +275,7 @@ function previewImage(url: string) {
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -249,15 +285,15 @@ function previewImage(url: string) {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
   padding-bottom: 8rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .content {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 
@@ -267,7 +303,7 @@ function previewImage(url: string) {
 }
 
 .classical-text {
-  color: #555;
+  color: var(--text-secondary);
   font-size: 24rpx;
   line-height: 1.8;
 }
@@ -284,7 +320,7 @@ function previewImage(url: string) {
 
 .combo-item {
   padding: 16rpx;
-  background: #f8f8f8;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
   border-left: 4rpx solid #9370DB;
 }
@@ -296,7 +332,7 @@ function previewImage(url: string) {
 .combo-points {
   font-size: 28rpx;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .combo-effect {
@@ -310,7 +346,7 @@ function previewImage(url: string) {
 
 .diagram-placeholder {
   height: 200rpx;
-  background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+  background: linear-gradient(135deg, var(--bg-elevated), #e8e8e8);
   border-radius: 12rpx;
   display: flex;
   flex-direction: column;
@@ -321,19 +357,67 @@ function previewImage(url: string) {
 .diagram-text {
   font-size: 28rpx;
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8rpx;
 }
 
 .diagram-hint {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .point-image {
   width: 100%;
   height: 400rpx;
   border-radius: 12rpx;
-  background: #f5f5f5;
+  background: var(--bg-elevated);
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+  background: var(--bg-base);
+}
+
+.empty-seal {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, var(--jade), #3C7A60);
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28rpx;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14rpx;
+}
+
+.empty-desc {
+  width: 80%;
+  text-align: center;
+  font-size: 25rpx;
+  color: #8A8A8A;
+  line-height: 1.7;
+  margin-bottom: 40rpx;
+}
+
+.empty-btn {
+  padding: 18rpx 64rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, var(--jade), #3C7A60);
+  color: #fff;
+  font-size: 28rpx;
 }
 </style>

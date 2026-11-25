@@ -53,7 +53,7 @@ function onTap() {
 
 <style lang="scss" scoped>
 .formula-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin: 0 24rpx 16rpx;
@@ -70,7 +70,7 @@ function onTap() {
 .formula-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .meridian-tag {
@@ -93,21 +93,21 @@ function onTap() {
 }
 
 .label {
-  color: #999;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .value {
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .card-footer {
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
   padding-top: 12rpx;
 }
 
 .source {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 </style>

@@ -59,12 +59,12 @@
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
 }
 
 .content-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16rpx;
   padding: 32rpx;
 }
@@ -73,7 +73,7 @@
   display: block;
   font-size: 36rpx;
   font-weight: 700;
-  color: #2C2C2C;
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 8rpx;
 }
@@ -81,7 +81,7 @@
 .update-time {
   display: block;
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   text-align: center;
   margin-bottom: 32rpx;
 }
@@ -94,13 +94,13 @@
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #2C2C2C;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
 }
 
 .paragraph {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 </style>

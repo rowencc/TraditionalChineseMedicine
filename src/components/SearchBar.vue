@@ -49,7 +49,7 @@ function onClear() {
 <style lang="scss" scoped>
 .search-bar {
   padding: 16rpx 24rpx;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .search-input-wrap {
@@ -57,14 +57,14 @@ function onClear() {
   align-items: center;
   gap: 12rpx;
   padding: 16rpx 24rpx;
-  background: #f5f5f5;
+  background: var(--bg-elevated);
   border-radius: 40rpx;
 }
 
 .search-input {
   flex: 1;
   font-size: 28rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .clear-btn {

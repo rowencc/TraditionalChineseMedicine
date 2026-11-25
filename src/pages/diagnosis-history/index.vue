@@ -1,13 +1,13 @@
 <template>
   <view class="container" :class="themeClass">
     <view v-if="!isLoggedIn" class="empty-state">
-      <text class="empty-text">请先登录查看问一问记录</text>
+      <text class="empty-text">请先登录查看{{ diagnosisName }}记录</text>
       <button class="btn-login" @tap="goToLogin">去登录</button>
     </view>
 
     <view v-else-if="records.length === 0 && !loading" class="empty-state">
-      <text class="empty-text">暂无问一问记录</text>
-      <text class="empty-desc">使用问一问功能后，记录将显示在这里</text>
+      <text class="empty-text">暂无{{ diagnosisName }}记录</text>
+      <text class="empty-desc">使用{{ diagnosisName }}功能后，记录将显示在这里</text>
     </view>
 
     <view v-else>
@@ -41,22 +41,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api from '@/utils/api'
+import { authState } from '@/utils/auth'
 import { useTheme } from "@/utils/theme"
+import { getTabName } from '@/utils/platform'
 
 const { themeClass } = useTheme()
-const isLoggedIn = ref(false)
+const diagnosisName = computed(() => getTabName('diagnosis'))
+// 登录态响应式：会话过期时自动切回"请先登录"状态
+const isLoggedIn = computed(() => authState.loggedIn)
 const records = ref<any[]>([])
 const loading = ref(false)
 const page = ref(1)
 const hasMore = ref(true)
 
 onShow(() => {
-  isLoggedIn.value = api.isLoggedIn()
   if (isLoggedIn.value) {
     loadRecords(true)
+  } else {
+    records.value = []
   }
 })
 
@@ -101,7 +106,7 @@ function goToDetail(id: number) {
 }
 
 function goToLogin() {
-  uni.navigateTo({ url: '/pages/login/index' })
+  uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
 }
 
 function getFormulas(item: any): string[] {
@@ -116,7 +121,7 @@ function getFormulas(item: any): string[] {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   box-sizing: border-box;
 }
 
@@ -131,19 +136,19 @@ function getFormulas(item: any): string[] {
 
 .empty-text {
   font-size: 32rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 12rpx;
 }
 
 .empty-desc {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .btn-login {
   margin-top: 24rpx;
   padding: 16rpx 48rpx;
-  background: #8B2500;
+  background: var(--brand);
   color: #fff;
   border-radius: 8rpx;
   font-size: 28rpx;
@@ -157,7 +162,7 @@ function getFormulas(item: any): string[] {
 }
 
 .record-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -178,25 +183,25 @@ function getFormulas(item: any): string[] {
   font-size: 24rpx;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   padding: 4rpx 16rpx;
   border-radius: 16rpx;
 }
 
 .record-date {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .record-body {
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
   padding-top: 12rpx;
   margin-bottom: 12rpx;
 }
 
 .record-question {
   font-size: 28rpx;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
   line-height: 1.6;
   word-break: break-all;
@@ -216,8 +221,8 @@ function getFormulas(item: any): string[] {
 
 .formula-tag {
   font-size: 22rpx;
-  color: #8B2500;
-  background: rgba(139, 37, 0, 0.08);
+  color: var(--brand-ink);
+  background: var(--brand-soft);
   padding: 4rpx 12rpx;
   border-radius: 12rpx;
 }
@@ -226,20 +231,20 @@ function getFormulas(item: any): string[] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid var(--border-light);
   padding-top: 12rpx;
 }
 
 .record-source {
   font-size: 20rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .loading, .no-more {
   display: flex;
   justify-content: center;
   padding: 40rpx;
-  color: #999;
+  color: var(--text-muted);
   font-size: 24rpx;
 }
 </style>

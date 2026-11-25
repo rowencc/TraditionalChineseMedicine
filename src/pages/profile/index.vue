@@ -19,6 +19,11 @@
       </view>
     </view>
 
+    <!-- 登录过期提示：用户重新打开时也能看到原因 -->
+    <view class="session-tip" v-if="!isLoggedIn && sessionExpired">
+      <text class="session-tip-text">登录状态已过期，请重新登录</text>
+    </view>
+
     <!-- 代币余额 -->
     <view class="section coin-section" v-if="isLoggedIn">
       <view class="coin-header">
@@ -153,16 +158,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import api, { resolveAvatarUrl } from '@/utils/api'
+import { authState } from '@/utils/auth'
 import { useTheme } from "@/utils/theme"
 import { getAppName } from '@/utils/platform'
 import { getBalance } from '@/utils/pay'
 import type { CoinBalance } from '@/utils/pay'
 
 const { themeClass, isDark, toggleTheme: doToggleTheme } = useTheme()
-const isLoggedIn = ref(false)
+// 登录态改为响应式：token 过期被静默登出时，本页立即回到未登录样式
+const isLoggedIn = computed(() => authState.loggedIn)
+const sessionExpired = computed(() => authState.expired)
 const user = ref<any>(null)
 const showEditModal = ref(false)
 const editError = ref('')
@@ -189,7 +197,6 @@ const coinBalance = ref<CoinBalance>({
 })
 
 onShow(() => {
-  isLoggedIn.value = api.isLoggedIn()
   user.value = api.getUser()
 
   // 初始化编辑表单
@@ -203,6 +210,15 @@ onShow(() => {
     loadCoinBalance()
     // 从服务端刷新用户资料（昵称、头像）
     refreshUserProfile()
+  }
+})
+
+// 会话失效（401 / 本地过期）后清理本地用户缓存，避免头像昵称残留
+watch(() => authState.loggedIn, (logged) => {
+  if (!logged) {
+    user.value = null
+    coinBalance.value = { balance: 0, total_recharged: 0, total_consumed: 0, free_remaining: 1, free_used: 0 }
+    learningStats.value = { formula: 0, herb: 0, acupoint: 0, case: 0, total: 0 }
   }
 })
 
@@ -312,7 +328,7 @@ function goTo(url: string) {
 }
 
 function goToLogin() {
-  uni.navigateTo({ url: '/pages/login/index' })
+  uni.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent('back')}` })
 }
 
 function handleLogout() {
@@ -331,15 +347,27 @@ function handleLogout() {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
 }
 
 .user-card {
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   padding: 60rpx 40rpx;
   display: flex;
   align-items: center;
   gap: 24rpx;
+}
+
+.session-tip {
+  margin: 16rpx 24rpx 0;
+  padding: 16rpx 24rpx;
+  background: rgba(184, 134, 11, 0.12);
+  border-radius: 8rpx;
+}
+
+.session-tip-text {
+  font-size: 24rpx;
+  color: var(--brown-ink);
 }
 
 .avatar-wrap {
@@ -403,7 +431,7 @@ function handleLogout() {
 
 .section {
   margin: 24rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
 }
@@ -412,7 +440,7 @@ function handleLogout() {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
 }
 
@@ -425,7 +453,7 @@ function handleLogout() {
 .learning-item {
   text-align: center;
   padding: 16rpx 0;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
 }
 
@@ -433,18 +461,18 @@ function handleLogout() {
   display: block;
   font-size: 36rpx;
   font-weight: 700;
-  color: #8B2500;
+  color: var(--brand-ink);
   margin-bottom: 4rpx;
 }
 
 .learning-label {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .menu-section {
   margin: 24rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   overflow: hidden;
 }
@@ -453,7 +481,7 @@ function handleLogout() {
   display: flex;
   align-items: center;
   padding: 28rpx 24rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .menu-item:last-child {
@@ -476,9 +504,9 @@ function handleLogout() {
   color: #fff;
 }
 
-.diagnosis-icon { background: linear-gradient(135deg, #8B2500, #A63A1E); }
-.learning-icon { background: linear-gradient(135deg, #2D5F4A, #3D7A62); }
-.theme-icon { background: linear-gradient(135deg, #B8860B, #D4A017); }
+.diagnosis-icon { background: linear-gradient(135deg, var(--brand), var(--brand-light)); }
+.learning-icon { background: linear-gradient(135deg, var(--jade), var(--jade)); }
+.theme-icon { background: linear-gradient(135deg, var(--accent), var(--accent)); }
 .agreement-icon { background: linear-gradient(135deg, #2980B9, #3498DB); }
 .privacy-icon { background: linear-gradient(135deg, #8E44AD, #9B59B6); }
 .about-icon { background: linear-gradient(135deg, #7F8C8D, #95A5A6); }
@@ -486,12 +514,12 @@ function handleLogout() {
 .menu-text {
   flex: 1;
   font-size: 28rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .menu-arrow {
   font-size: 32rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .menu-switch {
@@ -506,7 +534,7 @@ function handleLogout() {
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  background: #fff;
+  background: var(--bg-card);
   color: #DC3545;
   border: 2rpx solid #DC3545;
   border-radius: 12rpx;
@@ -519,7 +547,7 @@ function handleLogout() {
   text-align: center;
   padding: 40rpx;
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 /* 编辑弹窗 */
@@ -538,7 +566,7 @@ function handleLogout() {
 
 .modal {
   width: 600rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16rpx;
   padding: 32rpx;
 }
@@ -562,7 +590,7 @@ function handleLogout() {
   height: 150rpx;
   border-radius: 50%;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--bg-elevated);
   border: none;
   padding: 0;
   line-height: normal;
@@ -580,7 +608,7 @@ function handleLogout() {
 
 .avatar-hint {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 8rpx;
 }
 
@@ -591,7 +619,7 @@ function handleLogout() {
 .form-label {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8rpx;
 }
 
@@ -599,7 +627,7 @@ function handleLogout() {
   width: 100%;
   height: 72rpx;
   padding: 0 20rpx;
-  border: 2rpx solid #E8E0D4;
+  border: 2rpx solid var(--border);
   border-radius: 8rpx;
   font-size: 28rpx;
   box-sizing: border-box;
@@ -622,8 +650,8 @@ function handleLogout() {
   flex: 1;
   height: 72rpx;
   line-height: 72rpx;
-  background: #f5f5f5;
-  color: #666;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
   border: none;
   border-radius: 8rpx;
   font-size: 28rpx;
@@ -635,7 +663,7 @@ function handleLogout() {
   flex: 1;
   height: 72rpx;
   line-height: 72rpx;
-  background: #8B2500;
+  background: var(--brand);
   color: #fff;
   border: none;
   border-radius: 8rpx;
@@ -664,7 +692,7 @@ function handleLogout() {
 
 .recharge-text {
   font-size: 26rpx;
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 500;
 }
 
@@ -683,13 +711,13 @@ function handleLogout() {
 .coin-num {
   font-size: 52rpx;
   font-weight: 700;
-  color: #8B2500;
+  color: var(--brand-ink);
   line-height: 1;
 }
 
 .coin-label {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .coin-info {
@@ -701,14 +729,14 @@ function handleLogout() {
 
 .coin-tip {
   font-size: 22rpx;
-  color: #2D5F4A;
-  background: rgba(45, 95, 74, 0.1);
+  color: var(--jade-ink);
+  background: var(--jade-soft);
   padding: 4rpx 16rpx;
   border-radius: 20rpx;
 }
 
 .coin-tip.used {
-  color: #999;
+  color: var(--text-muted);
   background: rgba(0, 0, 0, 0.05);
 }
 </style>

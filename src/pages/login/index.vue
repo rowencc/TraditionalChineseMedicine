@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import api, { resolveAvatarUrl } from '@/utils/api'
 import { useTheme } from "@/utils/theme"
 import { getAppName } from '@/utils/platform'
@@ -136,6 +137,43 @@ const { themeClass } = useTheme()
 const showRegister = ref(false)
 const loading = ref(false)
 const errorMsg = ref('')
+// 登录成功后的回流目标：'back' 返回上一页（如问一问），也可传具体页面路径
+const redirect = ref('')
+
+onLoad((options?: Record<string, any>) => {
+  if (options && options.redirect) {
+    try {
+      redirect.value = decodeURIComponent(options.redirect)
+    } catch {
+      redirect.value = options.redirect
+    }
+  }
+})
+
+const TAB_PAGES = ['/pages/index/index', '/pages/diagnosis/index', '/pages/profile/index']
+
+// 登录成功后离开登录页：带 redirect 时回到来源页，否则保持原有行为（回「我的」）
+function leaveLoginPage() {
+  const target = redirect.value
+  if (!target) {
+    uni.switchTab({ url: '/pages/profile/index' })
+    return
+  }
+  if (target === 'back') {
+    const stack = getCurrentPages()
+    if (stack && stack.length > 1) {
+      uni.navigateBack({ delta: 1 })
+    } else {
+      uni.switchTab({ url: '/pages/diagnosis/index' })
+    }
+    return
+  }
+  if (TAB_PAGES.indexOf(target) >= 0) {
+    uni.switchTab({ url: target })
+  } else {
+    uni.navigateTo({ url: target })
+  }
+}
 
 // 登录后资料设置弹窗
 const showProfileModal = ref(false)
@@ -180,7 +218,7 @@ async function handleWxLogin() {
         if (user?.nickname) {
           uni.showToast({ title: '登录成功', icon: 'success' })
           setTimeout(() => {
-            uni.switchTab({ url: '/pages/profile/index' })
+            leaveLoginPage()
           }, 1500)
         } else {
           showProfileModal.value = true
@@ -249,7 +287,7 @@ async function saveProfileData(nickname: string, avatarUrl: string) {
     await api.updateProfile(nickname, avatarUrl)
   } catch {}
   showProfileModal.value = false
-  uni.switchTab({ url: '/pages/profile/index' })
+  leaveLoginPage()
 }
 
 // 密码登录（仅H5）
@@ -267,7 +305,7 @@ async function handleLogin() {
     if (res.code === 1) {
       uni.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
-        uni.switchTab({ url: '/pages/profile/index' })
+        leaveLoginPage()
       }, 1500)
     } else {
       errorMsg.value = res.msg || '登录失败'
@@ -318,7 +356,7 @@ async function handleRegister() {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #F5F0E8, #E8E0D4);
+  background: linear-gradient(180deg, var(--bg-base), var(--border));
   padding: 40rpx;
 }
 
@@ -330,7 +368,7 @@ async function handleRegister() {
 .logo {
   width: 120rpx;
   height: 120rpx;
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -349,13 +387,13 @@ async function handleRegister() {
   display: block;
   font-size: 40rpx;
   font-weight: 700;
-  color: #2C2C2C;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
 }
 
 .app-desc {
   font-size: 26rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .wx-login-section {
@@ -385,7 +423,7 @@ async function handleRegister() {
 .wx-icon {
   width: 40rpx;
   height: 40rpx;
-  background: #fff;
+  background: var(--bg-card);
   color: #07C160;
   border-radius: 50%;
   display: flex;
@@ -404,13 +442,13 @@ async function handleRegister() {
 .divider-line {
   flex: 1;
   height: 1rpx;
-  background: #E8E0D4;
+  background: var(--border);
 }
 
 .divider-text {
   padding: 0 24rpx;
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .form-section {
@@ -418,7 +456,7 @@ async function handleRegister() {
 }
 
 .form-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 20rpx;
   padding: 40rpx;
   box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
@@ -431,7 +469,7 @@ async function handleRegister() {
 .form-label {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 12rpx;
 }
 
@@ -439,11 +477,11 @@ async function handleRegister() {
   width: 100%;
   height: 80rpx;
   padding: 0 24rpx;
-  border: 2rpx solid #E8E0D4;
+  border: 2rpx solid var(--border);
   border-radius: 12rpx;
   font-size: 28rpx;
-  color: #333;
-  background: #FAFAF7;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
   box-sizing: border-box;
 }
 
@@ -458,7 +496,7 @@ async function handleRegister() {
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   color: #fff;
   border: none;
   border-radius: 12rpx;
@@ -477,11 +515,11 @@ async function handleRegister() {
   text-align: center;
   margin-top: 24rpx;
   font-size: 26rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .link {
-  color: #8B2500;
+  color: var(--brand-ink);
   margin-left: 8rpx;
 }
 
@@ -501,7 +539,7 @@ async function handleRegister() {
 
 .modal {
   width: 620rpx;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 20rpx;
   padding: 40rpx;
   overflow: hidden;
@@ -512,14 +550,14 @@ async function handleRegister() {
   font-size: 34rpx;
   font-weight: 600;
   text-align: center;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
 }
 
 .modal-desc {
   display: block;
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
   text-align: center;
   margin-bottom: 32rpx;
 }
@@ -536,7 +574,7 @@ async function handleRegister() {
   height: 150rpx;
   border-radius: 50%;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--bg-elevated);
   border: none;
   padding: 0;
   line-height: normal;
@@ -555,7 +593,7 @@ async function handleRegister() {
 
 .avatar-hint {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .form-group {
@@ -565,7 +603,7 @@ async function handleRegister() {
 .form-label {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 10rpx;
 }
 
@@ -573,11 +611,11 @@ async function handleRegister() {
   width: 100%;
   height: 80rpx;
   padding: 0 24rpx;
-  border: 2rpx solid #E8E0D4;
+  border: 2rpx solid var(--border);
   border-radius: 12rpx;
   font-size: 28rpx;
-  color: #333;
-  background: #FAFAF7;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
   box-sizing: border-box;
 }
 
@@ -591,8 +629,8 @@ async function handleRegister() {
   flex: 1;
   height: 80rpx;
   line-height: 80rpx;
-  background: #f5f5f5;
-  color: #666;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
   border: none;
   border-radius: 12rpx;
   font-size: 28rpx;
@@ -604,7 +642,7 @@ async function handleRegister() {
   flex: 1;
   height: 80rpx;
   line-height: 80rpx;
-  background: linear-gradient(135deg, #8B2500, #A63A1E);
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
   color: #fff;
   border: none;
   border-radius: 12rpx;

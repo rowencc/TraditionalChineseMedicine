@@ -105,7 +105,7 @@ onLoad(async (options) => {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
 }
 
@@ -142,7 +142,7 @@ onLoad(async (options) => {
 }
 
 .info-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -151,7 +151,7 @@ onLoad(async (options) => {
 .info-row {
   display: flex;
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .info-row:last-child {
@@ -168,22 +168,22 @@ onLoad(async (options) => {
 .info-label {
   width: 120rpx;
   font-size: 26rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .info-value {
   flex: 1;
   font-size: 26rpx;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .info-value.highlight {
-  color: #8B2500;
+  color: var(--brand-ink);
   font-weight: 500;
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -193,28 +193,28 @@ onLoad(async (options) => {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
   padding-bottom: 12rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .content-wrapper {
-  background: #fafafa;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
   padding: 20rpx;
 }
 
 .content {
   font-size: 28rpx;
-  color: #444;
+  color: var(--text-secondary);
   line-height: 2;
   white-space: pre-wrap;
   word-break: break-all;
 }
 
 .disclaimer {
-  background: #FFF8DC;
+  background: var(--bg-quote);
   border-radius: 12rpx;
   padding: 24rpx;
   border-left: 4rpx solid #DAA520;
@@ -224,13 +224,13 @@ onLoad(async (options) => {
   display: block;
   font-size: 26rpx;
   font-weight: 600;
-  color: #8B4513;
+  color: var(--brown-ink);
   margin-bottom: 8rpx;
 }
 
 .disclaimer-text {
   font-size: 24rpx;
-  color: #8B4513;
+  color: var(--brown-ink);
   line-height: 1.6;
 }
 </style>

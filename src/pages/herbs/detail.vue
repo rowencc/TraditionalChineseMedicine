@@ -165,12 +165,12 @@ function goToDetail(name: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
 }
 
 .header {
-  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+  background: linear-gradient(135deg, var(--jade), var(--jade));
   border-radius: 16rpx;
   padding: 40rpx;
   margin-bottom: 24rpx;
@@ -210,12 +210,12 @@ function goToDetail(name: string) {
 }
 
 .tag.meridian {
-  background: rgba(45, 95, 74, 0.1);
-  color: #2D5F4A;
+  background: var(--jade-soft);
+  color: var(--jade-ink);
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -229,13 +229,13 @@ function goToDetail(name: string) {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
 }
 
 .content {
   font-size: 26rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 
@@ -252,8 +252,8 @@ function goToDetail(name: string) {
 }
 
 .tag.meridian {
-  background: rgba(45, 95, 74, 0.08);
-  color: #2D5F4A;
+  background: var(--jade-soft);
+  color: var(--jade-ink);
 }
 
 .related-list {
@@ -266,19 +266,19 @@ function goToDetail(name: string) {
   display: flex;
   flex-direction: column;
   padding: 16rpx;
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 8rpx;
 }
 
 .related-name {
   font-size: 26rpx;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 4rpx;
 }
 
 .related-effect {
   font-size: 22rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 </style>

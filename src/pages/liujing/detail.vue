@@ -157,7 +157,7 @@ function goToFormula(name: string) {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: #F5F0E8;
+  background: var(--bg-base);
   padding: 24rpx;
   padding-bottom: 60rpx;
 }
@@ -171,7 +171,7 @@ function goToFormula(name: string) {
 
 .hd-sun { background: linear-gradient(135deg, #C0392B, #E74C3C); }
 .hd-yangming { background: linear-gradient(135deg, #E67E22, #F39C12); }
-.hd-shaoyang { background: linear-gradient(135deg, #D4A017, #F1C40F); }
+.hd-shaoyang { background: linear-gradient(135deg, var(--accent), #F1C40F); }
 .hd-taiyin { background: linear-gradient(135deg, #8B4513, #A0522D); }
 .hd-shaoyin { background: linear-gradient(135deg, #2980B9, #3498DB); }
 .hd-jueyin { background: linear-gradient(135deg, #8E44AD, #9B59B6); }
@@ -201,7 +201,7 @@ function goToFormula(name: string) {
 }
 
 .section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
@@ -211,15 +211,15 @@ function goToFormula(name: string) {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
   padding-bottom: 8rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .content {
   font-size: 26rpx;
-  color: #555;
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 
@@ -231,15 +231,15 @@ function goToFormula(name: string) {
 
 .symptom-tag {
   padding: 10rpx 20rpx;
-  background: rgba(139, 37, 0, 0.08);
-  color: #8B2500;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
   border-radius: 20rpx;
   font-size: 24rpx;
   font-weight: 500;
 }
 
 .treatment-card {
-  background: linear-gradient(135deg, #2D5F4A, #3D7A62);
+  background: linear-gradient(135deg, var(--jade), var(--jade));
   border-radius: 12rpx;
   padding: 24rpx;
 }
@@ -251,7 +251,7 @@ function goToFormula(name: string) {
 }
 
 .formula-card {
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 12rpx;
   padding: 20rpx;
   margin-bottom: 12rpx;
@@ -267,28 +267,28 @@ function goToFormula(name: string) {
 .fc-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #8B2500;
+  color: var(--brand-ink);
 }
 
 .fc-arrow {
   font-size: 28rpx;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .fc-usage {
   display: block;
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 6rpx;
 }
 
 .fc-composition {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .prevention-card {
-  background: #FFF8DC;
+  background: var(--bg-quote);
   border-radius: 12rpx;
   padding: 20rpx;
   border-left: 4rpx solid #B8860B;
@@ -296,7 +296,7 @@ function goToFormula(name: string) {
 
 .prevention-text {
   font-size: 26rpx;
-  color: #8B4513;
+  color: var(--brown-ink);
   line-height: 1.8;
 }
 
@@ -307,7 +307,7 @@ function goToFormula(name: string) {
 }
 
 .classical-item {
-  background: #FFF8DC;
+  background: var(--bg-quote);
   border-radius: 12rpx;
   padding: 20rpx;
   border-left: 4rpx solid #B8860B;
@@ -335,7 +335,7 @@ function goToFormula(name: string) {
 }
 
 .acupoint-item {
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 12rpx;
   padding: 20rpx;
   border-left: 4rpx solid #2D5F4A;
@@ -351,20 +351,20 @@ function goToFormula(name: string) {
 .ap-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #8B2500;
+  color: var(--brand-ink);
 }
 
 .ap-meridian {
   font-size: 22rpx;
-  color: #999;
-  background: rgba(45, 95, 74, 0.08);
+  color: var(--text-muted);
+  background: var(--jade-soft);
   padding: 4rpx 16rpx;
   border-radius: 20rpx;
 }
 
 .ap-indication {
   font-size: 24rpx;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -375,7 +375,7 @@ function goToFormula(name: string) {
 }
 
 .massage-item {
-  background: #FAFAF7;
+  background: var(--bg-elevated);
   border-radius: 12rpx;
   padding: 20rpx;
   border-left: 4rpx solid #4A90E2;
@@ -405,7 +405,7 @@ function goToFormula(name: string) {
 .mg-position {
   display: block;
   font-size: 24rpx;
-  color: #555;
+  color: var(--text-secondary);
   margin-bottom: 6rpx;
 }
 
