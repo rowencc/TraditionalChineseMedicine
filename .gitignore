@@ -22,8 +22,5 @@ temp_nihaixia/
 scripts/_staging/
 *.log
 
-# 本地 Agent 运行缓存
-.opencode/
-
-# 穴位渲染 QA 图（不入库，仅本地核对）
-docs/acu_renders/
+# 本地 Agent 运行缓存：保留目录结构，temp 内含会话凭据不入库
+.opencode/temp/
