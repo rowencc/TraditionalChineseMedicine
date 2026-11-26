@@ -53,7 +53,7 @@
       <view v-for="f in item.detail.formulas" :key="f.name" class="formula-card" @tap="goToFormula(f.name)">
         <view class="fc-header">
           <text class="fc-name">{{ f.name }}</text>
-          <text class="fc-arrow">></text>
+          <text class="fc-arrow">›</text>
         </view>
         <text class="fc-usage">{{ f.usage }}</text>
         <text class="fc-composition">组成：{{ f.composition }}</text>

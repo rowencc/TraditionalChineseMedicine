@@ -157,6 +157,40 @@ export default {
             </view>
           </view>
 
+          <!-- 穴位操作（按摩 / 针灸） -->
+          <view class="section-block" v-if="msg.result.methods">
+            <view class="sec-head">
+              <view class="sec-mark green">法</view>
+              <text class="sec-title">穴位操作</text>
+              <view class="sec-rule"></view>
+              <text class="sec-count">按 · 针 · 灸</text>
+            </view>
+            <view class="prose methods">
+              <markdown-view :content="msg.result.methods" :size="27" />
+            </view>
+          </view>
+
+          <!-- 相关医案 -->
+          <view class="section-block" v-if="msg.result.cases && msg.result.cases.length">
+            <view class="sec-head">
+              <view class="sec-mark gold">案</view>
+              <text class="sec-title">相关医案</text>
+              <view class="sec-rule"></view>
+              <text class="sec-count">{{ msg.result.cases.length }}</text>
+            </view>
+            <view class="chip-list">
+              <view
+                v-for="c in msg.result.cases"
+                :key="c.id"
+                class="chip chip-case"
+                @tap="goToCase(c.id)"
+              >
+                <text class="chip-text">{{ c.disease }}</text>
+                <text class="chip-arrow">›</text>
+              </view>
+            </view>
+          </view>
+
           <!-- 辨证分析 -->
           <view class="section-block">
             <view class="sec-head">
@@ -165,7 +199,24 @@ export default {
               <view class="sec-rule"></view>
             </view>
             <view class="prose">
-              <markdown-view :content="idx === 1 ? msg.result.analysis : msg.content" :size="30" />
+              <markdown-view
+                :content="idx === 1 ? msg.result.analysis : msg.content"
+                :size="30"
+              />
+            </view>
+            <view class="mention-row" v-if="msg.result.mentions && msg.result.mentions.length">
+              <text class="mention-label">文中涉及</text>
+              <view class="mention-chips">
+                <text
+                  v-for="m in msg.result.mentions"
+                  :key="m.kind + '-' + m.name"
+                  class="mention-chip"
+                  :class="'is-' + m.kind"
+                  :data-kind="m.kind"
+                  :data-name="m.name"
+                  @tap="goToMention"
+                >{{ m.name }}</text>
+              </view>
             </view>
           </view>
 
@@ -274,6 +325,8 @@ import { useTheme } from "@/utils/theme"
 import { getBalance, useFree, consumeCoins, getSignInStatus, signIn } from '@/utils/pay'
 import type { CoinBalance, SignInStatus } from '@/utils/pay'
 import MarkdownView from '@/components/MarkdownView.vue'
+import { buildAcupointMethods, findRelatedCases, findMentions } from '@/utils/entity-link'
+import type { RelatedCase } from '@/utils/entity-link'
 
 const { themeClass } = useTheme()
 const symptoms = ref('')
@@ -292,6 +345,11 @@ interface NormalizedResult {
   acupoints: string[]
   analysis: string
   advice: string
+  /** 穴位操作（针刺 / 艾灸 / 按摩），AI 未返回时用本地穴位数据兜底 */
+  methods: string
+  /** 与结果方剂 / 穴位相关的本地医案 */
+  cases: RelatedCase[]
+  mentions: Array<{ kind: 'formula' | 'acupoint'; name: string }>
   source: string
 }
 
@@ -360,12 +418,20 @@ function extractSection(text: string, names: string[]): string {
 
 function normalizeResult(data: any): NormalizedResult {
   const raw = toText(data && data.raw_response) || toText(data && data.analysis)
+  const formulas = toStringList(data && data.suggested_formulas, 'formula')
+  const acupoints = toStringList(data && data.suggested_acupoints, 'acupoint')
+  const aiMethods = toText(data && data.acupoint_methods).trim()
   return {
     meridian: toText(data && data.meridian),
-    formulas: toStringList(data && data.suggested_formulas, 'formula'),
-    acupoints: toStringList(data && data.suggested_acupoints, 'acupoint'),
+    formulas,
+    acupoints,
     analysis: extractSection(raw, ['辨证分析', '分析']) || raw,
     advice: toText(data && data.advice),
+    // 优先用 AI 给出的操作（含按摩），没有则按本地穴位库补齐针刺 / 艾灸
+    methods: aiMethods || buildAcupointMethods(acupoints),
+    cases: findRelatedCases(formulas, acupoints),
+    // 正文里点到的方剂 / 穴位：正文保持纯文本，跳转交给下方标签行
+    mentions: findMentions([raw, aiMethods, toText(data && data.advice)].filter(Boolean).join('\n')),
     source: toText(data && data.source) || '中医知识库'
   }
 }
@@ -744,6 +810,19 @@ function goToFormula(name: string) {
 
 function goToAcupoint(name: string) {
   uni.navigateTo({ url: `/pages/acupuncture/detail?name=${encodeURIComponent(name)}` })
+}
+
+function goToMention(e: any) {
+  const ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+  const name = ds.name ? String(ds.name) : ''
+  if (!name) return
+  if (ds.kind === 'formula') goToFormula(name)
+  else goToAcupoint(name)
+}
+
+function goToCase(id: number | string) {
+  if (!id) return
+  uni.navigateTo({ url: `/pages/cases/detail?id=${id}` })
 }
 
 function goToRecharge() {
@@ -1391,7 +1470,7 @@ function goToRecharge() {
 
 .chip-arrow {
   font-size: 30rpx;
-  color: rgba(0, 0, 0, 0.25);
+  color: var(--text-muted);
   line-height: 1;
 }
 
@@ -1405,6 +1484,54 @@ function goToRecharge() {
   background: rgba(45, 95, 74, 0.07);
   border: 1rpx solid rgba(45, 95, 74, 0.14);
   color: var(--jade-ink);
+}
+
+.chip-case {
+  background: rgba(184, 134, 11, 0.08);
+  border: 1rpx solid rgba(184, 134, 11, 0.18);
+  color: var(--accent-ink);
+}
+
+/* 文中涉及：正文里点到的方剂 / 穴位，点标签进详情 */
+.mention-row {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.mention-label {
+  font-size: 22rpx;
+  color: var(--text-muted);
+  letter-spacing: 2rpx;
+  margin-right: 16rpx;
+}
+
+.mention-chips {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.mention-chip {
+  font-size: 24rpx;
+  line-height: 1.7;
+  padding: 0 14rpx;
+  margin: 0 12rpx 10rpx 0;
+  border-radius: 6rpx;
+  background: rgba(139, 37, 0, 0.07);
+  color: var(--brand-ink);
+}
+
+.mention-chip.is-acupoint {
+  background: rgba(45, 95, 74, 0.09);
+  color: var(--jade-ink);
+}
+
+/* 穴位操作：保留 markdown 列表的行距 */
+.methods {
+  font-size: 27rpx;
+  line-height: 1.85;
 }
 
 .prose {

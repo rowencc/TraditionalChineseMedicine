@@ -73,6 +73,7 @@
 import { computed } from 'vue'
 import { parseMarkdown } from '@/utils/markdown'
 import type { Block } from '@/utils/markdown'
+import { linkifyInlineNodes } from '@/utils/entity-link'
 import { useTheme } from '@/utils/theme'
 import InlineNodes from './InlineNodes.vue'
 
@@ -80,14 +81,45 @@ const props = defineProps<{
   content: string
   /** 正文字号（rpx），不传则沿用组件默认 28rpx */
   size?: number
+  /** 是否把正文中的方剂名 / 穴位名识别为可点击实体 */
+  linkEntities?: boolean
 }>()
+
+
+/** 对每个块的行内节点做实体切分 */
+function linkBlocks(list: Block[]): Block[] {
+  if (!Array.isArray(list)) return []
+  return list.map((block: any) => {
+    if (!block) return block
+    try {
+      if (Array.isArray(block.inline)) return { ...block, inline: linkifyInlineNodes(block.inline) }
+      if (Array.isArray(block.items)) {
+        return {
+          ...block,
+          items: block.items.map((it: any) => ({ ...it, inline: linkifyInlineNodes(Array.isArray(it?.inline) ? it.inline : []) }))
+        }
+      }
+      if (block.type === 'table') {
+        return {
+          ...block,
+          header: (Array.isArray(block.header) ? block.header : []).map((c: any) => ({ ...c, inline: linkifyInlineNodes(Array.isArray(c?.inline) ? c.inline : []) })),
+          rows: (Array.isArray(block.rows) ? block.rows : []).map((r: any[]) => (Array.isArray(r) ? r : []).map(c => ({ ...c, inline: linkifyInlineNodes(Array.isArray(c?.inline) ? c.inline : []) })))
+        }
+      }
+    } catch (e) {
+      console.error('实体链接渲染失败', e)
+    }
+    return block
+  })
+}
 
 const { themeClass } = useTheme()
 // 解析失败或返回非法值时退化为空块，保证 wx:for 永远拿到数组
 const blocks = computed<Block[]>(() => {
   try {
     const list = parseMarkdown(props.content || '')
-    return Array.isArray(list) ? list : []
+    const safe = Array.isArray(list) ? list : []
+    return props.linkEntities ? linkBlocks(safe) : safe
   } catch {
     return []
   }

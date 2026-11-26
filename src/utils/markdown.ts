@@ -8,6 +8,7 @@ export type InlineNode =
   | { type: 'italic'; content: string }
   | { type: 'code'; content: string }
   | { type: 'strikethrough'; content: string }
+  | { type: 'entity'; kind: 'formula' | 'acupoint'; content: string; name: string }
   | { type: 'br' };
 
 export type ListItem = { inline: InlineNode[] };
