@@ -107,9 +107,16 @@ export function findMentions(text: string, limit = 12): Array<{ kind: EntityKind
   let m: RegExpExecArray | null
   while ((m = re.exec(src)) !== null) {
     const name = m[1]
+    const kind = kindOf(name)
+    // 穴位名多为常用词（如"水分""水道"），只在带"穴"字或出现于取穴语境时才收
+    if (kind === 'acupoint') {
+      const before = m.index > 0 ? src.charAt(m.index - 1) : ''
+      const inContext = !!m[2] || '取针灸按揉配加选点艾熏刺' .indexOf(before) >= 0 || '（(【《、，'.indexOf(before) >= 0
+      if (!inContext) continue
+    }
     if (!seen.has(name)) {
       seen.add(name)
-      out.push({ kind: kindOf(name), name })
+      out.push({ kind, name })
       if (out.length >= limit) break
     }
     if (re.lastIndex <= m.index) re.lastIndex = m.index + 1
